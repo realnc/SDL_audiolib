@@ -49,6 +49,12 @@ option(
 )
 
 option(
+    USE_DEC_LIBOPUSFILE
+    "Enable libopusfile Opus decoder."
+    ON
+)
+
+option(
     USE_DEC_FLUIDSYNTH
     "Enable FluidSynth MIDI decoder."
     ON
@@ -130,6 +136,7 @@ set(
     src/dec_mpg123.h
     src/dec_sndfile.h
     src/dec_vorbis.h
+    src/dec_opus.h
     src/dec_fluidsynth.h
 )
 
@@ -194,6 +201,15 @@ if (USE_DEC_LIBVORBIS)
     set(PRIVATE_LIBS ${PRIVATE_LIBS} ${VORBISFILE_LIBRARIES})
 endif(USE_DEC_LIBVORBIS)
 
+if (USE_DEC_LIBOPUSFILE)
+    set(
+        AULIB_SOURCES ${AULIB_SOURCES}
+        src/dec_opus.cpp
+    )
+    pkg_check_modules(OPUSFILE REQUIRED opusfile)
+    set(PRIVATE_LIBS ${PRIVATE_LIBS} ${OPUSFILE_LIBRARIES})
+endif(USE_DEC_LIBOPUSFILE)
+
 if (USE_DEC_FLUIDSYNTH)
     set(
         AULIB_SOURCES ${AULIB_SOURCES}
@@ -251,6 +267,7 @@ include_directories(
     ${MPG123_INCLUDE_DIRS}
     ${SNDFILE_INCLUDE_DIRS}
     ${VORBISFILE_INCLUDE_DIRS}
+    ${OPUSFILE_INCLUDE_DIRS}
 
     # MogPlug ships a "sndfile.h" with its headers. This breaks the build,
     # since sndfile.h is expected to belong to libsndfile.
@@ -267,6 +284,7 @@ target_link_libraries(
     ${MPG123_LIBRARIES}
     ${SNDFILE_LIBRARIES}
     ${VORBISFILE_LIBRARIES}
+    ${OPUSFILE_LIBRARIES}
 )
 
 if(NOT DEFINED CMAKE_INSTALL_LIBDIR)

@@ -8,6 +8,7 @@
 #cmakedefine USE_DEC_MPG123
 #cmakedefine USE_DEC_SNDFILE
 #cmakedefine USE_DEC_LIBVORBIS
+#cmakedefine USE_DEC_LIBOPUSFILE
 #cmakedefine USE_DEC_FLUIDSYNTH
 
 #endif // AULIB_CONFIG_H
