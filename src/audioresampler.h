@@ -98,8 +98,8 @@ protected:
      * stored in 'dst', and 'srcLen' to the amount of samples that were
      * actually used from 'src'. For example, if in the following call:
      *
-     *      dstLen = 100;
-     *      srcLen = 200;
+     *      dstLen = 200;
+     *      srcLen = 100;
      *      doResampling(dst, src, dstLen, srcLen);
      *
      * the function resamples 98 samples from 'src', resulting in 196 samples
