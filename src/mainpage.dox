@@ -16,6 +16,10 @@ The provided decoders are:
 
   It can decode Ogg/Vorbis audio.
 
+- Aulib::AudioDecoderOpus - uses [libvorbis](http://www.opus-codec.org)
+
+  It can decode Ogg/Opus audio.
+
 - Aulib::AudioDecoderMpg123 - uses [libmpg123](http://www.mpg123.de)
 
   It can decode MPEG 1.0/2.0/2.5 for layers 1, 2 and 3. Like MP3, for example.
