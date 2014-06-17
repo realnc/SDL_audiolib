@@ -16,7 +16,7 @@ The provided decoders are:
 
   It can decode Ogg/Vorbis audio.
 
-- Aulib::AudioDecoderOpus - uses [libvorbis](http://www.opus-codec.org)
+- Aulib::AudioDecoderOpus - uses [Opusfile](http://www.opus-codec.org)
 
   It can decode Ogg/Opus audio.
 
