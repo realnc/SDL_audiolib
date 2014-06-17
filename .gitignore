@@ -4,7 +4,6 @@
 /doc
 CMakeCache.txt
 CMakeFiles/
-CMakeLists.txt
 cmake_install.cmake
 SDL_audiolib.pc
 aulib_config.h
