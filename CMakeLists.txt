@@ -1,10 +1,16 @@
 cmake_minimum_required(VERSION 2.8)
-
 project(SDL_audiolib)
-
 include(CheckCXXCompilerFlag)
 include(FindPkgConfig)
 include(GenerateExportHeader)
+
+set(AULIB_VERSION_STR "0.0.0")
+set(AULIB_VERSION 0x000000)
+
+configure_file(
+    ${PROJECT_SOURCE_DIR}/aulib_version.h.in
+    ${PROJECT_BINARY_DIR}/aulib_version.h
+)
 
 option(
     USE_SDL2
@@ -124,6 +130,7 @@ set(
 
     src/aulib_global.h
     ${CMAKE_BINARY_DIR}/aulib_export.h
+    ${CMAKE_BINARY_DIR}/aulib_version.h
     src/aulib.h
     src/audiodecoder.h
     src/audioresampler.h
