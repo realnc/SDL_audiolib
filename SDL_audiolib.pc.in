@@ -6,6 +6,6 @@ includedir=${prefix}/include/SDL_audiolib
 Name: SDL_audiolib
 Description: SDL_audiolib - An audio decoding, resampling and mixing library
 Version: 0.0.0
-Libs: -L${libdir} -lSDL_audiolib
+Libs: -L${libdir} -lSDL_audiolib @PKGCONF_SDL_LIBS@
 Libs.private: -L${libdir} -lSDL_audiolib @PKGCONF_PRIVATE_LIBS@
-Cflags: -I${includedir}
+Cflags: -I${includedir} -I@SDL_INCLUDE_DIRS@
