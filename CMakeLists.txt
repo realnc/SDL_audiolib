@@ -340,3 +340,8 @@ if (ENABLE_SDLMIXER_EMU)
 
     install(TARGETS SDL_mixer-1.2 DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif(ENABLE_SDLMIXER_EMU)
+
+configure_file(
+    ${PROJECT_SOURCE_DIR}/Doxyfile.in
+    ${PROJECT_BINARY_DIR}/Doxyfile
+)
