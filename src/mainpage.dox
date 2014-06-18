@@ -71,12 +71,6 @@ opened with (in this case 96kHz,) you would do:
 
 int main()
 {
-    // Initialize the SDL library. We only need audio.
-    if (SDL_Init(SDL_INIT_AUDIO) != 0) {
-        std::cerr << "Unable to initialize SDL: " << SDL_GetError() << '\n';
-        return 1;
-    }
-
     // Initialize the SDL_audiolib library. Set the output sample rate to 96kHz, the audio format
     // to 16-bit signed, use 2 output channels (stereo), and a 4kB output buffer.
     if (Aulib::init(96000, AUDIO_S16SYS, 2, 4096) != 0) {
@@ -101,9 +95,6 @@ int main()
     while (music->isPlaying()) {
         SDL_Delay(200);
     };
-
-    // Shut down the SDL library.
-    SDL_Quit();
 }
 \endcode
 */
