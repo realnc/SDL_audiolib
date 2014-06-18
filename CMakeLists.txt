@@ -79,7 +79,7 @@ option(
 )
 
 if (WITH_BUNDLED_BOOST)
-    include_directories("${PROJECT_SOURCE_DIR}/boost")
+    include_directories(${PROJECT_SOURCE_DIR}/boost)
 endif(WITH_BUNDLED_BOOST)
 
 if(USE_CXX11)
@@ -114,10 +114,10 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 configure_file (
-    "${PROJECT_SOURCE_DIR}/aulib_config.h.in"
-    "${PROJECT_BINARY_DIR}/aulib_config.h"
+    ${PROJECT_SOURCE_DIR}/aulib_config.h.in
+    ${PROJECT_BINARY_DIR}/aulib_config.h
 )
-include_directories("${PROJECT_BINARY_DIR}")
+include_directories(${PROJECT_BINARY_DIR})
 
 set(
     PUBLIC_HEADERS
@@ -142,10 +142,11 @@ set(
 
 if (USE_SDL2)
     pkg_check_modules(SDL REQUIRED sdl2)
+    set(PKGCONF_REQ_PUB "${PKGCONF_REQ_PUB} sdl2")
 else()
     pkg_check_modules(SDL REQUIRED sdl)
+    set(PKGCONF_REQ_PUB "${PKGCONF_REQ_PUB} sdl")
 endif(USE_SDL2)
-set(PRIVATE_LIBS ${PRIVATE_LIBS} ${SDL_LIBRARIES})
 set(LIBRARY_DIRS ${LIBRARY_DIRS} ${SDL_LIBRARY_DIRS})
 
 if (USE_RESAMP_SRC)
@@ -154,8 +155,8 @@ if (USE_RESAMP_SRC)
         src/resamp_src.cpp
     )
     pkg_check_modules(SRC REQUIRED samplerate)
-    set(PRIVATE_LIBS ${PRIVATE_LIBS} ${SRC_LIBRARIES})
     set(LIBRARY_DIRS ${LIBRARY_DIRS} ${SRC_LIBRARY_DIRS})
+    set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} samplerate")
 endif(USE_RESAMP_SRC)
 
 if (USE_RESAMP_SOXR)
@@ -164,8 +165,8 @@ if (USE_RESAMP_SOXR)
         src/resamp_sox.cpp
     )
     pkg_check_modules(SOXR REQUIRED soxr)
-    set(PRIVATE_LIBS ${PRIVATE_LIBS} ${SOXR_LIBRARIES})
     set(LIBRARY_DIRS ${LIBRARY_DIRS} ${SOXR_LIBRARY_DIRS})
+    set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} soxr")
 endif(USE_RESAMP_SOXR)
 
 if (USE_DEC_MODPLUG)
@@ -174,8 +175,8 @@ if (USE_DEC_MODPLUG)
         src/dec_modplug.cpp
     )
     pkg_check_modules(MODPLUG REQUIRED libmodplug)
-    set(PRIVATE_LIBS ${PRIVATE_LIBS} ${MODPLUG_LIBRARIES})
     set(LIBRARY_DIRS ${LIBRARY_DIRS} ${MODPLUG_LIBRARY_DIRS})
+    set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} libmodplug")
 endif(USE_DEC_MODPLUG)
 
 if (USE_DEC_MPG123)
@@ -184,8 +185,8 @@ if (USE_DEC_MPG123)
         src/dec_mpg123.cpp
     )
     pkg_check_modules(MPG123 REQUIRED libmpg123)
-    set(PRIVATE_LIBS ${PRIVATE_LIBS} ${MPG123_LIBRARIES})
     set(LIBRARY_DIRS ${LIBRARY_DIRS} ${MPG123_LIBRARY_DIRS})
+    set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} libmpg123")
 endif(USE_DEC_MPG123)
 
 if (USE_DEC_SNDFILE)
@@ -194,8 +195,8 @@ if (USE_DEC_SNDFILE)
         src/dec_sndfile.cpp
     )
     pkg_check_modules(SNDFILE REQUIRED sndfile)
-    set(PRIVATE_LIBS ${PRIVATE_LIBS} ${SNDFILE_LIBRARIES})
     set(LIBRARY_DIRS ${LIBRARY_DIRS} ${SNDFILE_LIBRARY_DIRS})
+    set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} sndfile")
 endif(USE_DEC_SNDFILE)
 
 if (USE_DEC_LIBVORBIS)
@@ -204,8 +205,8 @@ if (USE_DEC_LIBVORBIS)
         src/dec_vorbis.cpp
     )
     pkg_check_modules(VORBISFILE REQUIRED vorbisfile)
-    set(PRIVATE_LIBS ${PRIVATE_LIBS} ${VORBISFILE_LIBRARIES})
     set(LIBRARY_DIRS ${LIBRARY_DIRS} ${VORBISFILE_LIBRARY_DIRS})
+    set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} vorbisfile")
 endif(USE_DEC_LIBVORBIS)
 
 if (USE_DEC_LIBOPUSFILE)
@@ -214,8 +215,8 @@ if (USE_DEC_LIBOPUSFILE)
         src/dec_opus.cpp
     )
     pkg_check_modules(OPUSFILE REQUIRED opusfile)
-    set(PRIVATE_LIBS ${PRIVATE_LIBS} ${OPUSFILE_LIBRARIES})
     set(LIBRARY_DIRS ${LIBRARY_DIRS} ${OPUSFILE_LIBRARY_DIRS})
+    set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} opusfile")
 endif(USE_DEC_LIBOPUSFILE)
 
 if (USE_DEC_FLUIDSYNTH)
@@ -224,20 +225,11 @@ if (USE_DEC_FLUIDSYNTH)
         src/dec_fluidsynth.cpp
     )
     pkg_check_modules(FLUIDSYNTH REQUIRED fluidsynth)
-    set(PRIVATE_LIBS ${PRIVATE_LIBS} ${FLUIDSYNTH_LIBRARIES})
     set(LIBRARY_DIRS ${LIBRARY_DIRS} ${FLUIDSYNTH_LIBRARY_DIRS})
+    set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} fluidsynth")
 endif(USE_DEC_FLUIDSYNTH)
 
-foreach(LIB ${PRIVATE_LIBS})
-    set(PKGCONF_PRIVATE_LIBS "${PKGCONF_PRIVATE_LIBS} -l${LIB}")
-endforeach()
-
-foreach(LIB ${SDL_LIBRARIES})
-    set(PKGCONF_SDL_LIBS "${PKGCONF_SDL_LIBS} -l${LIB}")
-endforeach()
-
 link_directories(
-    ${SDL_LIBRARY_DIRS}
     ${LIBRARY_DIRS}
 )
 
@@ -310,8 +302,8 @@ if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
 endif(NOT DEFINED CMAKE_INSTALL_LIBDIR)
 
 configure_file(
-    "${PROJECT_SOURCE_DIR}/SDL_audiolib.pc.in"
-    "${PROJECT_BINARY_DIR}/SDL_audiolib.pc"
+    ${PROJECT_SOURCE_DIR}/SDL_audiolib.pc.in
+    ${PROJECT_BINARY_DIR}/SDL_audiolib.pc
     @ONLY
 )
 
@@ -319,8 +311,8 @@ install(TARGETS SDL_audiolib DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 install(FILES ${PUBLIC_HEADERS} DESTINATION include/SDL_audiolib)
 
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/SDL_audiolib.pc"
-        DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/SDL_audiolib.pc
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 
 if (ENABLE_SDLMIXER_EMU)
     add_library(
