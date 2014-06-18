@@ -65,9 +65,9 @@ opened with (in this case 96kHz,) you would do:
 #include <iostream>
 #include <SDL.h>
 #include <aulib.h>
-#include <audiostream.h>
-#include <dec_vorbis.h>
-#include <resamp_speex.h>
+#include <Aulib/AudioStream.h>
+#include <Aulib/AudioDecoderVorbis.h>
+#include <Aulib/AudioResamplerSpeex.h>
 
 int main()
 {
