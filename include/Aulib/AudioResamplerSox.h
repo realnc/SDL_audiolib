@@ -16,31 +16,28 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
-#ifndef DEC_MPG123_H
-#define DEC_MPG123_H
+#ifndef RESAMP_SOX_H
+#define RESAMP_SOX_H
 
-#include "audiodecoder.h"
+#include <Aulib/AudioResampler.h>
 
 namespace Aulib {
 
 /*!
- * \brief mpg123 decoder.
+ * \brief Sox resampler.
  */
-class AULIB_EXPORT AudioDecoderMpg123: public AudioDecoder {
+class AULIB_EXPORT AudioResamplerSox: public AudioResampler {
 public:
-    AudioDecoderMpg123();
-    ~AudioDecoderMpg123() override;
+    AudioResamplerSox();
+    ~AudioResamplerSox() override;
 
-    bool open(SDL_RWops* rwops) override;
-    unsigned getChannels() const override;
-    unsigned getRate() const override;
-    int doDecoding(float buf[], int len, bool& callAgain) override;
-    bool rewind() override;
-    float duration() const override;
-    bool seekToTime(float seconds) override;
+protected:
+    void doResampling(float dst[], const float src[], int& dstLen, int& srcLen) override;
+
+    int adjustForOutputSpec(unsigned dstRate, unsigned srcRate, unsigned channels) override;
 
 private:
-    class AudioDecoderMpg123_priv* const d;
+    class AudioResamplerSox_priv* const d;
 };
 
 } // namespace Aulib

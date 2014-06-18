@@ -16,13 +16,13 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
-#include "dec_modplug.h"
+#include "Aulib/AudioDecoderModplug.h"
 #include "aulib_global.h"
 
 #include <libmodplug/modplug.h>
 #include <SDL_audio.h>
+
 #include "aulib.h"
-#include "audiostream.h"
 
 
 static ModPlug_Settings* modplugSettings = nullptr;

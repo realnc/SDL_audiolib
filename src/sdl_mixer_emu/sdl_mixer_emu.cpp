@@ -21,15 +21,7 @@
 #include "aulib.h"
 #include "aulib_config.h"
 #include "aulib_debug.h"
-#include "audiostream.h"
-#include "resamp_speex.h"
-#include "resamp_src.h"
-#include "resamp_sox.h"
-#include "dec_vorbis.h"
-#include "dec_mpg123.h"
-#include "dec_modplug.h"
-#include "dec_fluidsynth.h"
-#include "dec_sndfile.h"
+//#include "audiostream.h"
 
 
 const SDL_version*

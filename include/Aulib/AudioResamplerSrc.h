@@ -16,21 +16,20 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
-#ifndef RESAMP_SPEEX_H
-#define RESAMP_SPEEX_H
+#ifndef RESAMP_SRC_H
+#define RESAMP_SRC_H
 
-#include "aulib_global.h"
-#include "audioresampler.h"
+#include <Aulib/AudioResampler.h>
 
 namespace Aulib {
 
 /*!
- * \brief Speex resampler.
+ * \brief SRC (libsamplerate) resampler.
  */
-class AULIB_EXPORT AudioResamplerSpeex: public AudioResampler {
+class AULIB_EXPORT AudioResamplerSRC: public AudioResampler {
 public:
-    AudioResamplerSpeex();
-    ~AudioResamplerSpeex() override;
+    AudioResamplerSRC();
+    ~AudioResamplerSRC() override;
 
 protected:
     void doResampling(float dst[], const float src[], int& dstLen, int& srcLen) override;
@@ -38,7 +37,7 @@ protected:
     int adjustForOutputSpec(unsigned dstRate, unsigned srcRate, unsigned channels) override;
 
 private:
-    class AudioResamplerSpeex_priv* const d;
+    class AudioResamplerSRC_priv* const d;
 };
 
 } // namespace Aulib

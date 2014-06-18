@@ -16,19 +16,19 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
-#include "audiodecoder.h"
+#include "Aulib/AudioDecoder.h"
+
 #include <SDL_audio.h>
 #include <SDL_rwops.h>
 
 #include "aulib_global.h"
 #include "aulib.h"
 #include "aulib_config.h"
-#include "audiostream.h"
-#include "dec_vorbis.h"
-#include "dec_mpg123.h"
-#include "dec_modplug.h"
-#include "dec_fluidsynth.h"
-#include "dec_sndfile.h"
+#include "Aulib/AudioDecoderVorbis.h"
+#include "Aulib/AudioDecoderMpg123.h"
+#include "Aulib/AudioDecoderModplug.h"
+#include "Aulib/AudioDecoderFluidsynth.h"
+#include "Aulib/AudioDecoderSndfile.h"
 
 
 Aulib::AudioDecoder::AudioDecoder()

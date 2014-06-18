@@ -16,22 +16,20 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
-#ifndef DEC_FLUIDSYNTH_H
-#define DEC_FLUIDSYNTH_H
+#ifndef DEC_MPG123_H
+#define DEC_MPG123_H
 
-#include "audiodecoder.h"
+#include <Aulib/AudioDecoder.h>
 
 namespace Aulib {
 
 /*!
- * \brief FluidSynth decoder.
+ * \brief mpg123 decoder.
  */
-class AULIB_EXPORT AudioDecoderFluidSynth: public AudioDecoder {
+class AULIB_EXPORT AudioDecoderMpg123: public AudioDecoder {
 public:
-    AudioDecoderFluidSynth();
-    ~AudioDecoderFluidSynth() override;
-
-    int loadSoundfont(const char filename[]);
+    AudioDecoderMpg123();
+    ~AudioDecoderMpg123() override;
 
     bool open(SDL_RWops* rwops) override;
     unsigned getChannels() const override;
@@ -42,7 +40,7 @@ public:
     bool seekToTime(float seconds) override;
 
 private:
-    class AudioDecoderFluidSynth_priv* const d;
+    class AudioDecoderMpg123_priv* const d;
 };
 
 } // namespace Aulib

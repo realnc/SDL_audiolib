@@ -17,9 +17,9 @@
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
 #include "audiostream_p.h"
-#include "audiostream.h"
-#include "audioresampler.h"
-#include "audiodecoder.h"
+#include "Aulib/AudioStream.h"
+#include "Aulib/AudioResampler.h"
+#include "Aulib/AudioDecoder.h"
 #include "aulib_debug.h"
 
 

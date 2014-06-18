@@ -16,11 +16,11 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
-#include "resamp_speex.h"
+#include "Aulib/AudioResamplerSpeex.h"
 #include "aulib_global.h"
 
 #include "speex_resampler.h"
-#include "audiodecoder.h"
+#include "Aulib/AudioDecoder.h"
 
 
 namespace Aulib {

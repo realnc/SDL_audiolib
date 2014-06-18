@@ -16,28 +16,33 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
-#ifndef RESAMP_SOX_H
-#define RESAMP_SOX_H
+#ifndef DEC_FLUIDSYNTH_H
+#define DEC_FLUIDSYNTH_H
 
-#include "audioresampler.h"
+#include <Aulib/AudioDecoder.h>
 
 namespace Aulib {
 
 /*!
- * \brief Sox resampler.
+ * \brief FluidSynth decoder.
  */
-class AULIB_EXPORT AudioResamplerSox: public AudioResampler {
+class AULIB_EXPORT AudioDecoderFluidSynth: public AudioDecoder {
 public:
-    AudioResamplerSox();
-    ~AudioResamplerSox() override;
+    AudioDecoderFluidSynth();
+    ~AudioDecoderFluidSynth() override;
 
-protected:
-    void doResampling(float dst[], const float src[], int& dstLen, int& srcLen) override;
+    int loadSoundfont(const char filename[]);
 
-    int adjustForOutputSpec(unsigned dstRate, unsigned srcRate, unsigned channels) override;
+    bool open(SDL_RWops* rwops) override;
+    unsigned getChannels() const override;
+    unsigned getRate() const override;
+    int doDecoding(float buf[], int len, bool& callAgain) override;
+    bool rewind() override;
+    float duration() const override;
+    bool seekToTime(float seconds) override;
 
 private:
-    class AudioResamplerSox_priv* const d;
+    class AudioDecoderFluidSynth_priv* const d;
 };
 
 } // namespace Aulib

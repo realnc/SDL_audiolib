@@ -16,10 +16,11 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
-#include "dec_vorbis.h"
+#include "Aulib/AudioDecoderVorbis.h"
 
 #include <vorbis/vorbisfile.h>
 #include <SDL_rwops.h>
+
 #include "aulib_debug.h"
 
 

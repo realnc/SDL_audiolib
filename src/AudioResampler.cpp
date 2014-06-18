@@ -16,15 +16,15 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
-#include "audioresampler.h"
+#include "Aulib/AudioResampler.h"
 
 #include <algorithm>
 #include <cstring>
 #include <cmath>
 #include <SDL_audio.h>
+#include "Aulib/AudioDecoder.h"
 #include "aulib_global.h"
 #include "aulib_debug.h"
-#include "audiodecoder.h"
 
 
 /* Relocate any samples in the specified buffer to the beginning:

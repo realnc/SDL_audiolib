@@ -19,7 +19,7 @@
 #ifndef DEC_SNDFILE_H
 #define DEC_SNDFILE_H
 
-#include "audiodecoder.h"
+#include <Aulib/AudioDecoder.h>
 
 namespace Aulib {
 

@@ -20,15 +20,13 @@
 #include "aulib_global.h"
 #include "aulib_config.h"
 #include "aulib_debug.h"
-#include "audiostream.h"
-#include "resamp_speex.h"
-#include "resamp_src.h"
-#include "resamp_sox.h"
-#include "dec_vorbis.h"
-#include "dec_mpg123.h"
-#include "dec_modplug.h"
-#include "dec_fluidsynth.h"
-#include "dec_sndfile.h"
+#include "Aulib/AudioStream.h"
+#include "Aulib/AudioResamplerSpeex.h"
+#include "Aulib/AudioDecoderVorbis.h"
+#include "Aulib/AudioDecoderMpg123.h"
+#include "Aulib/AudioDecoderModplug.h"
+#include "Aulib/AudioDecoderFluidsynth.h"
+#include "Aulib/AudioDecoderSndfile.h"
 
 
 // Currently active global music stream (SDL_mixer only supports one.)

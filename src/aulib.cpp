@@ -20,7 +20,8 @@
 #include <SDL.h>
 #include <SDL_audio.h>
 #include <SDL_version.h>
-#include "audiostream.h"
+
+#include "Aulib/AudioStream.h"
 #include "audiostream_p.h"
 #include "sampleconv.h"
 #include "aulib_debug.h"

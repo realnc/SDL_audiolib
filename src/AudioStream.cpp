@@ -16,21 +16,17 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
-#include "audiostream.h"
+#include "Aulib/AudioStream.h"
 #include "audiostream_p.h"
+
 #include <SDL.h>
 #include <SDL_audio.h>
 #include <SDL_version.h>
+
 #include "aulib_global.h"
 #include "aulib.h"
-#include "audiodecoder.h"
-#include "dec_vorbis.h"
-#include "dec_mpg123.h"
-#include "dec_modplug.h"
-#include "dec_fluidsynth.h"
-#include "dec_sndfile.h"
-#include "resamp_speex.h"
-#include "resamp_src.h"
+#include "Aulib/AudioDecoder.h"
+#include "Aulib/AudioResampler.h"
 #include "sampleconv.h"
 #include "aulib_debug.h"
 

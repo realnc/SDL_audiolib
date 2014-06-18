@@ -16,20 +16,20 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
-#ifndef DEC_MODPLUG_H
-#define DEC_MODPLUG_H
+#ifndef DEC_VORBIS_H
+#define DEC_VORBIS_H
 
-#include "audiodecoder.h"
+#include <Aulib/AudioDecoder.h>
 
 namespace Aulib {
 
 /*!
- * \brief ModPlug decoder.
+ * \brief libvorbisfile decoder.
  */
-class AULIB_EXPORT AudioDecoderModPlug: public AudioDecoder {
+class AULIB_EXPORT AudioDecoderVorbis: public AudioDecoder {
 public:
-    AudioDecoderModPlug();
-    ~AudioDecoderModPlug() override;
+    AudioDecoderVorbis();
+    ~AudioDecoderVorbis() override;
 
     bool open(SDL_RWops* rwops) override;
     unsigned getChannels() const override;
@@ -37,10 +37,10 @@ public:
     int doDecoding(float buf[], int len, bool& callAgain) override;
     bool rewind() override;
     float duration() const override;
-    bool seekToTime(float seconds) override;
+    bool seekToTime(float seconds);
 
 private:
-    class AudioDecoderModPlug_priv* const d;
+    class AudioDecoderVorbis_priv* const d;
 };
 
 } // namespace Aulib

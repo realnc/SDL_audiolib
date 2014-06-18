@@ -19,7 +19,7 @@
 #ifndef DEC_OPUS_H
 #define DEC_OPUS_H
 
-#include "audiodecoder.h"
+#include <Aulib/AudioDecoder.h>
 
 namespace Aulib {
 
