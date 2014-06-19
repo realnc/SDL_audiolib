@@ -2,6 +2,7 @@
 *.so
 *.so.*
 /doc
+/gh-pages
 CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
