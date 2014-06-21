@@ -97,8 +97,8 @@ Aulib::AudioStream_priv::fProcessFade()
             }
             return;
         }
-        fInternalVolume = 1.f - std::pow((float)(now - fFadeOutStartTick) / fFadeOutTickDuration,
-                                         3.f);
+        fInternalVolume = std::pow(-(float)(now - fFadeOutStartTick) / fFadeOutTickDuration + 1.f,
+                                   3.f);
     }
 }
 
