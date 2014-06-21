@@ -51,7 +51,7 @@ it is resampled using one of the available resamplers:
 
  - Aulib::AudioResamplerSRC
 
-   It uses the [SRC (aka "libsamplerate"](http://www.mega-nerd.com/SRC) resampler.
+   It uses the [SRC (aka "libsamplerate")](http://www.mega-nerd.com/SRC) resampler.
 
  - Aulib::AudioResamplerSox
 
