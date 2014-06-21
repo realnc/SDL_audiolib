@@ -66,10 +66,10 @@ public:
     ~AudioStream() override;
 
     bool open() override;
-    bool play(unsigned iterations = 1) override;
-    void stop() override;
-    void pause() override;
-    void resume() override;
+    bool play(unsigned iterations = 1, float fadeTime = 0.f) override;
+    void stop(float fadeTime = 0.f) override;
+    void pause(float fadeTime = 0.f) override;
+    void resume(float fadeTime = 0.f) override;
     bool rewind() override;
     void setVolume(float volume) override;
     float volume() const override;

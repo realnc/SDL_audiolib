@@ -17,6 +17,10 @@
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
 #include "audiostream_p.h"
+
+#include <algorithm>
+#include <SDL_timer.h>
+
 #include "Aulib/AudioStream.h"
 #include "Aulib/AudioResampler.h"
 #include "Aulib/AudioDecoder.h"
@@ -38,8 +42,17 @@ Aulib::AudioStream_priv::AudioStream_priv(AudioStream* pub, Aulib::AudioDecoder*
       fIsPlaying(false),
       fIsPaused(false),
       fVolume(1.f),
+      fInternalVolume(1.f),
       fCurrentIteration(0),
-      fWantedIterations(0)
+      fWantedIterations(0),
+      fPlaybackStartTick(0),
+      fFadeInStartTick(0),
+      fFadeOutStartTick(0),
+      fFadingIn(false),
+      fFadingOut(false),
+      fStopAfterFade(false),
+      fFadeInTickDuration(0),
+      fFadeOutTickDuration(0)
 {
     if (resampler) {
         resampler->setDecoder(fDecoder);
@@ -54,6 +67,49 @@ Aulib::AudioStream_priv::~AudioStream_priv()
     if (fRWops) {
         SDL_RWclose(fRWops);
     }
+}
+
+
+void
+Aulib::AudioStream_priv::fProcessFade()
+{
+
+    if (fFadingIn) {
+        Uint32 now = SDL_GetTicks();
+        Uint32 curPos = now - fFadeInStartTick;
+        if (curPos >= fFadeInTickDuration) {
+            fInternalVolume = 1.f;
+            fFadingIn = false;
+            return;
+        }
+        fInternalVolume = std::pow((float)(now - fFadeInStartTick) / fFadeInTickDuration, 3.f);
+    } else if (fFadingOut) {
+        Uint32 now = SDL_GetTicks();
+        Uint32 curPos = now - fFadeOutStartTick;
+        if (curPos >= fFadeOutTickDuration) {
+            fInternalVolume = 0.f;
+            fFadingIn = false;
+            if (fStopAfterFade) {
+                fStopAfterFade = false;
+                fStop();
+            } else {
+                fIsPaused = true;
+            }
+            return;
+        }
+        fInternalVolume = 1.f - std::pow((float)(now - fFadeOutStartTick) / fFadeOutTickDuration,
+                                         3.f);
+    }
+}
+
+
+void
+Aulib::AudioStream_priv::fStop()
+{
+    fStreamList.erase(std::remove(fStreamList.begin(), fStreamList.end(), this->q),
+                      fStreamList.end());
+    fDecoder->rewind();
+    fIsPlaying = false;
 }
 
 
@@ -121,12 +177,15 @@ Aulib::AudioStream_priv::fSdlCallbackImpl(void*, Uint8 out[], int outLen)
             }
         }
 
-        // Avoid mixing when volume is <= 0.
-        if (stream.d->fVolume > 0.f) {
+        stream.d->fProcessFade();
+        float volume = stream.d->fVolume * stream.d->fInternalVolume;
+
+        // Avoid mixing on zero volume.
+        if (volume > 0.f) {
             // Avoid scaling operation when volume is 1.
-            if (stream.d->fVolume != 1.f) {
+            if (volume != 1.f) {
                 for (int i = 0; i < len; ++i) {
-                    finalMixBuffer[i] += strmBuf[i] * stream.d->fVolume;
+                    finalMixBuffer[i] += strmBuf[i] * volume;
                 }
             } else {
                 for (int i = 0; i < len; ++i) {

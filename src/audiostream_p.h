@@ -20,6 +20,7 @@
 #define AUDIOSTREAM_P_H
 
 #include <vector>
+#include <queue>
 #include <SDL_audio.h>
 
 namespace Aulib {
@@ -46,14 +47,26 @@ private:
     bool fIsPlaying;
     bool fIsPaused;
     float fVolume;
+    float fInternalVolume;
     unsigned fCurrentIteration;
     unsigned fWantedIterations;
+    unsigned fPlaybackStartTick;
+    unsigned fFadeInStartTick;
+    unsigned fFadeOutStartTick;
+    bool fFadingIn;
+    bool fFadingOut;
+    bool fStopAfterFade;
+    Uint32 fFadeInTickDuration;
+    Uint32 fFadeOutTickDuration;
 
     static ::SDL_AudioSpec fAudioSpec;
     static std::vector<AudioStream*> fStreamList;
 
     // This points to an appropriate converter for the current audio format.
     static void (*fSampleConverter)(Uint8[], float[], int);
+
+    void fProcessFade();
+    void fStop();
 
 public:
     static void fSdlCallbackImpl(void*, Uint8 out[], int outLen);

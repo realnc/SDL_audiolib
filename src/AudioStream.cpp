@@ -19,9 +19,8 @@
 #include "Aulib/AudioStream.h"
 #include "audiostream_p.h"
 
-#include <SDL.h>
+#include <SDL_timer.h>
 #include <SDL_audio.h>
-#include <SDL_version.h>
 
 #include "aulib_global.h"
 #include "aulib.h"
@@ -75,7 +74,7 @@ Aulib::AudioStream::open()
 
 
 bool
-Aulib::AudioStream::play(unsigned iterations)
+Aulib::AudioStream::play(unsigned iterations, float fadeTime)
 {
     if (not open()) {
         return false;
@@ -85,6 +84,16 @@ Aulib::AudioStream::play(unsigned iterations)
     }
     d->fCurrentIteration = 0;
     d->fWantedIterations = iterations;
+    d->fPlaybackStartTick = SDL_GetTicks();
+    if (fadeTime > 0.f) {
+        d->fInternalVolume = 0.f;
+        d->fFadingIn = true;
+        d->fFadeInTickDuration = fadeTime * 1000.f;
+        d->fFadeInStartTick = d->fPlaybackStartTick;
+    } else {
+        d->fInternalVolume = 1.f;
+        d->fFadingIn = false;
+    }
     SDL_LockAudio();
     d->fStreamList.push_back(this);
     d->fIsPlaying = true;
@@ -94,39 +103,61 @@ Aulib::AudioStream::play(unsigned iterations)
 
 
 void
-Aulib::AudioStream::stop()
+Aulib::AudioStream::stop(float fadeTime)
 {
     if (not d->fIsOpen or not d->fIsPlaying) {
         return;
     }
     SDL_LockAudio();
-    d->fStreamList.erase(std::remove(d->fStreamList.begin(), d->fStreamList.end(), this),
-                         d->fStreamList.end());
-    d->fDecoder->rewind();
-    d->fIsPlaying = false;
+    if (fadeTime > 0.f) {
+        d->fFadingIn = false;
+        d->fFadingOut = true;
+        d->fFadeOutTickDuration = fadeTime * 1000.f;
+        d->fFadeOutStartTick = SDL_GetTicks();
+        d->fStopAfterFade = true;
+    } else {
+        d->fStop();
+    }
     SDL_UnlockAudio();
 }
 
 
 void
-Aulib::AudioStream::pause()
+Aulib::AudioStream::pause(float fadeTime)
 {
     if (not open() or d->fIsPaused) {
         return;
     }
     SDL_LockAudio();
-    d->fIsPaused = true;
+    if (fadeTime > 0.f) {
+        d->fFadingIn = false;
+        d->fFadingOut = true;
+        d->fFadeOutTickDuration = fadeTime * 1000.f;
+        d->fFadeOutStartTick = SDL_GetTicks();
+        d->fStopAfterFade = false;
+    } else {
+        d->fIsPaused = true;
+    }
     SDL_UnlockAudio();
 }
 
 
 void
-Aulib::AudioStream::resume()
+Aulib::AudioStream::resume(float fadeTime)
 {
     if (not d->fIsPaused) {
         return;
     }
     SDL_LockAudio();
+    if (fadeTime > 0.f) {
+        d->fInternalVolume = 0.f;
+        d->fFadingIn = true;
+        d->fFadingOut = false;
+        d->fFadeInTickDuration = fadeTime * 1000.f;
+        d->fFadeInStartTick = SDL_GetTicks();
+    } else {
+        d->fInternalVolume = 1.f;
+    }
     d->fIsPaused = false;
     SDL_UnlockAudio();
 }

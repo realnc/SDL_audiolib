@@ -53,28 +53,44 @@ public:
      * \param iterations
      *  The amount of times the stream should be played. If zero, the stream will loop forever.
      *
+     * \param fadeTime
+     *  Fade-in over the specified amount of seconds. A value of 0 means that no fade-in should
+     *  be performed.
+     *
      * \return
      *  \retval true Playback was started successfully, or it was already started.
      *  \retval false Playback could not be started.
      */
-    virtual bool play(unsigned iterations = 1) = 0;
+    virtual bool play(unsigned iterations = 1, float fadeTime = 0.f) = 0;
 
     /*!
      * \brief Stop playback.
      *
      * When calling this, the stream is reset to the beginning again.
+     *
+     * \param fadeTime
+     *  Fade-out over the specified amount of seconds. A value of 0 means that no fade-out should
+     *  be performed.
      */
-    virtual void stop() = 0;
+    virtual void stop(float fadeTime = 0.f) = 0;
 
     /*!
      * \brief Pause playback.
+     *
+     * \param fadeTime
+     *  Fade-out over the specified amount of seconds. A value of 0 means that no fade-out should
+     *  be performed.
      */
-    virtual void pause() = 0;
+    virtual void pause(float fadeTime = 0.f) = 0;
 
     /*!
      * \brief Resume playback.
+     *
+     * \param fadeTime
+     *  Fade-in over the specified amount of seconds. A value of 0 means that no fade-in should
+     *  be performed.
      */
-    virtual void resume() = 0;
+    virtual void resume(float fadeTime = 0.f) = 0;
 
     /*!
      * \brief Rewind stream to the beginning.
