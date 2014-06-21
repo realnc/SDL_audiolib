@@ -60,8 +60,12 @@ public:
      * \param resampler
      *  Resampler to use for converting the sample rate of the audio we get from the decoder. If
      *  this is null, then no resampling will be performed.
+     *
+     * \param closeRw
+     *  Specifies whether 'rwops' should be automatically closed when the stream is destroyed.
      */
-    AudioStream(SDL_RWops* rwops, class AudioDecoder* decoder, class AudioResampler* resampler);
+    AudioStream(SDL_RWops* rwops, class AudioDecoder* decoder, class AudioResampler* resampler,
+                bool closeRw);
 
     ~AudioStream() override;
 

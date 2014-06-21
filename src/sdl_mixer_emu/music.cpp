@@ -64,14 +64,15 @@ Mix_LoadMUS_RW(SDL_RWops* rw)
     AM_debugPrintLn(__func__);
 
     Aulib::AudioDecoder* decoder = Aulib::AudioDecoder::decoderFor(rw);
-    Aulib::AudioStream* strm = new Aulib::AudioStream(rw, decoder, new Aulib::AudioResamplerSpeex);
+    Aulib::AudioStream* strm = new Aulib::AudioStream(rw, decoder, new Aulib::AudioResamplerSpeex,
+                                                      false);
     strm->open();
     return (Mix_Music*)strm;
 }
 
 
 Mix_Music*
-Mix_LoadMUSType_RW(SDL_RWops* rw, Mix_MusicType type, int /*freesrc*/)
+Mix_LoadMUSType_RW(SDL_RWops* rw, Mix_MusicType type, int freesrc)
 {
     AM_debugPrintLn(__func__ << " type: " << type);
 
@@ -105,7 +106,8 @@ Mix_LoadMUSType_RW(SDL_RWops* rw, Mix_MusicType type, int /*freesrc*/)
             return nullptr;
     }
 
-    Aulib::AudioStream* strm = new Aulib::AudioStream(rw, decoder, new Aulib::AudioResamplerSpeex);
+    Aulib::AudioStream* strm = new Aulib::AudioStream(rw, decoder, new Aulib::AudioResamplerSpeex,
+                                                      freesrc);
     strm->open();
     return (Mix_Music*)strm;
 }

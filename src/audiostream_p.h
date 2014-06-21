@@ -35,11 +35,12 @@ private:
     class AudioStream* q;
 
     AudioStream_priv(class AudioStream* pub, class AudioDecoder *decoder,
-                     class AudioResampler *resampler);
+                     class AudioResampler *resampler, bool closeRw);
     ~AudioStream_priv();
 
     bool fIsOpen;
     SDL_RWops* fRWops;
+    bool fCloseRw;
     class AudioDecoder* fDecoder;
     class AudioResampler* fResampler;
     float* fPreBuffer;

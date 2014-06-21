@@ -33,9 +33,10 @@ std::vector<Aulib::AudioStream*> Aulib::AudioStream_priv::fStreamList;
 
 
 Aulib::AudioStream_priv::AudioStream_priv(AudioStream* pub, Aulib::AudioDecoder* decoder,
-                                          Aulib::AudioResampler* resampler)
+                                          Aulib::AudioResampler* resampler, bool closeRw)
     : q(pub),
       fIsOpen(false),
+      fCloseRw(closeRw),
       fDecoder(decoder),
       fResampler(resampler),
       fPreBufferSize(0),
@@ -64,7 +65,7 @@ Aulib::AudioStream_priv::~AudioStream_priv()
 {
     delete fResampler;
     delete fDecoder;
-    if (fRWops) {
+    if (fCloseRw and fRWops) {
         SDL_RWclose(fRWops);
     }
 }
