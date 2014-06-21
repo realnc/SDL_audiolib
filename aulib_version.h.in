@@ -43,7 +43,7 @@
  *
  * You can use this for easy compile-time version comparisons, like:
  *
- *     #if (AULIB_VERSION >= QT_VERSION_CHECK(1, 4, 2))
+ *     #if (AULIB_VERSION >= AULIB_VERSION_CHECK(1, 4, 2))
  *         // This version of SDL_audiolib is at least 1.4.2.
  *     #endif
  */
