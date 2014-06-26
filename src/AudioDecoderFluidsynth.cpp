@@ -146,8 +146,8 @@ Aulib::AudioDecoderFluidSynth::getChannels() const
 {
     int channels;
     fluid_settings_getint(settings, "synth.audio-channels", &channels);
-    return channels;
-
+    // This is the amount of stereo channel *pairs*, so each pair has *two* audio channels.
+    return channels * 2;
 }
 
 unsigned
