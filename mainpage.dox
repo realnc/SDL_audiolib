@@ -39,7 +39,11 @@ The provided decoders are:
 
 - Aulib::AudioDecoderFluidSynth - uses [FluidSynth](http://fluidsynth.elementsofsound.org)
 
-  It can render MIDI files.
+  It can render MIDI files using SoundFont (SF2) instrument files.
+
+- Aulib::AudioDecoderWildmidi - uses [WildMIDI](http://www.mindwerks.net/projects/wildmidi)
+
+  It can render MIDI files using Gravis Ultrasound patch files.
 
 If the decoded audio does not match the output sample rate with which the library was initialized,
 it is resampled using one of the available resamplers:

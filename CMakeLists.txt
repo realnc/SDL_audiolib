@@ -67,6 +67,12 @@ option(
 )
 
 option(
+    USE_DEC_WILDMIDI
+    "Enable WildMIDI MIDI decoder."
+    ON
+)
+
+option(
     ENABLE_SDLMIXER_EMU
     "Build the SDL_mixer emulation library (doesn't really work yet.)"
     OFF
@@ -219,6 +225,13 @@ if (USE_DEC_FLUIDSYNTH)
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} fluidsynth")
 endif(USE_DEC_FLUIDSYNTH)
 
+if (USE_DEC_WILDMIDI)
+    set(AULIB_SOURCES ${AULIB_SOURCES} src/AudioDecoderWildmidi.cpp)
+    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/AudioDecoderWildmidi.h)
+    set(PKGCONF_LIBS_PRIV "${PKGCONF_LIBS_PRIV} -lWildMidi")
+    set(EXTRA_LIBRARIES ${EXTRA_LIBRARIES} WildMidi)
+endif(USE_DEC_WILDMIDI)
+
 link_directories(
     ${LIBRARY_DIRS}
 )
@@ -287,6 +300,7 @@ target_link_libraries(
     ${SNDFILE_LIBRARIES}
     ${VORBISFILE_LIBRARIES}
     ${OPUSFILE_LIBRARIES}
+    ${EXTRA_LIBRARIES}
 )
 
 if(NOT DEFINED CMAKE_INSTALL_LIBDIR)

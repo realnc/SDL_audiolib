@@ -11,4 +11,4 @@ Requires: @PKGCONF_REQ_PUB@
 Requires.private: @PKGCONF_REQ_PRIV@
 Cflags: -I"${includedir}"
 Libs: -L"${libdir}" -lSDL_audiolib
-Libs.private: -L"${libdir}" -lSDL_audiolib
+Libs.private: -L"${libdir}" -lSDL_audiolib @PKGCONF_LIBS_PRIV@

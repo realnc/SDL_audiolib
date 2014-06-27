@@ -10,5 +10,6 @@
 #cmakedefine USE_DEC_LIBVORBIS
 #cmakedefine USE_DEC_LIBOPUSFILE
 #cmakedefine USE_DEC_FLUIDSYNTH
+#cmakedefine USE_DEC_WILDMIDI
 
 #endif // AULIB_CONFIG_H
