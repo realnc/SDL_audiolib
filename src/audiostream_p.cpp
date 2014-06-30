@@ -30,6 +30,9 @@
 void (*Aulib::AudioStream_priv::fSampleConverter)(Uint8[], float[], int) = nullptr;
 SDL_AudioSpec Aulib::AudioStream_priv::fAudioSpec;
 std::vector<Aulib::AudioStream*> Aulib::AudioStream_priv::fStreamList;
+float* Aulib::AudioStream_priv::fFinalMixBuf = nullptr;
+float* Aulib::AudioStream_priv::fStrmBuf = nullptr;
+int Aulib::AudioStream_priv::fBufLen = 0;
 
 
 Aulib::AudioStream_priv::AudioStream_priv(AudioStream* pub, Aulib::AudioDecoder* decoder,
@@ -39,7 +42,6 @@ Aulib::AudioStream_priv::AudioStream_priv(AudioStream* pub, Aulib::AudioDecoder*
       fCloseRw(closeRw),
       fDecoder(decoder),
       fResampler(resampler),
-      fPreBufferSize(0),
       fIsPlaying(false),
       fIsPaused(false),
       fVolume(1.f),
@@ -121,19 +123,16 @@ Aulib::AudioStream_priv::fSdlCallbackImpl(void*, Uint8 out[], int outLen)
 
     int wantedSamples = outLen / ((fAudioSpec.format & 0xFF) / 8);
 
-    static int bufSize = wantedSamples;
-    static float* finalMixBuffer = new float[bufSize];
-    static float* strmBuf = new float[bufSize];
-    if (bufSize != wantedSamples) {
-        bufSize = wantedSamples;
-        delete[] finalMixBuffer;
-        delete[] strmBuf;
-        finalMixBuffer = new float[bufSize];
-        strmBuf = new float[bufSize];
+    if (fBufLen != wantedSamples) {
+        fBufLen = wantedSamples;
+        delete[] fFinalMixBuf;
+        delete[] fStrmBuf;
+        fFinalMixBuf = new float[fBufLen];
+        fStrmBuf = new float[fBufLen];
     }
 
     // Fill with silence.
-    std::fill_n(finalMixBuffer, bufSize, 0.f);
+    std::fill_n(fFinalMixBuf, fBufLen, 0.f);
 
     // Iterate over a copy of the original stream list, since we might want to
     // modify the original as we go, removing streams that have stopped.
@@ -153,11 +152,11 @@ Aulib::AudioStream_priv::fSdlCallbackImpl(void*, Uint8 out[], int outLen)
 
         while (len < wantedSamples) {
             if (stream.d->fResampler) {
-                len += stream.d->fResampler->resample(strmBuf + len, wantedSamples - len);
+                len += stream.d->fResampler->resample(fStrmBuf + len, wantedSamples - len);
             } else {
                 bool callAgain = true;
                 while (len < wantedSamples and callAgain) {
-                    len += stream.d->fDecoder->decode(strmBuf + len, wantedSamples - len,
+                    len += stream.d->fDecoder->decode(fStrmBuf + len, wantedSamples - len,
                                                       callAgain);
                 }
             }
@@ -186,14 +185,14 @@ Aulib::AudioStream_priv::fSdlCallbackImpl(void*, Uint8 out[], int outLen)
             // Avoid scaling operation when volume is 1.
             if (volume != 1.f) {
                 for (int i = 0; i < len; ++i) {
-                    finalMixBuffer[i] += strmBuf[i] * volume;
+                    fFinalMixBuf[i] += fStrmBuf[i] * volume;
                 }
             } else {
                 for (int i = 0; i < len; ++i) {
-                    finalMixBuffer[i] += strmBuf[i];
+                    fFinalMixBuf[i] += fStrmBuf[i];
                 }
             }
         }
     }
-    AudioStream_priv::fSampleConverter(out, finalMixBuffer, wantedSamples);
+    AudioStream_priv::fSampleConverter(out, fFinalMixBuf, wantedSamples);
 }
