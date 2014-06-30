@@ -17,6 +17,7 @@
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
 #include "Aulib/AudioDecoderOpus.h"
+#include <cstring>
 #include <opusfile.h>
 #include <SDL_rwops.h>
 #include "aulib_debug.h"
@@ -56,6 +57,7 @@ class AudioDecoderOpus_priv {
     ~AudioDecoderOpus_priv();
 
     OggOpusFile* fOpusHandle;
+    OpusFileCallbacks fCbs;
     bool fEOF;
     float fDuration;
 };
@@ -67,7 +69,13 @@ Aulib::AudioDecoderOpus_priv::AudioDecoderOpus_priv()
     : fOpusHandle(nullptr),
       fEOF(false),
       fDuration(-1.f)
-{ }
+{
+    std::memset(&fCbs, 0, sizeof(fCbs));
+    fCbs.read = opusReadCb;
+    fCbs.seek = opusSeekCb;
+    fCbs.tell = opusTellCb;
+    fCbs.close = nullptr;
+}
 
 
 Aulib::AudioDecoderOpus_priv::~AudioDecoderOpus_priv()
@@ -93,18 +101,12 @@ bool
 Aulib::AudioDecoderOpus::open(SDL_RWops* rwops)
 {
     // FIXME: Check if already opened.
-    static OpusFileCallbacks cbs;
-    memset(&cbs, 0, sizeof(cbs));
-    cbs.read = opusReadCb;
-    cbs.seek = opusSeekCb;
-    cbs.tell = opusTellCb;
-    cbs.close = nullptr;
     if (d->fOpusHandle) {
         op_free(d->fOpusHandle);
         d->fOpusHandle = nullptr;
     }
     int error;
-    if ((d->fOpusHandle = op_open_callbacks(rwops, &cbs, nullptr, 0, &error)) == nullptr) {
+    if ((d->fOpusHandle = op_open_callbacks(rwops, &d->fCbs, nullptr, 0, &error)) == nullptr) {
         AM_debugPrintLn("ERROR:" << error);
         if (error == OP_ENOTFORMAT) {
             AM_debugPrintLn("OP_ENOTFORMAT");
