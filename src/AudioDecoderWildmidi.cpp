@@ -34,6 +34,8 @@ public:
     midi* midiHandle;
     Uint8* midiData;
     int midiDataLen;
+    Sint16* sampBuf;
+    int sampBufLen;
     bool eof;
 
     static bool initialized;
@@ -51,6 +53,8 @@ Aulib::AudioDecoderWildmidi_priv::AudioDecoderWildmidi_priv()
     : midiHandle(nullptr),
       midiData(nullptr),
       midiDataLen(0),
+      sampBuf(nullptr),
+      sampBufLen(0),
       eof(false)
 { }
 
@@ -61,6 +65,7 @@ Aulib::AudioDecoderWildmidi_priv::~AudioDecoderWildmidi_priv()
         WildMidi_Close(midiHandle);
     }
     delete[] midiData;
+    delete[] sampBuf;
 }
 
 
@@ -161,17 +166,15 @@ Aulib::AudioDecoderWildmidi::doDecoding(float buf[], int len, bool& callAgain)
         return 0;
     }
 
-    static Sint16* sampBuf = nullptr;
-    static int sampBufLen = 0;
-    if (sampBufLen != len) {
-        delete[] sampBuf;
-        sampBuf = new Sint16[len];
-        sampBufLen = len;
+    if (d->sampBufLen != len) {
+        delete[] d->sampBuf;
+        d->sampBuf = new Sint16[len];
+        d->sampBufLen = len;
     }
-    int res = WildMidi_GetOutput(d->midiHandle, (char*)sampBuf, len * 2);
+    int res = WildMidi_GetOutput(d->midiHandle, (char*)d->sampBuf, len * 2);
     // Convert from 16-bit to float.
     for (int i = 0; i < res / 2; ++i) {
-        buf[i] = (float)sampBuf[i] / 32768.f;
+        buf[i] = (float)d->sampBuf[i] / 32768.f;
     }
     if (res < len) {
         d->eof = true;

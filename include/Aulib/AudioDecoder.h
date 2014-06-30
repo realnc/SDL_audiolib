@@ -52,6 +52,8 @@ protected:
 private:
     AudioDecoder(const AudioDecoder&);
     AudioDecoder& operator =(const AudioDecoder&);
+
+    class AudioDecoder_priv* const d;
 };
 
 } // namespace Aulib

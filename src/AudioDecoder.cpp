@@ -31,12 +31,36 @@
 #include "Aulib/AudioDecoderSndfile.h"
 
 
+namespace Aulib {
+
+/// \private
+class AudioDecoder_priv {
+public:
+    AudioDecoder_priv();
+
+    float* stereoBuf;
+    int stereoBufLen;
+};
+
+} // namespace Aulib
+
+
+Aulib::AudioDecoder_priv::AudioDecoder_priv()
+    : stereoBuf(nullptr),
+      stereoBufLen(0)
+{ }
+
+
 Aulib::AudioDecoder::AudioDecoder()
+    : d(new Aulib::AudioDecoder_priv)
 { }
 
 
 Aulib::AudioDecoder::~AudioDecoder()
-{ }
+{
+    delete[] d->stereoBuf;
+    delete d;
+}
 
 
 Aulib::AudioDecoder*
@@ -129,15 +153,13 @@ Aulib::AudioDecoder::decode(float buf[], int len, bool& callAgain)
     }
 
     if (this->getChannels() == 2 and spec.channels == 1) {
-        static float* stereoBuf = nullptr;
-        static int stereoBufLen = 0;
-        if (stereoBufLen != len * 2) {
-            stereoBufLen = len * 2;
-            delete[] stereoBuf;
-            stereoBuf = new float[stereoBufLen];
+        if (d->stereoBufLen != len * 2) {
+            d->stereoBufLen = len * 2;
+            delete[] d->stereoBuf;
+            d->stereoBuf = new float[d->stereoBufLen];
         }
-        int srcLen = this->doDecoding(stereoBuf, stereoBufLen, callAgain);
-        stereoToMono(buf, stereoBuf, srcLen);
+        int srcLen = this->doDecoding(d->stereoBuf, d->stereoBufLen, callAgain);
+        stereoToMono(buf, d->stereoBuf, srcLen);
         return srcLen / 2;
     }
     return this->doDecoding(buf, len, callAgain);
