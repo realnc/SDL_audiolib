@@ -24,6 +24,8 @@
 #include "aulib_debug.h"
 
 
+extern "C" {
+
 static sf_count_t
 sfLenCb(void* rwops)
 {
@@ -77,6 +79,8 @@ sfTellCb(void* rwops)
 {
     return SDL_RWtell((SDL_RWops*)rwops);
 }
+
+} // extern "C"
 
 
 namespace Aulib {

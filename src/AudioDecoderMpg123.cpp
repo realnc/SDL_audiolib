@@ -58,6 +58,8 @@ initMpgFormats(mpg123_handle* handle)
 }
 
 
+extern "C" {
+
 static ssize_t
 mpgReadCallback(void* rwops, void* buf, size_t len)
 {
@@ -80,6 +82,8 @@ mpgSeekCallback(void* rwops, off_t pos, int whence)
     }
     return SDL_RWseek(static_cast<SDL_RWops*>(rwops), pos, whence);
 }
+
+} // extern "C"
 
 
 namespace Aulib {

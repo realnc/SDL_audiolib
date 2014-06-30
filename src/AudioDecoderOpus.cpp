@@ -23,6 +23,8 @@
 #include "aulib_debug.h"
 
 
+extern "C" {
+
 static int
 opusReadCb(void* rwops, unsigned char* ptr, int nbytes)
 {
@@ -45,6 +47,8 @@ opusTellCb(void* rwops)
 {
     return SDL_RWtell(static_cast<SDL_RWops*>(rwops));
 }
+
+} // extern "C"
 
 
 namespace Aulib {

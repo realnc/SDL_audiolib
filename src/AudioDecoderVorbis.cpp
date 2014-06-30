@@ -24,6 +24,8 @@
 #include "aulib_debug.h"
 
 
+extern "C" {
+
 static size_t
 vorbisReadCb(void* ptr, size_t size, size_t nmemb, void* rwops)
 {
@@ -46,6 +48,8 @@ vorbisTellCb(void* rwops)
 {
     return SDL_RWtell(static_cast<SDL_RWops*>(rwops));
 }
+
+} // extern "C"
 
 
 namespace Aulib {
