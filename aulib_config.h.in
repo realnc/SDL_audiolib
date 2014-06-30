@@ -9,6 +9,7 @@
 #cmakedefine USE_DEC_SNDFILE
 #cmakedefine USE_DEC_LIBVORBIS
 #cmakedefine USE_DEC_LIBOPUSFILE
+#cmakedefine USE_DEC_MUSEPACK
 #cmakedefine USE_DEC_FLUIDSYNTH
 #cmakedefine USE_DEC_WILDMIDI
 

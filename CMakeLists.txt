@@ -61,6 +61,12 @@ option(
 )
 
 option(
+    USE_DEC_MUSEPACK
+    "Enable libmpcdec Musepack decoder."
+    ON
+)
+
+option(
     USE_DEC_FLUIDSYNTH
     "Enable FluidSynth MIDI decoder."
     ON
@@ -216,6 +222,13 @@ if (USE_DEC_LIBOPUSFILE)
     set(LIBRARY_DIRS ${LIBRARY_DIRS} ${OPUSFILE_LIBRARY_DIRS})
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} opusfile")
 endif(USE_DEC_LIBOPUSFILE)
+
+if (USE_DEC_MUSEPACK)
+    set(AULIB_SOURCES ${AULIB_SOURCES} src/AudioDecoderMusepack.cpp)
+    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/AudioDecoderMusepack.h)
+    set(PKGCONF_LIBS_PRIV "${PKGCONF_LIBS_PRIV} -lmpcdec")
+    set(EXTRA_LIBRARIES ${EXTRA_LIBRARIES} mpcdec)
+endif(USE_DEC_MUSEPACK)
 
 if (USE_DEC_FLUIDSYNTH)
     set(AULIB_SOURCES ${AULIB_SOURCES} src/AudioDecoderFluidsynth.cpp)
