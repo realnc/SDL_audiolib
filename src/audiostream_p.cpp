@@ -19,6 +19,7 @@
 #include "audiostream_p.h"
 
 #include <algorithm>
+#include <cmath>
 #include <SDL_timer.h>
 
 #include "Aulib/AudioStream.h"
