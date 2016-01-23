@@ -151,10 +151,10 @@ Aulib::AudioDecoderVorbis::doDecoding(float buf[], int len, bool& callAgain)
     float** out;
     int decSamples = 0;
 
-    // FIXME: We only deal with 2 channels right now.
     while (decSamples < len and not callAgain) {
         int lastSection = d->fCurrentSection;
-        long ret = ov_read_float(d->fVFHandle, &out, len/2 - decSamples/2, &d->fCurrentSection);
+        int channels = d->fCurrentInfo->channels;
+        long ret = ov_read_float(d->fVFHandle, &out, len/channels - decSamples/channels, &d->fCurrentSection);
         if (ret == 0) {
             d->fEOF = true;
             break;
@@ -174,11 +174,12 @@ Aulib::AudioDecoderVorbis::doDecoding(float buf[], int len, bool& callAgain)
             callAgain = true;
         }
         // Copy samples to output buffer in interleaved format.
-        for (int i = 0; i < ret; ++i) {
-            *buf++ = out[0][i];
-            *buf++ = out[1][i];
+        for (int samp = 0; samp < ret; ++samp) {
+            for (int chan = 0; chan < channels; ++chan) {
+                *buf++ = out[chan][samp];
+            }
         }
-        decSamples += ret * 2;
+        decSamples += ret * channels;
     }
     return decSamples;
 }
