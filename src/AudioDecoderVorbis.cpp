@@ -153,8 +153,9 @@ Aulib::AudioDecoderVorbis::doDecoding(float buf[], int len, bool& callAgain)
 
     while (decSamples < len and not callAgain) {
         int lastSection = d->fCurrentSection;
-        int channels = d->fCurrentInfo->channels;
-        long ret = ov_read_float(d->fVFHandle, &out, len/channels - decSamples/channels, &d->fCurrentSection);
+        //TODO: We only support up to 2 channels for now.
+        int channels = std::min(d->fCurrentInfo->channels, 2);
+        long ret = ov_read_float(d->fVFHandle, &out, (len - decSamples) / channels, &d->fCurrentSection);
         if (ret == 0) {
             d->fEOF = true;
             break;
