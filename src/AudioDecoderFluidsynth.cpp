@@ -110,6 +110,9 @@ Aulib::AudioDecoderFluidSynth::loadSoundfont(const char filename[])
 bool
 Aulib::AudioDecoderFluidSynth::open(SDL_RWops* rwops)
 {
+    if (isOpen()) {
+        return true;
+    }
     if (d->fSynth == nullptr) {
         return false;
     }
@@ -137,6 +140,7 @@ Aulib::AudioDecoderFluidSynth::open(SDL_RWops* rwops)
         delete[] d->fMidiData;
         return false;
     }
+    setIsOpen(true);
     return true;
 }
 

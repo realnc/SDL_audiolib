@@ -40,6 +40,7 @@ public:
 
     float* stereoBuf;
     int stereoBufLen;
+    bool isOpen;
 };
 
 } // namespace Aulib
@@ -47,7 +48,8 @@ public:
 
 Aulib::AudioDecoder_priv::AudioDecoder_priv()
     : stereoBuf(nullptr),
-      stereoBufLen(0)
+      stereoBufLen(0),
+      isOpen(false)
 { }
 
 
@@ -120,6 +122,13 @@ Aulib::AudioDecoder::decoderFor(SDL_RWops* rwops)
 }
 
 
+bool
+Aulib::AudioDecoder::isOpen() const
+{
+    return d->isOpen;
+}
+
+
 // Conversion happens in-place.
 static void
 monoToStereo(float buf[], int len)
@@ -163,4 +172,11 @@ Aulib::AudioDecoder::decode(float buf[], int len, bool& callAgain)
         return srcLen / 2;
     }
     return this->doDecoding(buf, len, callAgain);
+}
+
+
+void
+Aulib::AudioDecoder::setIsOpen(bool f)
+{
+    d->isOpen = f;
 }

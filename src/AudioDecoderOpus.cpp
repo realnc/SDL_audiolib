@@ -104,10 +104,8 @@ Aulib::AudioDecoderOpus::~AudioDecoderOpus()
 bool
 Aulib::AudioDecoderOpus::open(SDL_RWops* rwops)
 {
-    // FIXME: Check if already opened.
-    if (d->fOpusHandle) {
-        op_free(d->fOpusHandle);
-        d->fOpusHandle = nullptr;
+    if (isOpen()) {
+        return true;
     }
     int error;
     if ((d->fOpusHandle = op_open_callbacks(rwops, &d->fCbs, nullptr, 0, &error)) == nullptr) {
@@ -120,6 +118,7 @@ Aulib::AudioDecoderOpus::open(SDL_RWops* rwops)
     ogg_int64_t len = op_pcm_total(d->fOpusHandle, -1);
     // Opus is always 48kHz.
     d->fDuration = len == OP_EINVAL ? -1 : (float)len / 48000.f;
+    setIsOpen(true);
     return true;
 }
 

@@ -97,7 +97,7 @@ Aulib::AudioDecoderModPlug::~AudioDecoderModPlug()
 bool
 Aulib::AudioDecoderModPlug::open(SDL_RWops* rwops)
 {
-    if (d->mpHandle) {
+    if (isOpen()) {
         return true;
     }
     int frontPos = SDL_RWtell(rwops);
@@ -116,6 +116,7 @@ Aulib::AudioDecoderModPlug::open(SDL_RWops* rwops)
     ModPlug_SetMasterVolume(d->mpHandle, 192);
     d->fDuration = (float)ModPlug_GetLength(d->mpHandle) / 1000.f;
     delete[] data;
+    setIsOpen(ret);
     return ret;
 }
 

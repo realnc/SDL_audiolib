@@ -103,24 +103,25 @@ Aulib::AudioDecoderVorbis::~AudioDecoderVorbis()
 bool
 Aulib::AudioDecoderVorbis::open(SDL_RWops* rwops)
 {
-    // FIXME: Check if already opened.
+    if (isOpen()) {
+        return true;
+    }
     ov_callbacks cbs;
     memset(&cbs, 0, sizeof(cbs));
     cbs.read_func = vorbisReadCb;
     cbs.seek_func = vorbisSeekCb;
     cbs.tell_func = vorbisTellCb;
     cbs.close_func = nullptr;
-    if (d->fVFHandle) {
-        ov_clear(d->fVFHandle);
-        delete d->fVFHandle;
-    }
     d->fVFHandle = new OggVorbis_File;
     if (ov_open_callbacks(rwops, d->fVFHandle, nullptr, 0, cbs) != 0) {
+        delete d->fVFHandle;
+        d->fVFHandle = nullptr;
         return false;
     }
     d->fCurrentInfo = ov_info(d->fVFHandle, -1);
     double len = ov_time_total(d->fVFHandle, -1);
     d->fDuration = len == OV_EINVAL ? -1 : len;
+    setIsOpen(true);
     return true;
 }
 

@@ -138,7 +138,7 @@ Aulib::AudioDecoderMusepack::~AudioDecoderMusepack()
 bool
 Aulib::AudioDecoderMusepack::open(SDL_RWops* rwops)
 {
-    if (d->reader.data) {
+    if (isOpen()) {
         return true;
     }
     d->reader.data = rwops;
@@ -147,6 +147,7 @@ Aulib::AudioDecoderMusepack::open(SDL_RWops* rwops)
         return false;
     }
     mpc_demux_get_info(d->demuxer, &d->strmInfo);
+    setIsOpen(true);
     return true;
 }
 

@@ -138,7 +138,7 @@ Aulib::AudioDecoderMpg123::~AudioDecoderMpg123()
 bool
 Aulib::AudioDecoderMpg123::open(SDL_RWops* rwops)
 {
-    if (d->fMpgHandle) {
+    if (isOpen()) {
         return true;
     }
     if (not initialized) {
@@ -165,6 +165,7 @@ Aulib::AudioDecoderMpg123::open(SDL_RWops* rwops)
     d->fRate = rate;
     off_t len = mpg123_length(d->fMpgHandle);
     d->fDuration = (len == MPG123_ERR) ? -1 : ((float)len / rate);
+    setIsOpen(true);
     return true;
 }
 

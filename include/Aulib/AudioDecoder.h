@@ -37,6 +37,7 @@ public:
     static AudioDecoder* decoderFor(const char* filename);
     static AudioDecoder* decoderFor(SDL_RWops* rwops);
 
+    bool isOpen() const;
     int decode(float buf[], int len, bool& callAgain);
 
     virtual bool open(SDL_RWops* rwops) = 0;
@@ -47,6 +48,8 @@ public:
     virtual bool seekToTime(float seconds) = 0;
 
 protected:
+    void setIsOpen(bool f);
+
     virtual int doDecoding(float buf[], int len, bool& callAgain) = 0;
 
 private:

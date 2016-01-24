@@ -114,15 +114,11 @@ Aulib::AudioDecoderWildmidi::quit()
 bool
 Aulib::AudioDecoderWildmidi::open(SDL_RWops* rwops)
 {
+    if (isOpen()) {
+        return true;
+    }
     if (not AudioDecoderWildmidi_priv::initialized) {
         return false;
-    }
-
-    if (d->midiHandle) {
-        WildMidi_Close(d->midiHandle);
-        delete[] d->midiData;
-        d->midiHandle = nullptr;
-        d->midiData = nullptr;
     }
 
     int frontPos = SDL_RWtell(rwops);
@@ -140,6 +136,7 @@ Aulib::AudioDecoderWildmidi::open(SDL_RWops* rwops)
         d->midiData = nullptr;
         return false;
     }
+    setIsOpen(true);
     return true;
 }
 

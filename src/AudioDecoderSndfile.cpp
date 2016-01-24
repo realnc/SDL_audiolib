@@ -131,7 +131,7 @@ Aulib::AudioDecoderSndfile::~AudioDecoderSndfile()
 bool
 Aulib::AudioDecoderSndfile::open(SDL_RWops* rwops)
 {
-    if (d->fSndfile) {
+    if (isOpen()) {
         return true;
     }
     d->fInfo.format = 0;
@@ -141,11 +141,11 @@ Aulib::AudioDecoderSndfile::open(SDL_RWops* rwops)
     cbs.read = sfReadCb;
     cbs.write = nullptr;
     cbs.tell = sfTellCb;
-    d->fSndfile = sf_open_virtual(&cbs, SFM_READ, &d->fInfo, rwops);
-    if (d->fSndfile == nullptr) {
+    if ((d->fSndfile = sf_open_virtual(&cbs, SFM_READ, &d->fInfo, rwops)) == nullptr) {
         return false;
     }
     d->fDuration = (float)d->fInfo.frames / d->fInfo.samplerate;
+    setIsOpen(true);
     return true;
 }
 
