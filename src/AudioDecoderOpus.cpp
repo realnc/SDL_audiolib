@@ -156,11 +156,11 @@ Aulib::AudioDecoderOpus::doDecoding(float buf[], int len, bool& callAgain)
             break;
         }
         if (ret < 0) {
-            AM_debugPrint("libvorbis stream error: ");
+            AM_debugPrint("libopusfile stream error: ");
             switch (ret) {
-                case OP_HOLE: AM_debugPrintLn("OV_HOLE"); break;
-                case OP_EBADLINK: AM_debugPrintLn("OV_EBADLINK"); break;
-                case OP_EINVAL: AM_debugPrintLn("OV_EINVAL"); break;
+                case OP_HOLE: AM_debugPrintLn("OP_HOLE"); break;
+                case OP_EBADLINK: AM_debugPrintLn("OP_EBADLINK"); break;
+                case OP_EINVAL: AM_debugPrintLn("OP_EINVAL"); break;
                 default: AM_debugPrintLn("unknown error: " << ret);
             }
             break;
