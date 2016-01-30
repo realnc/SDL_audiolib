@@ -73,6 +73,12 @@ option(
 )
 
 option(
+    USE_DEC_BASSMIDI
+    "Enable BASSMIDI MIDI decoder."
+    ON
+)
+
+option(
     USE_DEC_WILDMIDI
     "Enable WildMIDI MIDI decoder."
     ON
@@ -237,6 +243,13 @@ if (USE_DEC_FLUIDSYNTH)
     set(LIBRARY_DIRS ${LIBRARY_DIRS} ${FLUIDSYNTH_LIBRARY_DIRS})
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} fluidsynth")
 endif(USE_DEC_FLUIDSYNTH)
+
+if (USE_DEC_BASSMIDI)
+    set(AULIB_SOURCES ${AULIB_SOURCES} src/AudioDecoderBassmidi.cpp)
+    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/AudioDecoderBassmidi.h)
+    set(PKGCONF_LIBS_PRIV "${PKGCONF_LIBS_PRIV} -lbass -lbassmidi")
+    set(EXTRA_LIBRARIES ${EXTRA_LIBRARIES} bass bassmidi)
+endif(USE_DEC_BASSMIDI)
 
 if (USE_DEC_WILDMIDI)
     set(AULIB_SOURCES ${AULIB_SOURCES} src/AudioDecoderWildmidi.cpp)
