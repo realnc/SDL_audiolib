@@ -45,6 +45,10 @@ The provided decoders are:
 
   It can render MIDI files using SoundFont (SF2) instrument files.
 
+- Aulib::AudioDecoderBassmidi - uses [BASSMIDI](http://www.un4seen.com/bass.html)
+
+  It can render MIDI files using SoundFont (SF2) instrument files.
+
 - Aulib::AudioDecoderWildmidi - uses [WildMIDI](http://www.mindwerks.net/projects/wildmidi)
 
   It can render MIDI files using Gravis Ultrasound patch files.

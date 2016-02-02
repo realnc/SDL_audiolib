@@ -47,6 +47,10 @@ public:
 
     /*! \brief Sets the target sample rate, channels and chuck size.
      *
+     * \param dstRate Wanted sample rate.
+     *
+     * \param channels Wanted amount of channels.
+     *
      * \param chunkSize
      *  Specifies how many samples per channel to resample at most in each call to the resample()
      *  function. It is recommended to set this to the same value that was used as buffer size in
@@ -61,6 +65,8 @@ public:
     /*! \brief Fills an output buffer with resampled audio samples.
      *
      * \param dst Output buffer.
+     *
+     * \param dstLen Size of output buffer (amount of elements, not size in bytes.)
      *
      * \return The amount of samples that were stored in the buffer. This can be smaller than
      *         'dstLen' if the decoder has no more samples left.
