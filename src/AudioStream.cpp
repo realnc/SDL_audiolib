@@ -28,6 +28,7 @@
 #include "Aulib/AudioResampler.h"
 #include "sampleconv.h"
 #include "aulib_debug.h"
+#include "SdlAudioLocker.h"
 
 
 Aulib::AudioStream::AudioStream(const char* filename, AudioDecoder* decoder,
@@ -95,10 +96,9 @@ Aulib::AudioStream::play(unsigned iterations, float fadeTime)
         d->fInternalVolume = 1.f;
         d->fFadingIn = false;
     }
-    SDL_LockAudio();
+    SdlAudioLocker locker;
     d->fStreamList.push_back(this);
     d->fIsPlaying = true;
-    SDL_UnlockAudio();
     return true;
 }
 
@@ -109,7 +109,7 @@ Aulib::AudioStream::stop(float fadeTime)
     if (not d->fIsOpen or not d->fIsPlaying) {
         return;
     }
-    SDL_LockAudio();
+    SdlAudioLocker locker;
     if (fadeTime > 0.f) {
         d->fFadingIn = false;
         d->fFadingOut = true;
@@ -119,7 +119,6 @@ Aulib::AudioStream::stop(float fadeTime)
     } else {
         d->fStop();
     }
-    SDL_UnlockAudio();
 }
 
 
@@ -129,7 +128,7 @@ Aulib::AudioStream::pause(float fadeTime)
     if (not open() or d->fIsPaused) {
         return;
     }
-    SDL_LockAudio();
+    SdlAudioLocker locker;
     if (fadeTime > 0.f) {
         d->fFadingIn = false;
         d->fFadingOut = true;
@@ -139,7 +138,6 @@ Aulib::AudioStream::pause(float fadeTime)
     } else {
         d->fIsPaused = true;
     }
-    SDL_UnlockAudio();
 }
 
 
@@ -149,7 +147,7 @@ Aulib::AudioStream::resume(float fadeTime)
     if (not d->fIsPaused) {
         return;
     }
-    SDL_LockAudio();
+    SdlAudioLocker locker;
     if (fadeTime > 0.f) {
         d->fInternalVolume = 0.f;
         d->fFadingIn = true;
@@ -160,7 +158,6 @@ Aulib::AudioStream::resume(float fadeTime)
         d->fInternalVolume = 1.f;
     }
     d->fIsPaused = false;
-    SDL_UnlockAudio();
 }
 
 
@@ -170,10 +167,8 @@ Aulib::AudioStream::rewind()
     if (not open()) {
         return false;
     }
-    SDL_LockAudio();
-    int ret = d->fDecoder->rewind();
-    SDL_UnlockAudio();
-    return ret;
+    SdlAudioLocker locker;
+    return d->fDecoder->rewind();
 }
 
 
@@ -183,9 +178,8 @@ Aulib::AudioStream::setVolume(float volume)
     if (volume < 0.f) {
         volume = 0.f;
     }
-    SDL_LockAudio();
+    SdlAudioLocker locker;
     d->fVolume = volume;
-    SDL_UnlockAudio();
 }
 
 

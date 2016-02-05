@@ -25,6 +25,7 @@
 #include "Aulib/AudioDecoder.h"
 #include "aulib_global.h"
 #include "aulib_debug.h"
+#include "SdlAudioLocker.h"
 
 
 /* Relocate any samples in the specified buffer to the beginning:
@@ -228,9 +229,8 @@ Aulib::AudioResampler::~AudioResampler()
 void
 Aulib::AudioResampler::setDecoder(AudioDecoder* decoder)
 {
-    SDL_LockAudio();
+    SdlAudioLocker locker;
     d->fDecoder = decoder;
-    SDL_UnlockAudio();
 }
 
 

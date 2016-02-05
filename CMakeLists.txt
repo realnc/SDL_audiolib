@@ -280,6 +280,7 @@ add_library(
     src/sampleconv.h
     src/sampleconv.cpp
     src/Stream.cpp
+    src/SdlAudioLocker.h
     resampler/arch.h
     resampler/resample_sse.h
     resampler/speex_resampler.h
