@@ -20,6 +20,7 @@
 
 #include <vorbis/vorbisfile.h>
 #include <SDL_rwops.h>
+#include "boost/scoped_ptr.hpp"
 
 #include "aulib_debug.h"
 
@@ -61,7 +62,7 @@ class AudioDecoderVorbis_priv {
     AudioDecoderVorbis_priv();
     ~AudioDecoderVorbis_priv();
 
-    OggVorbis_File* fVFHandle;
+    boost::scoped_ptr<OggVorbis_File> fVFHandle;
     int fCurrentSection;
     vorbis_info* fCurrentInfo;
     bool fEOF;
@@ -81,9 +82,7 @@ Aulib::AudioDecoderVorbis_priv::AudioDecoderVorbis_priv()
 
 
 Aulib::AudioDecoderVorbis_priv::~AudioDecoderVorbis_priv()
-{
-    delete fVFHandle;
-}
+{ }
 
 
 Aulib::AudioDecoderVorbis::AudioDecoderVorbis()
@@ -94,7 +93,7 @@ Aulib::AudioDecoderVorbis::AudioDecoderVorbis()
 Aulib::AudioDecoderVorbis::~AudioDecoderVorbis()
 {
     if (d->fVFHandle) {
-        ov_clear(d->fVFHandle);
+        ov_clear(d->fVFHandle.get());
     }
     delete d;
 }
@@ -112,15 +111,14 @@ Aulib::AudioDecoderVorbis::open(SDL_RWops* rwops)
     cbs.seek_func = vorbisSeekCb;
     cbs.tell_func = vorbisTellCb;
     cbs.close_func = nullptr;
-    d->fVFHandle = new OggVorbis_File;
-    if (ov_open_callbacks(rwops, d->fVFHandle, nullptr, 0, cbs) != 0) {
-        delete d->fVFHandle;
-        d->fVFHandle = nullptr;
+    boost::scoped_ptr<OggVorbis_File> newHandle(new OggVorbis_File);
+    if (ov_open_callbacks(rwops, newHandle.get(), nullptr, 0, cbs) != 0) {
         return false;
     }
-    d->fCurrentInfo = ov_info(d->fVFHandle, -1);
-    double len = ov_time_total(d->fVFHandle, -1);
+    d->fCurrentInfo = ov_info(newHandle.get(), -1);
+    double len = ov_time_total(newHandle.get(), -1);
     d->fDuration = len == OV_EINVAL ? -1 : len;
+    d->fVFHandle.swap(newHandle);
     setIsOpen(true);
     return true;
 }
@@ -156,7 +154,8 @@ Aulib::AudioDecoderVorbis::doDecoding(float buf[], size_t len, bool& callAgain)
         int lastSection = d->fCurrentSection;
         //TODO: We only support up to 2 channels for now.
         int channels = std::min(d->fCurrentInfo->channels, 2);
-        long ret = ov_read_float(d->fVFHandle, &out, (len - decSamples) / channels, &d->fCurrentSection);
+        long ret = ov_read_float(d->fVFHandle.get(), &out, (len - decSamples) / channels,
+                                 &d->fCurrentSection);
         if (ret == 0) {
             d->fEOF = true;
             break;
@@ -172,7 +171,7 @@ Aulib::AudioDecoderVorbis::doDecoding(float buf[], size_t len, bool& callAgain)
             break;
         }
         if (d->fCurrentSection != lastSection) {
-            d->fCurrentInfo = ov_info(d->fVFHandle, -1);
+            d->fCurrentInfo = ov_info(d->fVFHandle.get(), -1);
             callAgain = true;
         }
         // Copy samples to output buffer in interleaved format.
@@ -192,10 +191,10 @@ Aulib::AudioDecoderVorbis::rewind()
 {
     int ret;
     if (d->fEOF) {
-        ret = ov_raw_seek(d->fVFHandle, 0);
+        ret = ov_raw_seek(d->fVFHandle.get(), 0);
         d->fEOF = false;
     } else {
-        ret = ov_raw_seek_lap(d->fVFHandle, 0);
+        ret = ov_raw_seek_lap(d->fVFHandle.get(), 0);
     }
     return ret == 0 ? true : false;
 }
@@ -211,7 +210,7 @@ Aulib::AudioDecoderVorbis::duration() const
 bool
 Aulib::AudioDecoderVorbis::seekToTime(float seconds)
 {
-    if (ov_time_seek_lap(d->fVFHandle, seconds) == 0) {
+    if (ov_time_seek_lap(d->fVFHandle.get(), seconds) == 0) {
         return true;
     }
     return false;

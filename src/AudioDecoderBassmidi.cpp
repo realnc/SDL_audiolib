@@ -24,6 +24,7 @@
 #include <bassmidi.h>
 #include "aulib.h"
 #include "aulib_debug.h"
+#include "Buffer.h"
 
 static bool bassIsInitialized = false;
 
@@ -38,8 +39,7 @@ class AudioDecoderBassmidi_priv {
     ~AudioDecoderBassmidi_priv();
 
     HSTREAM hstream;
-    Uint8* midiData;
-    size_t midiDataLen;
+    Buffer<Uint8> midiData;
     bool eof;
 };
 
@@ -48,8 +48,7 @@ class AudioDecoderBassmidi_priv {
 
 Aulib::AudioDecoderBassmidi_priv::AudioDecoderBassmidi_priv()
     : hstream(0),
-      midiData(nullptr),
-      midiDataLen(0),
+      midiData(0),
       eof(false)
 {
     if (bassIsInitialized) {
@@ -71,7 +70,6 @@ Aulib::AudioDecoderBassmidi_priv::~AudioDecoderBassmidi_priv()
                             << " while freeing HSTREAM.");
         }
     }
-    delete midiData;
 }
 
 
@@ -107,15 +105,16 @@ Aulib::AudioDecoderBassmidi::open(SDL_RWops* rwops)
 
     Sint64 frontPos = SDL_RWtell(rwops);
     //FIXME: check for seek error
-    d->midiDataLen = SDL_RWseek(rwops, 0, RW_SEEK_END) - frontPos;
-    if (d->midiDataLen == 0) {
+    Sint64 midiDataLen = SDL_RWseek(rwops, 0, RW_SEEK_END) - frontPos;
+    if (midiDataLen == 0) {
         return false;
     }
     SDL_RWseek(rwops, frontPos, RW_SEEK_SET);
-    d->midiData = new Uint8[d->midiDataLen];
+    Buffer<Uint8> newMidiData(midiDataLen);
     DWORD bassFlags = BASS_SAMPLE_FLOAT | BASS_STREAM_DECODE | BASS_MIDI_DECAYEND | BASS_MIDI_SINCINTER;
-    if (SDL_RWread(rwops, d->midiData, d->midiDataLen, 1) != 1
-        or (d->hstream = BASS_MIDI_StreamCreateFile(TRUE, d->midiData, 0, d->midiDataLen, bassFlags, 1)) == 0)
+    if (SDL_RWread(rwops, newMidiData.get(), midiDataLen, 1) != 1
+        or (d->hstream = BASS_MIDI_StreamCreateFile(TRUE, newMidiData.get(), 0, midiDataLen, bassFlags,
+                                                    1)) == 0)
     {
         if (d->hstream) {
             BASS_StreamFree(d->hstream);
@@ -124,10 +123,9 @@ Aulib::AudioDecoderBassmidi::open(SDL_RWops* rwops)
             AM_debugPrintLn("AudioDecoderBassmidi: got BASS error " << BASS_ErrorGetCode()
                             << " while creating HSTREAM.");
         }
-        delete[] d->midiData;
-        d->midiData = nullptr;
         return false;
     }
+    d->midiData.swap(newMidiData);
     setIsOpen(true);
     return true;
 }

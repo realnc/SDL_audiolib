@@ -24,6 +24,7 @@
 
 #include "aulib.h"
 #include "aulib_debug.h"
+#include "Buffer.h"
 
 
 static fluid_settings_t* settings = nullptr;
@@ -54,8 +55,7 @@ class AudioDecoderFluidSynth_priv {
 
     fluid_synth_t* fSynth;
     fluid_player_t* fPlayer;
-    Uint8* fMidiData;
-    size_t fMidiDataLen;
+    Buffer<Uint8> fMidiData;
     bool fEOF;
 };
 
@@ -64,8 +64,7 @@ class AudioDecoderFluidSynth_priv {
 
 Aulib::AudioDecoderFluidSynth_priv::AudioDecoderFluidSynth_priv()
     : fPlayer(nullptr),
-      fMidiData(nullptr),
-      fMidiDataLen(0),
+      fMidiData(0),
       fEOF(false)
 {
     if (settings == nullptr) {
@@ -83,7 +82,6 @@ Aulib::AudioDecoderFluidSynth_priv::~AudioDecoderFluidSynth_priv()
 {
     delete_fluid_player(fPlayer);
     delete_fluid_synth(fSynth);
-    delete[] fMidiData;
 }
 
 
@@ -119,16 +117,16 @@ Aulib::AudioDecoderFluidSynth::open(SDL_RWops* rwops)
 
     Sint64 frontPos = SDL_RWtell(rwops);
     //FIXME: check for seek error
-    d->fMidiDataLen = SDL_RWseek(rwops, 0, RW_SEEK_END) - frontPos;
+    Sint64 midiDataLen = SDL_RWseek(rwops, 0, RW_SEEK_END) - frontPos;
     SDL_RWseek(rwops, frontPos, RW_SEEK_SET);
-    if (d->fMidiDataLen == 0) {
+    if (midiDataLen == 0) {
         return false;
     }
 
-    d->fMidiData = new Uint8[d->fMidiDataLen];
-    if (SDL_RWread(rwops, d->fMidiData, d->fMidiDataLen, 1) != 1
+    Buffer<Uint8> newMidiData(midiDataLen);
+    if (SDL_RWread(rwops, newMidiData.get(), midiDataLen, 1) != 1
         or (d->fPlayer = new_fluid_player(d->fSynth)) == nullptr
-        or fluid_player_add_mem(d->fPlayer, d->fMidiData, d->fMidiDataLen) != FLUID_OK
+        or fluid_player_add_mem(d->fPlayer, newMidiData.get(), midiDataLen) != FLUID_OK
         or fluid_player_play(d->fPlayer) != FLUID_OK)
     {
         if (d->fPlayer) {
@@ -138,9 +136,9 @@ Aulib::AudioDecoderFluidSynth::open(SDL_RWops* rwops)
             delete_fluid_synth(d->fSynth);
             d->fSynth = nullptr;
         }
-        delete[] d->fMidiData;
         return false;
     }
+    d->fMidiData.swap(newMidiData);
     setIsOpen(true);
     return true;
 }
@@ -190,7 +188,7 @@ Aulib::AudioDecoderFluidSynth::rewind()
     fluid_player_stop(d->fPlayer);
     delete_fluid_player(d->fPlayer);
     d->fPlayer = new_fluid_player(d->fSynth);
-    fluid_player_add_mem(d->fPlayer, d->fMidiData, d->fMidiDataLen);
+    fluid_player_add_mem(d->fPlayer, d->fMidiData.get(), d->fMidiData.size());
     fluid_player_play(d->fPlayer);
     d->fEOF = false;
     return true;

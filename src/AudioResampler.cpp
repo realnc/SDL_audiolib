@@ -131,7 +131,7 @@ Aulib::AudioResampler_priv::fMoveFromOutBuffer(float dst[], size_t dstLen)
         return 0;
     }
     size_t len = std::min(fOutBufferEnd - fOutBufferPos, dstLen);
-    memcpy(dst, fOutBuffer.data() + fOutBufferPos, len * sizeof(*fOutBuffer.data()));
+    memcpy(dst, fOutBuffer.get() + fOutBufferPos, len * sizeof(*fOutBuffer.get()));
     fOutBufferPos += len;
     if (fOutBufferPos >= fOutBufferEnd) {
         fOutBufferEnd = fOutBufferPos = 0;
@@ -177,8 +177,8 @@ void
 Aulib::AudioResampler_priv::fResampleFromInBuffer()
 {
     size_t inLen = fInBufferEnd - fInBufferPos;
-    float* from = fInBuffer.data() + fInBufferPos;
-    float* to = fOutBuffer.data() + fOutBufferEnd;
+    float* from = fInBuffer.get() + fInBufferPos;
+    float* to = fOutBuffer.get() + fOutBufferEnd;
     if (fSrcRate == fDstRate) {
         // No resampling is needed. Just copy the samples as-is.
         size_t outLen = std::min(fOutBuffer.size() - fOutBufferEnd, inLen);
@@ -264,7 +264,7 @@ Aulib::AudioResampler::resample(float dst[], size_t dstLen)
         // There's a spec change pending. Process any data that is still in our
         // buffers using the current spec.
         totalSamples += d->fMoveFromOutBuffer(dst, dstLen);
-        relocateBuffer(d->fOutBuffer.data(), d->fOutBufferPos, d->fOutBufferEnd);
+        relocateBuffer(d->fOutBuffer.get(), d->fOutBufferPos, d->fOutBufferEnd);
         d->fResampleFromInBuffer();
         if (totalSamples >= dstLen) {
             // There's still samples left in the output buffer, so don't change
@@ -283,7 +283,7 @@ Aulib::AudioResampler::resample(float dst[], size_t dstLen)
         // decoder.
         if (d->fInBufferEnd < d->fInBuffer.size()) {
             bool callAgain = false;
-            int decSamples = d->fDecoder->decode(d->fInBuffer.data() + d->fInBufferEnd,
+            int decSamples = d->fDecoder->decode(d->fInBuffer.get() + d->fInBufferEnd,
                                                  d->fInBuffer.size() - d->fInBufferEnd,
                                                  callAgain);
             // If the decoder indicated a spec change, process any data that is
@@ -308,9 +308,9 @@ Aulib::AudioResampler::resample(float dst[], size_t dstLen)
         }
 
         d->fResampleFromInBuffer();
-        relocateBuffer(d->fInBuffer.data(), d->fInBufferPos, d->fInBufferEnd);
+        relocateBuffer(d->fInBuffer.get(), d->fInBufferPos, d->fInBufferEnd);
         totalSamples += d->fMoveFromOutBuffer(dst + totalSamples, dstLen - totalSamples);
-        relocateBuffer(d->fOutBuffer.data(), d->fOutBufferPos, d->fOutBufferEnd);
+        relocateBuffer(d->fOutBuffer.get(), d->fOutBufferPos, d->fOutBufferEnd);
     }
     return totalSamples;
 }

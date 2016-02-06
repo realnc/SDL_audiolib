@@ -59,7 +59,19 @@ public:
         fSize = newSize;
     }
 
-    T* data() const
+    void swap(Buffer& other)
+    {
+        fData.swap(other.fData);
+        std::swap(fSize, other.fSize);
+    }
+
+    T& operator [](size_t pos) const
+    {
+        AM_debugAssert(pos < fSize);
+        return fData[pos];
+    }
+
+    T* get() const
     {
         return fData.get();
     }

@@ -24,6 +24,7 @@
 #include <SDL_rwops.h>
 #include "aulib_debug.h"
 #include "aulib_config.h"
+#include "Buffer.h"
 
 #ifdef MPC_FIXED_POINT
 #error Fixed point decoder versions of libmpcdec are not supported!
@@ -88,6 +89,7 @@ public:
     mpc_reader reader;
     mpc_demux* demuxer;
     mpc_frame_info curFrame;
+    Buffer<float> curFrameBuffer;
     mpc_streaminfo strmInfo;
     unsigned frameBufPos;
     bool eof;
@@ -99,6 +101,7 @@ public:
 
 Aulib::AudioDecoderMusepack_priv::AudioDecoderMusepack_priv()
     : demuxer(nullptr),
+      curFrameBuffer(MPC_DECODER_BUFFER_LENGTH),
       frameBufPos(0),
       eof(false),
       duration(-1.f)
@@ -109,7 +112,7 @@ Aulib::AudioDecoderMusepack_priv::AudioDecoderMusepack_priv()
     reader.get_size = mpcGetSizeCb;
     reader.canseek = mpcCanseekCb;
     reader.data = nullptr;
-    curFrame.buffer = new float[MPC_DECODER_BUFFER_LENGTH];
+    curFrame.buffer = curFrameBuffer.get();
     curFrame.samples = 0;
 }
 
@@ -119,7 +122,6 @@ Aulib::AudioDecoderMusepack_priv::~AudioDecoderMusepack_priv()
     if (demuxer) {
         mpc_demux_exit(demuxer);
     }
-    delete[] curFrame.buffer;
 }
 
 

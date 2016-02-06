@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <wildmidi_lib.h>
 #include <SDL_rwops.h>
+#include "Buffer.h"
 
 
 namespace Aulib {
@@ -32,10 +33,8 @@ public:
     ~AudioDecoderWildmidi_priv();
 
     midi* midiHandle;
-    Uint8* midiData;
-    size_t midiDataLen;
-    Sint16* sampBuf;
-    size_t sampBufLen;
+    Buffer<Uint8> midiData;
+    Buffer<Sint16> sampBuf;
     bool eof;
 
     static bool initialized;
@@ -51,10 +50,8 @@ unsigned AudioDecoderWildmidi_priv::rate = 0;
 
 Aulib::AudioDecoderWildmidi_priv::AudioDecoderWildmidi_priv()
     : midiHandle(nullptr),
-      midiData(nullptr),
-      midiDataLen(0),
-      sampBuf(nullptr),
-      sampBufLen(0),
+      midiData(0),
+      sampBuf(0),
       eof(false)
 { }
 
@@ -64,8 +61,6 @@ Aulib::AudioDecoderWildmidi_priv::~AudioDecoderWildmidi_priv()
     if (midiHandle) {
         WildMidi_Close(midiHandle);
     }
-    delete[] midiData;
-    delete[] sampBuf;
 }
 
 
@@ -123,20 +118,19 @@ Aulib::AudioDecoderWildmidi::open(SDL_RWops* rwops)
 
     Sint64 frontPos = SDL_RWtell(rwops);
     //FIXME: check for seek error
-    d->midiDataLen = SDL_RWseek(rwops, 0, RW_SEEK_END) - frontPos;
+    Sint64 newMidiDataLen = SDL_RWseek(rwops, 0, RW_SEEK_END) - frontPos;
     SDL_RWseek(rwops, frontPos, RW_SEEK_SET);
-    if (d->midiDataLen == 0) {
+    if (newMidiDataLen == 0) {
         return false;
     }
 
-    d->midiData = new Uint8[d->midiDataLen];
-    if (SDL_RWread(rwops, d->midiData, d->midiDataLen, 1) != 1
-        or (d->midiHandle = WildMidi_OpenBuffer(d->midiData, d->midiDataLen)) == nullptr)
+    Buffer<Uint8> newMidiData(newMidiDataLen);
+    if (SDL_RWread(rwops, newMidiData.get(), newMidiData.size(), 1) != 1
+        or (d->midiHandle = WildMidi_OpenBuffer(newMidiData.get(), newMidiData.size())) == nullptr)
     {
-        delete[] d->midiData;
-        d->midiData = nullptr;
         return false;
     }
+    d->midiData.swap(newMidiData);
     setIsOpen(true);
     return true;
 }
@@ -164,12 +158,10 @@ Aulib::AudioDecoderWildmidi::doDecoding(float buf[], size_t len, bool& callAgain
         return 0;
     }
 
-    if (d->sampBufLen != len) {
-        delete[] d->sampBuf;
-        d->sampBuf = new Sint16[len];
-        d->sampBufLen = len;
+    if (d->sampBuf.size() != len) {
+        d->sampBuf.reset(len);
     }
-    int res = WildMidi_GetOutput(d->midiHandle, (char*)d->sampBuf, len * 2);
+    int res = WildMidi_GetOutput(d->midiHandle, (char*)d->sampBuf.get(), len * 2);
     if (res < 0) {
         return 0;
     }

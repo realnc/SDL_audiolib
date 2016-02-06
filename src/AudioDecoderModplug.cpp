@@ -23,6 +23,7 @@
 #include <SDL_audio.h>
 
 #include "aulib.h"
+#include "Buffer.h"
 
 
 static ModPlug_Settings* modplugSettings = nullptr;
@@ -107,15 +108,14 @@ Aulib::AudioDecoderModPlug::open(SDL_RWops* rwops)
         return false;
     }
     bool ret = true;
-    Uint8* data = new Uint8[dataSize];
-    if (SDL_RWread(rwops, data, dataSize, 1) != 1) {
+    Buffer<Uint8> data(dataSize);
+    if (SDL_RWread(rwops, data.get(), dataSize, 1) != 1) {
         ret = false;
-    } else if ((d->mpHandle = ModPlug_Load(data, dataSize)) == nullptr) {
+    } else if ((d->mpHandle = ModPlug_Load(data.get(), dataSize)) == nullptr) {
         ret = false;
     }
     ModPlug_SetMasterVolume(d->mpHandle, 192);
     d->fDuration = (float)ModPlug_GetLength(d->mpHandle) / 1000.f;
-    delete[] data;
     setIsOpen(ret);
     return ret;
 }
@@ -142,16 +142,15 @@ Aulib::AudioDecoderModPlug::doDecoding(float buf[], size_t len, bool& callAgain)
     if (d->atEOF) {
         return 0;
     }
-    Sint32* data = new Sint32[len];
-    int ret = ModPlug_Read(d->mpHandle, data, len * 4);
+    Buffer<Sint32> tmpBuf(len);
+    int ret = ModPlug_Read(d->mpHandle, tmpBuf.get(), len * 4);
     // Convert from 32-bit to float.
     for (size_t i = 0; i < len; ++i) {
-        buf[i] = (float)data[i] / 2147483648.f;
+        buf[i] = (float)tmpBuf[i] / 2147483648.f;
     }
     if (ret == 0) {
         d->atEOF = true;
     }
-    delete[] data;
     return ret / sizeof(*buf);
 }
 
