@@ -22,6 +22,7 @@
 #include <vector>
 #include <queue>
 #include <SDL_audio.h>
+#include <aulib.h>
 
 namespace Aulib {
 

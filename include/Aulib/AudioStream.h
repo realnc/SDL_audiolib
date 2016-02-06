@@ -19,6 +19,7 @@
 #ifndef AUDIOSTREAM_H
 #define AUDIOSTREAM_H
 
+#include <aulib.h>
 #include <Aulib/Stream.h>
 
 struct SDL_RWops;

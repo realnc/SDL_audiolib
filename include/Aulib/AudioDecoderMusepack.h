@@ -37,7 +37,7 @@ public:
     size_t doDecoding(float buf[], size_t len, bool& callAgain) override;
     bool rewind() override;
     float duration() const override;
-    bool seekToTime(float seconds);
+    bool seekToTime(float seconds) override;
 
 private:
     class AudioDecoderMusepack_priv* const d;
