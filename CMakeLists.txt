@@ -281,6 +281,7 @@ add_library(
     src/sampleconv.cpp
     src/Stream.cpp
     src/SdlAudioLocker.h
+    src/Buffer.h
     resampler/arch.h
     resampler/resample_sse.h
     resampler/speex_resampler.h
