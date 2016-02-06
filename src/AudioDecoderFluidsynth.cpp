@@ -55,7 +55,7 @@ class AudioDecoderFluidSynth_priv {
     fluid_synth_t* fSynth;
     fluid_player_t* fPlayer;
     Uint8* fMidiData;
-    int fMidiDataLen;
+    size_t fMidiDataLen;
     bool fEOF;
 };
 
@@ -117,10 +117,11 @@ Aulib::AudioDecoderFluidSynth::open(SDL_RWops* rwops)
         return false;
     }
 
-    int frontPos = SDL_RWtell(rwops);
+    Sint64 frontPos = SDL_RWtell(rwops);
+    //FIXME: check for seek error
     d->fMidiDataLen = SDL_RWseek(rwops, 0, RW_SEEK_END) - frontPos;
     SDL_RWseek(rwops, frontPos, RW_SEEK_SET);
-    if (d->fMidiDataLen <= 0) {
+    if (d->fMidiDataLen == 0) {
         return false;
     }
 
@@ -163,8 +164,8 @@ Aulib::AudioDecoderFluidSynth::getRate() const
 }
 
 
-int
-Aulib::AudioDecoderFluidSynth::doDecoding(float buf[], int len, bool& callAgain)
+size_t
+Aulib::AudioDecoderFluidSynth::doDecoding(float buf[], size_t len, bool& callAgain)
 {
     callAgain = false;
     if (d->fSynth == nullptr or d->fEOF) {

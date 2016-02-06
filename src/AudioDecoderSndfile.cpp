@@ -164,8 +164,8 @@ Aulib::AudioDecoderSndfile::getRate() const
 }
 
 
-int
-Aulib::AudioDecoderSndfile::doDecoding(float buf[], int len, bool& callAgain)
+size_t
+Aulib::AudioDecoderSndfile::doDecoding(float buf[], size_t len, bool& callAgain)
 {
     callAgain = false;
     if (d->fEOF) {

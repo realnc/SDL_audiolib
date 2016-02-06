@@ -137,8 +137,8 @@ Aulib::AudioDecoderOpus::getRate() const
 }
 
 
-int
-Aulib::AudioDecoderOpus::doDecoding(float buf[], int len, bool& callAgain)
+size_t
+Aulib::AudioDecoderOpus::doDecoding(float buf[], size_t len, bool& callAgain)
 {
     callAgain = false;
 
@@ -146,7 +146,7 @@ Aulib::AudioDecoderOpus::doDecoding(float buf[], int len, bool& callAgain)
         return 0;
     }
 
-    int decSamples = 0;
+    size_t decSamples = 0;
 
     while (decSamples < len) {
         int ret = op_read_float_stereo(d->fOpusHandle, buf + decSamples, len - decSamples);

@@ -19,6 +19,7 @@
 #ifndef AUDIORESAMPLER_H
 #define AUDIORESAMPLER_H
 
+#include <cstddef>
 #include "aulib_global.h"
 
 namespace Aulib {
@@ -71,7 +72,7 @@ public:
      * \return The amount of samples that were stored in the buffer. This can be smaller than
      *         'dstLen' if the decoder has no more samples left.
      */
-    int resample(float dst[], int dstLen);
+    size_t resample(float dst[], size_t dstLen);
 
 protected:
     /*! \brief Change sample rate and amount of channels.
@@ -118,8 +119,7 @@ protected:
      * there's anything left at the end that cannot be resampled, simply ignore
      * it.
      */
-    virtual void doResampling(float dst[], const float src[],
-                              int& dstLen, int& srcLen) = 0;
+    virtual void doResampling(float dst[], const float src[], size_t& dstLen, size_t& srcLen) = 0;
 
 private:
     friend class AudioResampler_priv;

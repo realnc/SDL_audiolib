@@ -184,15 +184,15 @@ Aulib::AudioDecoderMpg123::getRate() const
 }
 
 
-int
-Aulib::AudioDecoderMpg123::doDecoding(float buf[], int len, bool& callAgain)
+size_t
+Aulib::AudioDecoderMpg123::doDecoding(float buf[], size_t len, bool& callAgain)
 {
     callAgain = false;
     if (d->fEOF) {
         return 0;
     }
 
-    size_t bytesWanted = static_cast<size_t>(len) * sizeof(*buf);
+    size_t bytesWanted = len * sizeof(*buf);
     size_t decBytes = 0;
     size_t totalBytes = 0;
 

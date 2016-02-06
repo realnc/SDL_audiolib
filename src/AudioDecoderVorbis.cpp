@@ -140,8 +140,8 @@ Aulib::AudioDecoderVorbis::getRate() const
 }
 
 
-int
-Aulib::AudioDecoderVorbis::doDecoding(float buf[], int len, bool& callAgain)
+size_t
+Aulib::AudioDecoderVorbis::doDecoding(float buf[], size_t len, bool& callAgain)
 {
     callAgain = false;
 
@@ -150,7 +150,7 @@ Aulib::AudioDecoderVorbis::doDecoding(float buf[], int len, bool& callAgain)
     }
 
     float** out;
-    int decSamples = 0;
+    size_t decSamples = 0;
 
     while (decSamples < len and not callAgain) {
         int lastSection = d->fCurrentSection;
@@ -176,7 +176,7 @@ Aulib::AudioDecoderVorbis::doDecoding(float buf[], int len, bool& callAgain)
             callAgain = true;
         }
         // Copy samples to output buffer in interleaved format.
-        for (int samp = 0; samp < ret; ++samp) {
+        for (long samp = 0; samp < ret; ++samp) {
             for (int chan = 0; chan < channels; ++chan) {
                 *buf++ = out[chan][samp];
             }

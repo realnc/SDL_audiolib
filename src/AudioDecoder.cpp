@@ -39,7 +39,7 @@ public:
     AudioDecoder_priv();
 
     float* stereoBuf;
-    int stereoBufLen;
+    size_t stereoBufLen;
     bool isOpen;
 };
 
@@ -131,9 +131,9 @@ Aulib::AudioDecoder::isOpen() const
 
 // Conversion happens in-place.
 static void
-monoToStereo(float buf[], int len)
+monoToStereo(float buf[], size_t len)
 {
-    for (int i = len / 2 - 1, j = len - 1; i > 0; --i) {
+    for (size_t i = len / 2 - 1, j = len - 1; i > 0; --i) {
         buf[j--] = buf[i];
         buf[j--] = buf[i];
     }
@@ -141,22 +141,22 @@ monoToStereo(float buf[], int len)
 
 
 static void
-stereoToMono(float dst[], float src[], int srcLen)
+stereoToMono(float dst[], float src[], size_t srcLen)
 {
-    for (int i = 0, j = 0; i < srcLen; i += 2, ++j) {
+    for (size_t i = 0, j = 0; i < srcLen; i += 2, ++j) {
         dst[j] = src[i] * 0.5f;
         dst[j] += src[i + 1] * 0.5f;
     }
 }
 
 
-int
-Aulib::AudioDecoder::decode(float buf[], int len, bool& callAgain)
+size_t
+Aulib::AudioDecoder::decode(float buf[], size_t len, bool& callAgain)
 {
     const SDL_AudioSpec& spec = Aulib::spec();
 
     if (this->getChannels() == 1 and spec.channels == 2) {
-        int srcLen = this->doDecoding(buf, len / 2, callAgain);
+        size_t srcLen = this->doDecoding(buf, len / 2, callAgain);
         monoToStereo(buf, srcLen * 2);
         return srcLen * 2;
     }
@@ -167,7 +167,7 @@ Aulib::AudioDecoder::decode(float buf[], int len, bool& callAgain)
             delete[] d->stereoBuf;
             d->stereoBuf = new float[d->stereoBufLen];
         }
-        int srcLen = this->doDecoding(d->stereoBuf, d->stereoBufLen, callAgain);
+        size_t srcLen = this->doDecoding(d->stereoBuf, d->stereoBufLen, callAgain);
         stereoToMono(buf, d->stereoBuf, srcLen);
         return srcLen / 2;
     }

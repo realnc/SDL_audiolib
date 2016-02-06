@@ -33,9 +33,9 @@ public:
 
     midi* midiHandle;
     Uint8* midiData;
-    int midiDataLen;
+    size_t midiDataLen;
     Sint16* sampBuf;
-    int sampBufLen;
+    size_t sampBufLen;
     bool eof;
 
     static bool initialized;
@@ -121,10 +121,11 @@ Aulib::AudioDecoderWildmidi::open(SDL_RWops* rwops)
         return false;
     }
 
-    int frontPos = SDL_RWtell(rwops);
+    Sint64 frontPos = SDL_RWtell(rwops);
+    //FIXME: check for seek error
     d->midiDataLen = SDL_RWseek(rwops, 0, RW_SEEK_END) - frontPos;
     SDL_RWseek(rwops, frontPos, RW_SEEK_SET);
-    if (d->midiDataLen <= 0) {
+    if (d->midiDataLen == 0) {
         return false;
     }
 
@@ -155,8 +156,8 @@ Aulib::AudioDecoderWildmidi::getRate() const
 }
 
 
-int
-Aulib::AudioDecoderWildmidi::doDecoding(float buf[], int len, bool& callAgain)
+size_t
+Aulib::AudioDecoderWildmidi::doDecoding(float buf[], size_t len, bool& callAgain)
 {
     callAgain = false;
     if (d->midiHandle == nullptr or d->eof) {
@@ -169,15 +170,15 @@ Aulib::AudioDecoderWildmidi::doDecoding(float buf[], int len, bool& callAgain)
         d->sampBufLen = len;
     }
     int res = WildMidi_GetOutput(d->midiHandle, (char*)d->sampBuf, len * 2);
+    if (res < 0) {
+        return 0;
+    }
     // Convert from 16-bit to float.
     for (int i = 0; i < res / 2; ++i) {
         buf[i] = (float)d->sampBuf[i] / 32768.f;
     }
-    if (res < len) {
+    if ((size_t)res < len) {
         d->eof = true;
-    }
-    if (res < 0) {
-        return 0;
     }
     return res / 2;
 }

@@ -32,7 +32,7 @@ public:
     ~AudioResamplerSpeex() override;
 
 protected:
-    void doResampling(float dst[], const float src[], int& dstLen, int& srcLen) override;
+    void doResampling(float dst[], const float src[], size_t& dstLen, size_t& srcLen) override;
 
     int adjustForOutputSpec(unsigned dstRate, unsigned srcRate, unsigned channels) override;
 

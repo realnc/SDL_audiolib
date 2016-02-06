@@ -176,17 +176,17 @@ Aulib::AudioResampler_priv::fAdjustBufferSizes()
 void
 Aulib::AudioResampler_priv::fResampleFromInBuffer()
 {
-    int inLen = fInBufferEnd - fInBufferPos;
+    size_t inLen = fInBufferEnd - fInBufferPos;
     float* from = fInBuffer.data() + fInBufferPos;
     float* to = fOutBuffer.data() + fOutBufferEnd;
     if (fSrcRate == fDstRate) {
         // No resampling is needed. Just copy the samples as-is.
-        int outLen = std::min(fOutBuffer.size() - fOutBufferEnd, (size_t)inLen);
+        size_t outLen = std::min(fOutBuffer.size() - fOutBufferEnd, inLen);
         std::memcpy(to, from, outLen * sizeof(*from));
         fOutBufferEnd += outLen;
         fInBufferPos += outLen;
     } else {
-        int outLen = fOutBuffer.size() - fOutBufferEnd;
+        size_t outLen = fOutBuffer.size() - fOutBufferEnd;
         q->doResampling(to, from, outLen, inLen);
         fOutBufferEnd += outLen;
         fInBufferPos += inLen;
@@ -254,8 +254,8 @@ Aulib::AudioResampler::currentChunkSize() const
 }
 
 
-int
-Aulib::AudioResampler::resample(float dst[], int dstLen)
+size_t
+Aulib::AudioResampler::resample(float dst[], size_t dstLen)
 {
     size_t totalSamples = 0;
     bool decEOF = false;

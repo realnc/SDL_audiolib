@@ -63,7 +63,7 @@ Aulib::AudioResamplerSRC::~AudioResamplerSRC()
 
 
 void
-Aulib::AudioResamplerSRC::doResampling(float dst[], const float src[], int& dstLen, int& srcLen)
+Aulib::AudioResamplerSRC::doResampling(float dst[], const float src[], size_t& dstLen, size_t& srcLen)
 {
     if (d->fResampler == nullptr) {
         dstLen = srcLen = 0;

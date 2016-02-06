@@ -135,8 +135,8 @@ Aulib::AudioDecoderModPlug::getRate() const
 }
 
 
-int
-Aulib::AudioDecoderModPlug::doDecoding(float buf[], int len, bool& callAgain)
+size_t
+Aulib::AudioDecoderModPlug::doDecoding(float buf[], size_t len, bool& callAgain)
 {
     callAgain = false;
     if (d->atEOF) {
@@ -145,7 +145,7 @@ Aulib::AudioDecoderModPlug::doDecoding(float buf[], int len, bool& callAgain)
     Sint32* data = new Sint32[len];
     int ret = ModPlug_Read(d->mpHandle, data, len * 4);
     // Convert from 32-bit to float.
-    for (int i = 0; i < len; ++i) {
+    for (size_t i = 0; i < len; ++i) {
         buf[i] = (float)data[i] / 2147483648.f;
     }
     if (ret == 0) {

@@ -39,7 +39,7 @@ class AudioDecoderBassmidi_priv {
 
     HSTREAM hstream;
     Uint8* midiData;
-    int midiDataLen;
+    size_t midiDataLen;
     bool eof;
 };
 
@@ -105,9 +105,10 @@ Aulib::AudioDecoderBassmidi::open(SDL_RWops* rwops)
         return true;
     }
 
-    int frontPos = SDL_RWtell(rwops);
+    Sint64 frontPos = SDL_RWtell(rwops);
+    //FIXME: check for seek error
     d->midiDataLen = SDL_RWseek(rwops, 0, RW_SEEK_END) - frontPos;
-    if (d->midiDataLen <= 0) {
+    if (d->midiDataLen == 0) {
         return false;
     }
     SDL_RWseek(rwops, frontPos, RW_SEEK_SET);
@@ -152,8 +153,8 @@ Aulib::AudioDecoderBassmidi::getRate() const
 }
 
 
-int
-Aulib::AudioDecoderBassmidi::doDecoding(float buf[], int len, bool&)
+size_t
+Aulib::AudioDecoderBassmidi::doDecoding(float buf[], size_t len, bool&)
 {
     if (d->eof or d->hstream == 0) {
         return 0;
