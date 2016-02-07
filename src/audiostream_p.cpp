@@ -28,7 +28,7 @@
 #include "aulib_debug.h"
 
 
-void (*Aulib::AudioStream_priv::fSampleConverter)(Uint8[], float[], int) = nullptr;
+void (*Aulib::AudioStream_priv::fSampleConverter)(Uint8[], float[], size_t) = nullptr;
 SDL_AudioSpec Aulib::AudioStream_priv::fAudioSpec;
 std::vector<Aulib::AudioStream*> Aulib::AudioStream_priv::fStreamList;
 float* Aulib::AudioStream_priv::fFinalMixBuf = nullptr;

@@ -63,7 +63,7 @@ private:
     static std::vector<AudioStream*> fStreamList;
 
     // This points to an appropriate converter for the current audio format.
-    static void (*fSampleConverter)(Uint8[], float[], int);
+    static void (*fSampleConverter)(Uint8[], float[], size_t);
 
     // Sample buffers we use during decoding and mixing.
     static float* fFinalMixBuf;
