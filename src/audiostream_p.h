@@ -30,7 +30,7 @@ namespace Aulib {
 class AudioStream_priv {
 private:
     friend class AudioStream;
-    friend int init(int freq, int format, int channels, int bufferSize);
+    friend int init(int freq, SDL_AudioFormat format, Uint8 channels, Uint16 bufferSize);
     friend void Aulib::quit();
     friend const SDL_AudioSpec& Aulib::spec();
     class AudioStream* q;

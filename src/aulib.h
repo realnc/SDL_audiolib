@@ -19,6 +19,7 @@
 #ifndef AULIB_H
 #define AULIB_H
 
+#include <SDL_audio.h>
 #include "aulib_global.h"
 
 struct SDL_AudioSpec;
@@ -49,7 +50,7 @@ namespace Aulib {
  *  \retval 0 The audio system was initialized successfully.
  *  \retval !=0 The audio system could not be initialized.
  */
-AULIB_EXPORT int init(int freq, int format, int channels, int bufferSize);
+AULIB_EXPORT int init(int freq, SDL_AudioFormat format, Uint8 channels, Uint16 bufferSize);
 
 /*!
  *  \brief Shuts down the SDL_audiolib library.
