@@ -103,18 +103,16 @@ Aulib::AudioDecoderBassmidi::open(SDL_RWops* rwops)
         return true;
     }
 
-    Sint64 frontPos = SDL_RWtell(rwops);
-    //FIXME: check for seek error
-    Sint64 midiDataLen = SDL_RWseek(rwops, 0, RW_SEEK_END) - frontPos;
-    if (midiDataLen == 0) {
+    //FIXME: error reporting
+    Sint64 midiDataLen = SDL_RWsize(rwops);
+    if (midiDataLen <= 0) {
         return false;
     }
-    SDL_RWseek(rwops, frontPos, RW_SEEK_SET);
-    Buffer<Uint8> newMidiData(midiDataLen);
+    Buffer<Uint8> newMidiData((size_t)midiDataLen);
     DWORD bassFlags = BASS_SAMPLE_FLOAT | BASS_STREAM_DECODE | BASS_MIDI_DECAYEND | BASS_MIDI_SINCINTER;
-    if (SDL_RWread(rwops, newMidiData.get(), midiDataLen, 1) != 1
-        or (d->hstream = BASS_MIDI_StreamCreateFile(TRUE, newMidiData.get(), 0, midiDataLen, bassFlags,
-                                                    1)) == 0)
+    if (SDL_RWread(rwops, newMidiData.get(), newMidiData.size(), 1) != 1
+        or (d->hstream = BASS_MIDI_StreamCreateFile(TRUE, newMidiData.get(), 0, newMidiData.size(),
+                                                    bassFlags, 1)) == 0)
     {
         if (d->hstream) {
             BASS_StreamFree(d->hstream);

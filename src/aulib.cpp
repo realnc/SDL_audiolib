@@ -89,7 +89,6 @@ Aulib::init(int freq, SDL_AudioFormat format, Uint8 channels, Uint16 bufferSize)
             AM_debugPrintLn("U16MSB");
             AudioStream_priv::fSampleConverter = Aulib::floatToU16MSB;
             break;
-#if SDL_VERSION_ATLEAST(1,3,0)
         case AUDIO_S32LSB:
             AM_debugPrintLn("S32LSB");
             AudioStream_priv::fSampleConverter = Aulib::floatToS32LSB;
@@ -98,7 +97,6 @@ Aulib::init(int freq, SDL_AudioFormat format, Uint8 channels, Uint16 bufferSize)
             AM_debugPrintLn("F32LSB");
             AudioStream_priv::fSampleConverter = Aulib::floatToFloat;
             break;
-#endif
         default:
             AM_warnLn("Unknown audio format spec: " << AudioStream_priv::fAudioSpec.format);
             Aulib::quit();

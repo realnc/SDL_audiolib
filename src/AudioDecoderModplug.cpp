@@ -101,17 +101,16 @@ Aulib::AudioDecoderModPlug::open(SDL_RWops* rwops)
     if (isOpen()) {
         return true;
     }
-    int frontPos = SDL_RWtell(rwops);
-    int dataSize = SDL_RWseek(rwops, 0, RW_SEEK_END) - frontPos;
-    SDL_RWseek(rwops, frontPos, RW_SEEK_SET);
-    if (dataSize <= 0) {
+    //FIXME: error reporting
+    Sint64 dataSize = SDL_RWsize(rwops);
+    if (dataSize <= 0 or dataSize > std::numeric_limits<int>::max()) {
         return false;
     }
     bool ret = true;
-    Buffer<Uint8> data(dataSize);
-    if (SDL_RWread(rwops, data.get(), dataSize, 1) != 1) {
+    Buffer<Uint8> data((size_t)dataSize);
+    if (SDL_RWread(rwops, data.get(), data.size(), 1) != 1) {
         ret = false;
-    } else if ((d->mpHandle = ModPlug_Load(data.get(), dataSize)) == nullptr) {
+    } else if ((d->mpHandle = ModPlug_Load(data.get(), (int)data.size())) == nullptr) {
         ret = false;
     }
     ModPlug_SetMasterVolume(d->mpHandle, 192);

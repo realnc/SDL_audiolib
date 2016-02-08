@@ -57,15 +57,7 @@ mpcTellCb(mpc_reader* reader)
 static mpc_int32_t
 mpcGetSizeCb(mpc_reader* reader)
 {
-#ifdef USE_SDL2
     return SDL_RWsize(static_cast<SDL_RWops*>(reader->data));
-#else
-    SDL_RWops* rwops = static_cast<SDL_RWops*>(reader->data);
-    int curPos = SDL_RWtell(rwops);
-    int dataSize = SDL_RWseek(rwops, 0, RW_SEEK_END) - SDL_RWseek(rwops, 0, RW_SEEK_SET);
-    SDL_RWseek(rwops, curPos, RW_SEEK_SET);
-    return dataSize;
-#endif
 }
 
 

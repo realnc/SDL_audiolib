@@ -115,18 +115,15 @@ Aulib::AudioDecoderFluidSynth::open(SDL_RWops* rwops)
         return false;
     }
 
-    Sint64 frontPos = SDL_RWtell(rwops);
-    //FIXME: check for seek error
-    Sint64 midiDataLen = SDL_RWseek(rwops, 0, RW_SEEK_END) - frontPos;
-    SDL_RWseek(rwops, frontPos, RW_SEEK_SET);
-    if (midiDataLen == 0) {
+    //FIXME: error reporting
+    Sint64 midiDataLen = SDL_RWsize(rwops);
+    if (midiDataLen <= 0) {
         return false;
     }
-
-    Buffer<Uint8> newMidiData(midiDataLen);
-    if (SDL_RWread(rwops, newMidiData.get(), midiDataLen, 1) != 1
+    Buffer<Uint8> newMidiData((size_t)midiDataLen);
+    if (SDL_RWread(rwops, newMidiData.get(), newMidiData.size(), 1) != 1
         or (d->fPlayer = new_fluid_player(d->fSynth)) == nullptr
-        or fluid_player_add_mem(d->fPlayer, newMidiData.get(), midiDataLen) != FLUID_OK
+        or fluid_player_add_mem(d->fPlayer, newMidiData.get(), newMidiData.size()) != FLUID_OK
         or fluid_player_play(d->fPlayer) != FLUID_OK)
     {
         if (d->fPlayer) {

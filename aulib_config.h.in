@@ -1,7 +1,6 @@
 #ifndef AULIB_CONFIG_H
 #define AULIB_CONFIG_H
 
-#cmakedefine USE_SDL2
 #cmakedefine USE_RESAMP_SRC
 #cmakedefine USE_RESAMP_SOXR
 #cmakedefine USE_DEC_MODPLUG

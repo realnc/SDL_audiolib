@@ -13,12 +13,6 @@ configure_file(
 )
 
 option(
-    USE_SDL2
-    "Use SDL 2 instead of SDL 1."
-    ON
-)
-
-option(
     USE_RESAMP_SRC
     "Enable SRC (aka libsamplerate) resampler."
     ON
@@ -164,13 +158,8 @@ set(
     include/Aulib/AudioStream.h
 )
 
-if (USE_SDL2)
-    pkg_check_modules(SDL REQUIRED sdl2)
-    set(PKGCONF_REQ_PUB "${PKGCONF_REQ_PUB} sdl2")
-else()
-    pkg_check_modules(SDL REQUIRED sdl)
-    set(PKGCONF_REQ_PUB "${PKGCONF_REQ_PUB} sdl")
-endif(USE_SDL2)
+pkg_check_modules(SDL REQUIRED sdl2)
+set(PKGCONF_REQ_PUB "${PKGCONF_REQ_PUB} sdl2")
 set(LIBRARY_DIRS ${LIBRARY_DIRS} ${SDL_LIBRARY_DIRS})
 
 if (USE_RESAMP_SRC)
@@ -351,22 +340,22 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/SDL_audiolib.pc
 
 if (ENABLE_SDLMIXER_EMU)
     add_library(
-        SDL_mixer-1.2
+        SDL_mixer-2.0
         src/sdl_mixer_emu/sdl_mixer_emu.h
         src/sdl_mixer_emu/sdl_mixer_emu.cpp
         src/sdl_mixer_emu/music.cpp
     )
 
     set_target_properties(
-        SDL_mixer-1.2 PROPERTIES VERSION 0.12.0 SOVERSION 0
+        SDL_mixer-2.0 PROPERTIES VERSION 0.0.1 SOVERSION 0
     )
 
     target_link_libraries(
-        SDL_mixer-1.2
+        SDL_mixer-2.0
         SDL_audiolib
     )
 
-    install(TARGETS SDL_mixer-1.2 DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    install(TARGETS SDL_mixer-2.0 DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif(ENABLE_SDLMIXER_EMU)
 
 configure_file(

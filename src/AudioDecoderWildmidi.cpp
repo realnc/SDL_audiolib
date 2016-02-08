@@ -116,15 +116,13 @@ Aulib::AudioDecoderWildmidi::open(SDL_RWops* rwops)
         return false;
     }
 
-    Sint64 frontPos = SDL_RWtell(rwops);
-    //FIXME: check for seek error
-    Sint64 newMidiDataLen = SDL_RWseek(rwops, 0, RW_SEEK_END) - frontPos;
-    SDL_RWseek(rwops, frontPos, RW_SEEK_SET);
-    if (newMidiDataLen == 0) {
+    //FIXME: error reporting
+    Sint64 newMidiDataLen = SDL_RWsize(rwops);
+    if (newMidiDataLen <= 0) {
         return false;
     }
 
-    Buffer<Uint8> newMidiData(newMidiDataLen);
+    Buffer<Uint8> newMidiData((size_t)newMidiDataLen);
     if (SDL_RWread(rwops, newMidiData.get(), newMidiData.size(), 1) != 1
         or (d->midiHandle = WildMidi_OpenBuffer(newMidiData.get(), newMidiData.size())) == nullptr)
     {

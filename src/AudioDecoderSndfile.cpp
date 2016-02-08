@@ -29,22 +29,11 @@ extern "C" {
 static sf_count_t
 sfLenCb(void* rwops)
 {
-#if SDL_VERSION_ATLEAST(1,3,0)
     Sint64 size = SDL_RWsize((SDL_RWops*)rwops);
     if (size < 0) {
         return 0;
     }
     return size;
-#else
-    int curPos = SDL_RWtell((SDL_RWops*)rwops);
-    SDL_RWseek((SDL_RWops*)rwops, 0, RW_SEEK_END);
-    int endPos = SDL_RWtell((SDL_RWops*)rwops);
-    SDL_RWseek((SDL_RWops*)rwops, curPos, RW_SEEK_SET);
-    if (endPos < 0) {
-        return 0;
-    }
-    return endPos;
-#endif
 }
 
 
