@@ -19,6 +19,7 @@
 #include "Aulib/AudioDecoderModplug.h"
 #include "aulib_global.h"
 
+#include <limits>
 #include <libmodplug/modplug.h>
 #include <SDL_audio.h>
 
