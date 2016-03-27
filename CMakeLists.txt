@@ -1,11 +1,14 @@
 cmake_minimum_required(VERSION 2.8)
 project(SDL_audiolib)
-include(CheckCXXCompilerFlag)
 include(FindPkgConfig)
 include(GenerateExportHeader)
 
 set(AULIB_VERSION_STR "0.0.0")
 set(AULIB_VERSION 0x000000)
+
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 configure_file(
     ${PROJECT_SOURCE_DIR}/aulib_version.h.in
@@ -90,29 +93,9 @@ option(
     ON
 )
 
-option(
-    USE_CXX11
-    "Enable C++11 mode (GCC, Clang)."
-    OFF
-)
-
 if (WITH_BUNDLED_BOOST)
     include_directories(${PROJECT_SOURCE_DIR}/boost)
 endif(WITH_BUNDLED_BOOST)
-
-if(USE_CXX11)
-    CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-    if(COMPILER_SUPPORTS_CXX11)
-        set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
-    else()
-        CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-        if(COMPILER_SUPPORTS_CXX0X)
-            set(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS}")
-        else()
-            message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support.")
-        endif(COMPILER_SUPPORTS_CXX0X)
-    endif(COMPILER_SUPPORTS_CXX11)
-endif(USE_CXX11)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_GNUCC)
     set(CMAKE_CXX_FLAGS "-Wall -W -Wextra ${CMAKE_CXX_FLAGS}")

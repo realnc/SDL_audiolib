@@ -21,13 +21,4 @@
 
 #include "aulib_export.h"
 
-// We use these C++11 keywords in our code. We provide appropriate definitions
-// for them on non-C++11 compilers.
-#if __cplusplus < 201103L
-    #define override
-    #define final
-    #define constexpr
-    #define nullptr NULL
-#endif
-
 #endif // AM_UTIL_H
