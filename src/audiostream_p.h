@@ -34,8 +34,8 @@ struct AudioStream_priv {
     friend const SDL_AudioSpec& Aulib::spec();
     class AudioStream* q;
 
-    AudioStream_priv(class AudioStream* pub, class AudioDecoder *decoder,
-                     class AudioResampler *resampler, bool closeRw);
+    explicit AudioStream_priv(class AudioStream* pub, class AudioDecoder *decoder,
+                              class AudioResampler *resampler, bool closeRw);
     ~AudioStream_priv();
 
     bool fIsOpen;
