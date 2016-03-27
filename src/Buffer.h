@@ -21,8 +21,8 @@
 
 #include <cstring>
 #include <algorithm>
+#include <memory>
 #include "boost/core/noncopyable.hpp"
-#include "boost/scoped_array.hpp"
 #include "aulib_debug.h"
 
 /*! \private
@@ -33,11 +33,8 @@ template <typename T>
 class Buffer: private boost::noncopyable {
 public:
     explicit Buffer(size_t size)
-        : fData(new T[size]),
-          fSize(size)
-    { }
-
-    ~Buffer()
+        : fData(std::make_unique<T[]>(size))
+        , fSize(size)
     { }
 
     size_t size() const
@@ -45,15 +42,21 @@ public:
         return fSize;
     }
 
-    void reset(size_t newSize)
+    void reset(const size_t newSize)
     {
-        fData.reset(new T[newSize]);
+        if (newSize == fSize) {
+            return;
+        }
+        fData = std::make_unique<T[]>(newSize);
         fSize = newSize;
     }
 
-    void resize(size_t newSize)
+    void resize(const size_t newSize)
     {
-        boost::scoped_array<T> newData(new T[newSize]);
+        if (newSize == fSize) {
+            return;
+        }
+        auto newData = std::make_unique<T[]>(newSize);
         std::memcpy(newData.get(), fData.get(), sizeof(T) * std::min(newSize, fSize));
         fData.swap(newData);
         fSize = newSize;
@@ -65,7 +68,7 @@ public:
         std::swap(fSize, other.fSize);
     }
 
-    T& operator [](size_t pos) const
+    T& operator [](const size_t pos) const
     {
         AM_debugAssert(pos < fSize);
         return fData[pos];
@@ -77,7 +80,7 @@ public:
     }
 
 private:
-    boost::scoped_array<T> fData;
+    std::unique_ptr<T[]> fData;
     size_t fSize;
 };
 
