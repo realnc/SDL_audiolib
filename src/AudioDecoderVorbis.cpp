@@ -20,7 +20,6 @@
 
 #include <vorbis/vorbisfile.h>
 #include <SDL_rwops.h>
-#include "boost/scoped_ptr.hpp"
 
 #include "aulib_debug.h"
 
@@ -62,7 +61,7 @@ struct AudioDecoderVorbis_priv {
     AudioDecoderVorbis_priv();
     ~AudioDecoderVorbis_priv();
 
-    boost::scoped_ptr<OggVorbis_File> fVFHandle;
+    std::unique_ptr<OggVorbis_File> fVFHandle;
     int fCurrentSection;
     vorbis_info* fCurrentInfo;
     bool fEOF;
@@ -110,7 +109,7 @@ Aulib::AudioDecoderVorbis::open(SDL_RWops* rwops)
     cbs.seek_func = vorbisSeekCb;
     cbs.tell_func = vorbisTellCb;
     cbs.close_func = nullptr;
-    boost::scoped_ptr<OggVorbis_File> newHandle(new OggVorbis_File);
+    auto newHandle = std::make_unique<OggVorbis_File>();
     if (ov_open_callbacks(rwops, newHandle.get(), nullptr, 0, cbs) != 0) {
         return false;
     }
