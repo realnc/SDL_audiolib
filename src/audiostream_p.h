@@ -32,7 +32,7 @@ struct AudioStream_priv {
     friend int init(int freq, SDL_AudioFormat format, Uint8 channels, Uint16 bufferSize);
     friend void Aulib::quit();
     friend const SDL_AudioSpec& Aulib::spec();
-    class AudioStream* q;
+    const class AudioStream* const q;
 
     explicit AudioStream_priv(class AudioStream* pub, class AudioDecoder *decoder,
                               class AudioResampler *resampler, bool closeRw);
