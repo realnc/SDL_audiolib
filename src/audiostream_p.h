@@ -19,6 +19,7 @@
 #ifndef AUDIOSTREAM_P_H
 #define AUDIOSTREAM_P_H
 
+#include <memory>
 #include <vector>
 #include <queue>
 #include <SDL_audio.h>
@@ -41,8 +42,8 @@ struct AudioStream_priv {
     bool fIsOpen;
     SDL_RWops* fRWops;
     bool fCloseRw;
-    class AudioDecoder* fDecoder;
-    class AudioResampler* fResampler;
+    std::unique_ptr<AudioDecoder> fDecoder;
+    std::unique_ptr<AudioResampler> fResampler;
     bool fIsPlaying;
     bool fIsPaused;
     float fVolume;

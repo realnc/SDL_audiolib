@@ -59,15 +59,13 @@ Aulib::AudioStream_priv::AudioStream_priv(AudioStream* pub, Aulib::AudioDecoder*
       fFadeOutTickDuration(0)
 {
     if (resampler) {
-        resampler->setDecoder(fDecoder);
+        resampler->setDecoder(fDecoder.get());
     }
 }
 
 
 Aulib::AudioStream_priv::~AudioStream_priv()
 {
-    delete fResampler;
-    delete fDecoder;
     if (fCloseRw and fRWops) {
         SDL_RWclose(fRWops);
     }

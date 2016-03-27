@@ -72,44 +72,39 @@ Aulib::AudioDecoder::decoderFor(const char* filename)
 Aulib::AudioDecoder*
 Aulib::AudioDecoder::decoderFor(SDL_RWops* rwops)
 {
-    Aulib::AudioDecoder* decoder;
+    std::unique_ptr<AudioDecoder> decoder;
 
 #ifdef USE_DEC_LIBVORBIS
-    decoder = new Aulib::AudioDecoderVorbis;
+    decoder = std::make_unique<AudioDecoderVorbis>();
     if (decoder->open(rwops)) {
-        delete decoder;
         return new Aulib::AudioDecoderVorbis;
     }
 #endif
 
 #ifdef USE_DEC_FLUIDSYNTH
-    decoder = new Aulib::AudioDecoderFluidSynth;
+    decoder = std::make_unique<AudioDecoderFluidSynth>();
     if (decoder->open(rwops)) {
-        delete decoder;
         return new Aulib::AudioDecoderFluidSynth;
     }
 #endif
 
 #ifdef USE_DEC_SNDFILE
-    decoder = new Aulib::AudioDecoderSndfile;
+    decoder = std::make_unique<AudioDecoderSndfile>();
     if (decoder->open(rwops)) {
-        delete decoder;
         return new Aulib::AudioDecoderSndfile;
     }
 #endif
 
 #ifdef USE_DEC_MODPLUG
-    decoder = new Aulib::AudioDecoderModPlug;
+    decoder = std::make_unique<AudioDecoderModPlug>();
     if (decoder->open(rwops)) {
-        delete decoder;
         return new Aulib::AudioDecoderModPlug;
     }
 #endif
 
 #ifdef USE_DEC_MPG123
-    decoder = new Aulib::AudioDecoderMpg123;
+    decoder = std::make_unique<AudioDecoderMpg123>();
     if (decoder->open(rwops)) {
-        delete decoder;
         return new Aulib::AudioDecoderMpg123;
     }
 #endif
