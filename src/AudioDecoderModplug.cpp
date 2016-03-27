@@ -26,25 +26,24 @@
 #include "aulib.h"
 #include "Buffer.h"
 
-
-static ModPlug_Settings* modplugSettings = nullptr;
+static ModPlug_Settings modplugSettings;
+static bool initialized = false;
 
 
 static void
 initModPlug(const SDL_AudioSpec& spec)
 {
-    modplugSettings = new ModPlug_Settings;
-    ModPlug_GetSettings(modplugSettings);
-    modplugSettings->mFlags =   MODPLUG_ENABLE_OVERSAMPLING
-                              | MODPLUG_ENABLE_NOISE_REDUCTION;
+    ModPlug_GetSettings(&modplugSettings);
+    modplugSettings.mFlags = MODPLUG_ENABLE_OVERSAMPLING | MODPLUG_ENABLE_NOISE_REDUCTION;
     // TODO: can modplug handle more than 2 channels?
-    modplugSettings->mChannels = spec.channels == 1 ? 1 : 2;
+    modplugSettings.mChannels = spec.channels == 1 ? 1 : 2;
     // It seems MogPlug does resample to any samplerate. 32, 44.1, up to
     // 192K all seem to work correctly.
-    modplugSettings->mFrequency = spec.freq;
-    modplugSettings->mResamplingMode = MODPLUG_RESAMPLE_FIR;
-    modplugSettings->mBits = 32;
-    ModPlug_SetSettings(modplugSettings);
+    modplugSettings.mFrequency = spec.freq;
+    modplugSettings.mResamplingMode = MODPLUG_RESAMPLE_FIR;
+    modplugSettings.mBits = 32;
+    ModPlug_SetSettings(&modplugSettings);
+    initialized = true;
 }
 
 
@@ -70,7 +69,7 @@ Aulib::AudioDecoderModPlug_priv::AudioDecoderModPlug_priv()
       atEOF(false),
       fDuration(-1.f)
 {
-    if (modplugSettings == nullptr) {
+    if (not initialized) {
         initModPlug(Aulib::spec());
     }
 }
@@ -122,14 +121,14 @@ Aulib::AudioDecoderModPlug::open(SDL_RWops* rwops)
 unsigned
 Aulib::AudioDecoderModPlug::getChannels() const
 {
-    return modplugSettings->mChannels;
+    return modplugSettings.mChannels;
 }
 
 
 unsigned
 Aulib::AudioDecoderModPlug::getRate() const
 {
-    return modplugSettings->mFrequency;
+    return modplugSettings.mFrequency;
 }
 
 
