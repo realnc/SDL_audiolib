@@ -85,7 +85,7 @@ public:
 
 private:
     friend class AudioStream_priv;
-    friend int Aulib::init(int freq, int format, int channels, int bufferSize);
+    friend int Aulib::init(int, SDL_AudioFormat, Uint8, Uint16);
 
     class AudioStream_priv* const d;
 
