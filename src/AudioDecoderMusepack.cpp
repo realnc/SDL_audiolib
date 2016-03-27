@@ -73,7 +73,7 @@ mpcCanseekCb(mpc_reader* reader)
 namespace Aulib {
 
 /// \private
-class AudioDecoderMusepack_priv {
+struct AudioDecoderMusepack_priv {
 public:
     AudioDecoderMusepack_priv();
     ~AudioDecoderMusepack_priv();
@@ -118,15 +118,13 @@ Aulib::AudioDecoderMusepack_priv::~AudioDecoderMusepack_priv()
 
 
 Aulib::AudioDecoderMusepack::AudioDecoderMusepack()
-    : d(new AudioDecoderMusepack_priv)
+    : d(std::make_unique<AudioDecoderMusepack_priv>())
 {
 }
 
 
 Aulib::AudioDecoderMusepack::~AudioDecoderMusepack()
-{
-    delete d;
-}
+{ }
 
 
 bool

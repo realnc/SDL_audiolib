@@ -56,7 +56,7 @@ vorbisTellCb(void* rwops)
 namespace Aulib {
 
 /// \private
-class AudioDecoderVorbis_priv {
+struct AudioDecoderVorbis_priv {
     friend class AudioDecoderVorbis;
 
     AudioDecoderVorbis_priv();
@@ -86,7 +86,7 @@ Aulib::AudioDecoderVorbis_priv::~AudioDecoderVorbis_priv()
 
 
 Aulib::AudioDecoderVorbis::AudioDecoderVorbis()
-    : d(new AudioDecoderVorbis_priv)
+    : d(std::make_unique<AudioDecoderVorbis_priv>())
 { }
 
 
@@ -95,7 +95,6 @@ Aulib::AudioDecoderVorbis::~AudioDecoderVorbis()
     if (d->fVFHandle) {
         ov_clear(d->fVFHandle.get());
     }
-    delete d;
 }
 
 

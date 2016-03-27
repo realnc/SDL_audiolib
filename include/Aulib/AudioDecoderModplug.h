@@ -40,7 +40,7 @@ public:
     bool seekToTime(float seconds) override;
 
 private:
-    class AudioDecoderModPlug_priv* const d;
+    const std::unique_ptr<struct AudioDecoderModPlug_priv> d;
 };
 
 } // namespace Aulib

@@ -54,7 +54,7 @@ opusTellCb(void* rwops)
 namespace Aulib {
 
 /// \private
-class AudioDecoderOpus_priv {
+struct AudioDecoderOpus_priv {
     friend class AudioDecoderOpus;
 
     AudioDecoderOpus_priv();
@@ -88,7 +88,7 @@ Aulib::AudioDecoderOpus_priv::~AudioDecoderOpus_priv()
 
 
 Aulib::AudioDecoderOpus::AudioDecoderOpus()
-    : d(new AudioDecoderOpus_priv)
+    : d(std::make_unique<AudioDecoderOpus_priv>())
 { }
 
 
@@ -97,7 +97,6 @@ Aulib::AudioDecoderOpus::~AudioDecoderOpus()
     if (d->fOpusHandle) {
         op_free(d->fOpusHandle);
     }
-    delete d;
 }
 
 

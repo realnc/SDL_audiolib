@@ -19,6 +19,7 @@
 #ifndef AUDIODECODER_H
 #define AUDIODECODER_H
 
+#include <memory>
 #include <SDL_stdinc.h>
 #include "aulib_global.h"
 
@@ -33,6 +34,9 @@ class AULIB_EXPORT AudioDecoder {
 public:
     AudioDecoder();
     virtual ~AudioDecoder();
+
+    AudioDecoder(const AudioDecoder&) = delete;
+    AudioDecoder& operator =(const AudioDecoder&) = delete;
 
     static AudioDecoder* decoderFor(const char* filename);
     static AudioDecoder* decoderFor(SDL_RWops* rwops);
@@ -53,10 +57,7 @@ protected:
     virtual size_t doDecoding(float buf[], size_t len, bool& callAgain) = 0;
 
 private:
-    AudioDecoder(const AudioDecoder&);
-    AudioDecoder& operator =(const AudioDecoder&);
-
-    class AudioDecoder_priv* const d;
+    const std::unique_ptr<class AudioDecoder_priv> d;
 };
 
 } // namespace Aulib

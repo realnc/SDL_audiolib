@@ -23,7 +23,7 @@
 namespace Aulib {
 
 /// \private
-class Stream_priv {
+struct Stream_priv {
     friend class Stream;
 
     Stream_priv();
@@ -47,15 +47,13 @@ Aulib::Stream_priv::~Stream_priv()
 
 
 Aulib::Stream::Stream()
-    : d(new Stream_priv)
+    : d(std::make_unique<Stream_priv>())
 {
 }
 
 
 Aulib::Stream::~Stream()
-{
-    delete d;
-}
+{ }
 
 
 void

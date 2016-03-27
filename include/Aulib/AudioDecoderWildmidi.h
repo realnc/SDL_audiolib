@@ -82,7 +82,7 @@ public:
     bool seekToTime(float seconds) override;
 
 private:
-    class AudioDecoderWildmidi_priv* const d;
+    const std::unique_ptr<struct AudioDecoderWildmidi_priv> d;
 };
 
 } // namespace Aulib

@@ -58,8 +58,7 @@ relocateBuffer(float* buf, size_t& pos, size_t& end)
 namespace Aulib {
 
 /// \private
-class AudioResampler_priv {
-    friend class AudioResampler;
+struct AudioResampler_priv {
     AudioResampler* q;
 
     AudioResampler_priv(AudioResampler *pub);
@@ -199,15 +198,13 @@ Aulib::AudioResampler_priv::fResampleFromInBuffer()
 
 
 Aulib::AudioResampler::AudioResampler()
-    : d(new AudioResampler_priv(this))
+    : d(std::make_unique<AudioResampler_priv>(this))
 {
 }
 
 
 Aulib::AudioResampler::~AudioResampler()
-{
-    delete d;
-}
+{ }
 
 
 void

@@ -32,7 +32,7 @@ static bool bassIsInitialized = false;
 namespace Aulib {
 
 /// \private
-class AudioDecoderBassmidi_priv {
+struct AudioDecoderBassmidi_priv {
     friend class AudioDecoderBassmidi;
 
     AudioDecoderBassmidi_priv();
@@ -74,14 +74,12 @@ Aulib::AudioDecoderBassmidi_priv::~AudioDecoderBassmidi_priv()
 
 
 Aulib::AudioDecoderBassmidi::AudioDecoderBassmidi()
-    : d(new AudioDecoderBassmidi_priv)
+    : d(std::make_unique<AudioDecoderBassmidi_priv>())
 { }
 
 
 Aulib::AudioDecoderBassmidi::~AudioDecoderBassmidi()
-{
-    delete d;
-}
+{ }
 
 
 bool

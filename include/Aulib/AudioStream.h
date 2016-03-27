@@ -70,6 +70,9 @@ public:
 
     ~AudioStream() override;
 
+    AudioStream(const AudioStream&) = delete;
+    AudioStream& operator =(const AudioStream&) = delete;
+
     bool open() override;
     bool play(unsigned iterations = 1, float fadeTime = 0.f) override;
     void stop(float fadeTime = 0.f) override;
@@ -84,13 +87,10 @@ public:
     bool seekToTime(float seconds) override;
 
 private:
-    friend class AudioStream_priv;
+    friend struct AudioStream_priv;
     friend int Aulib::init(int, SDL_AudioFormat, Uint8, Uint16);
 
-    class AudioStream_priv* const d;
-
-    AudioStream(const AudioStream&);
-    AudioStream& operator =(const AudioStream&);
+    const std::unique_ptr<struct AudioStream_priv> d;
 };
 
 } // namespace Aulib

@@ -27,8 +27,7 @@
 namespace Aulib {
 
 /// \private
-class AudioDecoderWildmidi_priv {
-public:
+struct AudioDecoderWildmidi_priv {
     AudioDecoderWildmidi_priv();
     ~AudioDecoderWildmidi_priv();
 
@@ -65,14 +64,12 @@ Aulib::AudioDecoderWildmidi_priv::~AudioDecoderWildmidi_priv()
 
 
 Aulib::AudioDecoderWildmidi::AudioDecoderWildmidi()
-    : d(new Aulib::AudioDecoderWildmidi_priv)
+    : d(std::make_unique<Aulib::AudioDecoderWildmidi_priv>())
 { }
 
 
 Aulib::AudioDecoderWildmidi::~AudioDecoderWildmidi()
-{
-    delete d;
-}
+{ }
 
 
 bool

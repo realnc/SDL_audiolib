@@ -53,14 +53,12 @@ Aulib::AudioDecoder_priv::AudioDecoder_priv()
 
 
 Aulib::AudioDecoder::AudioDecoder()
-    : d(new Aulib::AudioDecoder_priv)
+    : d(std::make_unique<Aulib::AudioDecoder_priv>())
 { }
 
 
 Aulib::AudioDecoder::~AudioDecoder()
-{
-    delete d;
-}
+{ }
 
 
 Aulib::AudioDecoder*

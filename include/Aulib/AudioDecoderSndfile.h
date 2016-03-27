@@ -40,8 +40,7 @@ public:
     bool seekToTime(float seconds) override;
 
 private:
-    friend class AudioDecoderSndfile_priv;
-    class AudioDecoderSndfile_priv* const d;
+    const std::unique_ptr<struct AudioDecoderSndfile_priv> d;
 };
 
 } // namespace Aulib

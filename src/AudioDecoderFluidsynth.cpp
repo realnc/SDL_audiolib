@@ -47,7 +47,7 @@ initFluidSynth()
 namespace Aulib {
 
 /// \private
-class AudioDecoderFluidSynth_priv {
+struct AudioDecoderFluidSynth_priv {
     friend class AudioDecoderFluidSynth;
 
     AudioDecoderFluidSynth_priv();
@@ -86,15 +86,13 @@ Aulib::AudioDecoderFluidSynth_priv::~AudioDecoderFluidSynth_priv()
 
 
 Aulib::AudioDecoderFluidSynth::AudioDecoderFluidSynth()
-    : d(new AudioDecoderFluidSynth_priv)
+    : d(std::make_unique<AudioDecoderFluidSynth_priv>())
 {
 }
 
 
 Aulib::AudioDecoderFluidSynth::~AudioDecoderFluidSynth()
-{
-    delete d;
-}
+{ }
 
 
 int

@@ -26,7 +26,7 @@
 namespace Aulib {
 
 /// \private
-class AudioResamplerSox_priv {
+struct AudioResamplerSox_priv {
     friend class AudioResamplerSox;
 
     AudioResamplerSox_priv();
@@ -53,15 +53,13 @@ Aulib::AudioResamplerSox_priv::~AudioResamplerSox_priv()
 
 
 Aulib::AudioResamplerSox::AudioResamplerSox()
-    : d(new AudioResamplerSox_priv)
+    : d(std::make_unique<AudioResamplerSox_priv>())
 {
 }
 
 
 Aulib::AudioResamplerSox::~AudioResamplerSox()
-{
-    delete d;
-}
+{ }
 
 
 void

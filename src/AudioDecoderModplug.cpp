@@ -51,7 +51,7 @@ initModPlug(const SDL_AudioSpec& spec)
 namespace Aulib {
 
 /// \private
-class AudioDecoderModPlug_priv {
+struct AudioDecoderModPlug_priv {
     friend class AudioDecoderModPlug;
 
     AudioDecoderModPlug_priv();
@@ -85,15 +85,13 @@ Aulib::AudioDecoderModPlug_priv::~AudioDecoderModPlug_priv()
 
 
 Aulib::AudioDecoderModPlug::AudioDecoderModPlug()
-    : d(new AudioDecoderModPlug_priv)
+    : d(std::make_unique<AudioDecoderModPlug_priv>())
 {
 }
 
 
 Aulib::AudioDecoderModPlug::~AudioDecoderModPlug()
-{
-    delete d;
-}
+{ }
 
 
 bool

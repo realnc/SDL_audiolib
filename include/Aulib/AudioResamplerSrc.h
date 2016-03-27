@@ -37,7 +37,7 @@ protected:
     int adjustForOutputSpec(unsigned dstRate, unsigned srcRate, unsigned channels) override;
 
 private:
-    class AudioResamplerSRC_priv* const d;
+    const std::unique_ptr<struct AudioResamplerSRC_priv> d;
 };
 
 } // namespace Aulib

@@ -223,7 +223,7 @@ protected:
     void invokeLoopCallback();
 
 private:
-    class Stream_priv* const d;
+    const std::unique_ptr<struct Stream_priv> d;
 };
 
 } // namespace Aulib

@@ -33,7 +33,7 @@
 
 Aulib::AudioStream::AudioStream(const char* filename, AudioDecoder* decoder,
                                 AudioResampler* resampler)
-    : d(new AudioStream_priv(this, decoder, resampler, true))
+    : d(std::make_unique<AudioStream_priv>(this, decoder, resampler, true))
 {
     d->fRWops = SDL_RWFromFile(filename, "rb");
     AM_debugPrintLn(d->fRWops);
@@ -42,7 +42,7 @@ Aulib::AudioStream::AudioStream(const char* filename, AudioDecoder* decoder,
 
 Aulib::AudioStream::AudioStream(SDL_RWops* rwops, AudioDecoder* decoder, AudioResampler* resampler,
                                 bool closeRw)
-    : d(new AudioStream_priv(this, decoder, resampler, closeRw))
+    : d(std::make_unique<AudioStream_priv>(this, decoder, resampler, closeRw))
 {
     d->fRWops = rwops;
 }
@@ -51,7 +51,6 @@ Aulib::AudioStream::AudioStream(SDL_RWops* rwops, AudioDecoder* decoder, AudioRe
 Aulib::AudioStream::~AudioStream()
 {
     this->stop();
-    delete d;
 }
 
 

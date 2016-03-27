@@ -27,8 +27,7 @@
 namespace Aulib {
 
 /// \private
-class AudioStream_priv {
-private:
+struct AudioStream_priv {
     friend class AudioStream;
     friend int init(int freq, SDL_AudioFormat format, Uint8 channels, Uint16 bufferSize);
     friend void Aulib::quit();
@@ -73,7 +72,6 @@ private:
     void fProcessFade();
     void fStop();
 
-public:
     static void fSdlCallbackImpl(void*, Uint8 out[], int outLen);
 };
 

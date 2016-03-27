@@ -75,7 +75,7 @@ sfTellCb(void* rwops)
 namespace Aulib {
 
 /// \private
-class AudioDecoderSndfile_priv {
+struct AudioDecoderSndfile_priv {
     friend class AudioDecoderSndfile;
 
     AudioDecoderSndfile_priv();
@@ -104,7 +104,7 @@ Aulib::AudioDecoderSndfile_priv::~AudioDecoderSndfile_priv()
 
 
 Aulib::AudioDecoderSndfile::AudioDecoderSndfile()
-    : d(new AudioDecoderSndfile_priv)
+    : d(std::make_unique<AudioDecoderSndfile_priv>())
 { }
 
 
@@ -113,7 +113,6 @@ Aulib::AudioDecoderSndfile::~AudioDecoderSndfile()
     if (d->fSndfile) {
         sf_close(d->fSndfile);
     }
-    delete d;
 }
 
 

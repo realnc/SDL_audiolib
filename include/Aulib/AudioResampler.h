@@ -19,6 +19,7 @@
 #ifndef AUDIORESAMPLER_H
 #define AUDIORESAMPLER_H
 
+#include <memory>
 #include <cstddef>
 #include "aulib_global.h"
 
@@ -38,6 +39,9 @@ public:
     AudioResampler();
 
     virtual ~AudioResampler();
+
+    AudioResampler(const AudioResampler&) = delete;
+    AudioResampler& operator =(const AudioResampler&) = delete;
 
     /*! \brief Sets the decoder that is to be used as source.
      *
@@ -122,11 +126,8 @@ protected:
     virtual void doResampling(float dst[], const float src[], size_t& dstLen, size_t& srcLen) = 0;
 
 private:
-    friend class AudioResampler_priv;
-    AudioResampler(const AudioResampler&);
-    AudioResampler& operator =(const AudioResampler&);
-
-    class AudioResampler_priv* const d;
+    friend struct AudioResampler_priv;
+    const std::unique_ptr<struct AudioResampler_priv> d;
 };
 
 } // namespace Aulib

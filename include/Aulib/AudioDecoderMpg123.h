@@ -40,7 +40,7 @@ public:
     bool seekToTime(float seconds) override;
 
 private:
-    class AudioDecoderMpg123_priv* const d;
+    const std::unique_ptr<struct AudioDecoderMpg123_priv> d;
 };
 
 } // namespace Aulib

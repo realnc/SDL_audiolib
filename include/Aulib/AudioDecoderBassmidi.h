@@ -53,7 +53,7 @@ public:
     bool seekToTime(float seconds) override;
 
 private:
-    class AudioDecoderBassmidi_priv* const d;
+    const std::unique_ptr<struct AudioDecoderBassmidi_priv> d;
 };
 
 } // namespace Aulib

@@ -89,7 +89,7 @@ mpgSeekCallback(void* rwops, off_t pos, int whence)
 namespace Aulib {
 
 /// \private
-class AudioDecoderMpg123_priv {
+struct AudioDecoderMpg123_priv {
     friend class AudioDecoderMpg123;
 
     AudioDecoderMpg123_priv();
@@ -125,14 +125,12 @@ Aulib::AudioDecoderMpg123_priv::~AudioDecoderMpg123_priv()
 
 
 Aulib::AudioDecoderMpg123::AudioDecoderMpg123()
-    : d(new AudioDecoderMpg123_priv)
+    : d(std::make_unique<AudioDecoderMpg123_priv>())
 { }
 
 
 Aulib::AudioDecoderMpg123::~AudioDecoderMpg123()
-{
-    delete d;
-}
+{ }
 
 
 bool
