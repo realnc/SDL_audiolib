@@ -94,7 +94,7 @@ option(
 )
 
 if (WITH_BUNDLED_BOOST)
-    include_directories(${PROJECT_SOURCE_DIR}/boost)
+    include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/boost)
 endif(WITH_BUNDLED_BOOST)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_GNUCC)
