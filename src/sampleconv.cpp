@@ -28,7 +28,7 @@
  */
 template <typename T>
 static void
-floatSampleToInt(T& dst, float src)
+floatSampleToInt(T& dst, float src) noexcept
 {
     if (src >= 1.f) {
         dst = std::numeric_limits<T>::max();
@@ -44,7 +44,7 @@ floatSampleToInt(T& dst, float src)
 
 template <typename T>
 static void
-floatBufToInt(T dst[], const float src[], size_t srcLen)
+floatBufToInt(T dst[], const float src[], size_t srcLen) noexcept
 {
     for (size_t i = 0; i < srcLen; ++i) {
         floatSampleToInt(dst[i], src[i]);
@@ -53,21 +53,21 @@ floatBufToInt(T dst[], const float src[], size_t srcLen)
 
 
 void
-Aulib::floatToS8(Uint8 dst[], float src[], size_t srcLen)
+Aulib::floatToS8(Uint8 dst[], float src[], size_t srcLen) noexcept
 {
     floatBufToInt((Sint8*)dst, src, srcLen);
 }
 
 
 void
-Aulib::floatToU8(Uint8 dst[], float src[], size_t srcLen)
+Aulib::floatToU8(Uint8 dst[], float src[], size_t srcLen) noexcept
 {
     floatBufToInt(dst, src, srcLen);
 }
 
 
 void
-Aulib::floatToS16LSB(Uint8 dst[], float src[], size_t srcLen)
+Aulib::floatToS16LSB(Uint8 dst[], float src[], size_t srcLen) noexcept
 {
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
     floatBufToInt((Sint16*)dst, src, srcLen);
@@ -83,7 +83,7 @@ Aulib::floatToS16LSB(Uint8 dst[], float src[], size_t srcLen)
 
 
 void
-Aulib::floatToU16LSB(Uint8 dst[], float src[], size_t srcLen)
+Aulib::floatToU16LSB(Uint8 dst[], float src[], size_t srcLen) noexcept
 {
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
     floatBufToInt((Uint16*)dst, src, srcLen);
@@ -99,7 +99,7 @@ Aulib::floatToU16LSB(Uint8 dst[], float src[], size_t srcLen)
 
 
 void
-Aulib::floatToS16MSB(Uint8 dst[], float src[], size_t srcLen)
+Aulib::floatToS16MSB(Uint8 dst[], float src[], size_t srcLen) noexcept
 {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
     floatBufToInt((Sint16*)dst, src, srcLen);
@@ -115,7 +115,7 @@ Aulib::floatToS16MSB(Uint8 dst[], float src[], size_t srcLen)
 
 
 void
-Aulib::floatToU16MSB(Uint8 dst[], float src[], size_t srcLen)
+Aulib::floatToU16MSB(Uint8 dst[], float src[], size_t srcLen) noexcept
 {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
     floatBufToInt((Uint16*)dst, src, srcLen);
@@ -131,7 +131,7 @@ Aulib::floatToU16MSB(Uint8 dst[], float src[], size_t srcLen)
 
 
 void
-Aulib::floatToS32LSB(Uint8 dst[], float src[], size_t srcLen)
+Aulib::floatToS32LSB(Uint8 dst[], float src[], size_t srcLen) noexcept
 {
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
     floatBufToInt((Sint32*)dst, src, srcLen);
@@ -149,7 +149,7 @@ Aulib::floatToS32LSB(Uint8 dst[], float src[], size_t srcLen)
 
 
 void
-Aulib::floatToFloat(Uint8 dst[], float src[], size_t srcLen)
+Aulib::floatToFloat(Uint8 dst[], float src[], size_t srcLen) noexcept
 {
     memcpy(dst, src, srcLen * sizeof(*src));
 }

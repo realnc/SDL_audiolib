@@ -39,7 +39,7 @@ public:
     Buffer(const Buffer&) = delete;
     Buffer& operator=(const Buffer&) = delete;
 
-    size_t size() const
+    size_t size() const noexcept
     {
         return fSize;
     }
@@ -64,19 +64,20 @@ public:
         fSize = newSize;
     }
 
-    void swap(Buffer& other)
+    void swap(Buffer& other) noexcept
     {
         fData.swap(other.fData);
         std::swap(fSize, other.fSize);
     }
 
-    T& operator [](const size_t pos) const
+    // unique_ptr::operator[] is not noexcept, but in reality, it can't throw.
+    T& operator [](const size_t pos) const noexcept
     {
         AM_debugAssert(pos < fSize);
         return fData[pos];
     }
 
-    T* get() const
+    T* get() const noexcept
     {
         return fData.get();
     }
