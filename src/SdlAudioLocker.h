@@ -20,12 +20,11 @@
 #define SDLAUDIOLOCKER_H
 
 #include <SDL_audio.h>
-#include "boost/core/noncopyable.hpp"
 
 /*! \private
  * RAII wrapper for SDL_LockAudio().
  */
-class SdlAudioLocker: private boost::noncopyable {
+class SdlAudioLocker {
 public:
     SdlAudioLocker()
     {
@@ -37,6 +36,9 @@ public:
     {
         unlock();
     }
+
+    SdlAudioLocker(const SdlAudioLocker&) = delete;
+    SdlAudioLocker& operator=(const SdlAudioLocker&) = delete;
 
     void unlock()
     {

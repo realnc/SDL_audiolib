@@ -19,7 +19,8 @@
 #ifndef STREAM_H
 #define STREAM_H
 
-#include <boost/function.hpp>
+#include <memory>
+#include <functional>
 #include <SDL_stdinc.h>
 #include "aulib_global.h"
 
@@ -30,7 +31,7 @@ namespace Aulib {
  */
 class AULIB_EXPORT Stream {
 public:
-    typedef boost::function<void (Stream&)> Callback;
+    typedef std::function<void (Stream&)> Callback;
 
     Stream();
     virtual ~Stream();
@@ -181,7 +182,7 @@ public:
      * manually stop it, or when it finishes playing on its own.
      *
      * \param func
-     *  Anything that can be wrapped by a boost::function (like a function pointer, functor or
+     *  Anything that can be wrapped by an std::function (like a function pointer, functor or
      *  lambda.)
      */
     void setFinishCallback(Callback func);
@@ -197,7 +198,7 @@ public:
      * The callback will be called when the stream loops. It will be called once per loop.
      *
      * \param func
-     *  Anything that can be wrapped by a boost::function (like a function pointer, functor or
+     *  Anything that can be wrapped by an std::function (like a function pointer, functor or
      *  lambda.)
      */
     void setLoopCallback(Callback func);

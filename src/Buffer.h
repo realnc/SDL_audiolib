@@ -22,7 +22,6 @@
 #include <cstring>
 #include <algorithm>
 #include <memory>
-#include "boost/core/noncopyable.hpp"
 #include "aulib_debug.h"
 
 /*! \private
@@ -30,12 +29,15 @@
  * Simple RAII wrapper for buffers/arrays. More restrictive than std::vector.
  */
 template <typename T>
-class Buffer: private boost::noncopyable {
+class Buffer {
 public:
     explicit Buffer(size_t size)
         : fData(std::make_unique<T[]>(size))
         , fSize(size)
     { }
+
+    Buffer(const Buffer&) = delete;
+    Buffer& operator=(const Buffer&) = delete;
 
     size_t size() const
     {

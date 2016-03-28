@@ -66,7 +66,7 @@ Aulib::Stream::setFinishCallback(Callback func)
 void
 Aulib::Stream::unsetFinishCallback()
 {
-    d->fFinishCallback.clear();
+    d->fFinishCallback = nullptr;
 }
 
 
@@ -80,7 +80,7 @@ Aulib::Stream::setLoopCallback(Callback func)
 void
 Aulib::Stream::unsetLoopCallback()
 {
-    d->fLoopCallback.clear();
+    d->fLoopCallback = nullptr;
 }
 
 
