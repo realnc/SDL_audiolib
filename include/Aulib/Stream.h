@@ -31,7 +31,7 @@ namespace Aulib {
  */
 class AULIB_EXPORT Stream {
 public:
-    typedef std::function<void (Stream&)> Callback;
+    using Callback = std::function<void (Stream&)>;
 
     Stream();
     virtual ~Stream();
