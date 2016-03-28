@@ -92,16 +92,6 @@ option(
     OFF
 )
 
-option(
-    WITH_BUNDLED_BOOST
-    "Use the bundled version of the boost headers."
-    ON
-)
-
-if (WITH_BUNDLED_BOOST)
-    include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/boost)
-endif(WITH_BUNDLED_BOOST)
-
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_GNUCC)
     set(CMAKE_CXX_FLAGS "-Wall -W -Wextra ${CMAKE_CXX_FLAGS}")
 endif(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_GNUCC)
