@@ -68,7 +68,7 @@ struct AudioStream_priv {
     // Sample buffers we use during decoding and mixing.
     static float* fFinalMixBuf;
     static float* fStrmBuf;
-    static int fBufLen;
+    static size_t fBufLen;
 
     void fProcessFade();
     void fStop();

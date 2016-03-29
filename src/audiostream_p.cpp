@@ -33,7 +33,7 @@ SDL_AudioSpec Aulib::AudioStream_priv::fAudioSpec;
 std::vector<Aulib::AudioStream*> Aulib::AudioStream_priv::fStreamList;
 float* Aulib::AudioStream_priv::fFinalMixBuf = nullptr;
 float* Aulib::AudioStream_priv::fStrmBuf = nullptr;
-int Aulib::AudioStream_priv::fBufLen = 0;
+size_t Aulib::AudioStream_priv::fBufLen = 0;
 
 
 Aulib::AudioStream_priv::AudioStream_priv(AudioStream* pub, Aulib::AudioDecoder* decoder,
@@ -120,7 +120,7 @@ Aulib::AudioStream_priv::fSdlCallbackImpl(void*, Uint8 out[], int outLen)
 {
     AM_debugAssert(AudioStream_priv::fSampleConverter != nullptr);
 
-    int wantedSamples = outLen / ((fAudioSpec.format & 0xFF) / 8);
+    size_t wantedSamples = outLen / ((fAudioSpec.format & 0xFF) / 8);
 
     if (fBufLen != wantedSamples) {
         fBufLen = wantedSamples;
@@ -137,57 +137,56 @@ Aulib::AudioStream_priv::fSdlCallbackImpl(void*, Uint8 out[], int outLen)
     // modify the original as we go, removing streams that have stopped.
     std::vector<AudioStream*> streamList(fStreamList);
 
-    for (size_t i = 0; i < streamList.size(); ++i) {
-        AudioStream& stream = *streamList[i];
-        if (stream.d->fWantedIterations != 0
-            and stream.d->fCurrentIteration >= stream.d->fWantedIterations)
+    for (const auto stream : streamList) {
+        if (stream->d->fWantedIterations != 0
+            and stream->d->fCurrentIteration >= stream->d->fWantedIterations)
         {
             continue;
         }
-        if (stream.d->fIsPaused) {
+        if (stream->d->fIsPaused) {
             continue;
         }
-        int len = 0;
 
+        size_t len = 0;
         while (len < wantedSamples) {
-            if (stream.d->fResampler) {
-                len += stream.d->fResampler->resample(fStrmBuf + len, wantedSamples - len);
+            if (stream->d->fResampler) {
+                len += stream->d->fResampler->resample(fStrmBuf + len, wantedSamples - len);
             } else {
                 bool callAgain = true;
                 while (len < wantedSamples and callAgain) {
-                    len += stream.d->fDecoder->decode(fStrmBuf + len, wantedSamples - len,
-                                                      callAgain);
+                    len += stream->d->fDecoder->decode(fStrmBuf + len, wantedSamples - len,
+                                                       callAgain);
                 }
             }
             if (len < wantedSamples) {
-                stream.d->fDecoder->rewind();
-                if (stream.d->fWantedIterations != 0) {
-                    ++stream.d->fCurrentIteration;
-                    if (stream.d->fCurrentIteration >= stream.d->fWantedIterations) {
-                        stream.d->fIsPlaying = false;
+                stream->d->fDecoder->rewind();
+                if (stream->d->fWantedIterations != 0) {
+                    ++stream->d->fCurrentIteration;
+                    if (stream->d->fCurrentIteration >= stream->d->fWantedIterations) {
+                        stream->d->fIsPlaying = false;
                         fStreamList.erase(
-                                    std::remove(fStreamList.begin(), fStreamList.end(), &stream),
+                                    std::remove(fStreamList.begin(), fStreamList.end(), stream),
                                     fStreamList.end());
-                        stream.invokeFinishCallback();
+                        stream->invokeFinishCallback();
                         break;
                     }
-                    stream.invokeLoopCallback();
+                    stream->invokeLoopCallback();
                 }
             }
         }
 
-        stream.d->fProcessFade();
-        float volume = stream.d->fVolume * stream.d->fInternalVolume;
+        stream->d->fProcessFade();
+        float volume = stream->d->fVolume * stream->d->fInternalVolume;
 
         // Avoid mixing on zero volume.
         if (volume > 0.f) {
             // Avoid scaling operation when volume is 1.
             if (volume != 1.f) {
-                for (int i = 0; i < len; ++i) {
+                for (size_t i = 0; i < len; ++i) {
                     fFinalMixBuf[i] += fStrmBuf[i] * volume;
                 }
             } else {
-                for (int i = 0; i < len; ++i) {
+                for (size_t i = 0; i < len; ++i) {
                     fFinalMixBuf[i] += fStrmBuf[i];
                 }
             }
