@@ -29,6 +29,65 @@
 static bool bassIsInitialized = false;
 
 
+class HstreamWrapper {
+public:
+    HstreamWrapper() noexcept = default;
+
+    explicit
+    HstreamWrapper(BOOL mem, const void* file, QWORD offset, QWORD len, DWORD flags, DWORD freq)
+    {
+        reset(mem, file, offset, len, flags, freq);
+    }
+
+    HstreamWrapper(const HstreamWrapper&) = delete;
+    HstreamWrapper& operator =(const HstreamWrapper&) = delete;
+
+    ~HstreamWrapper()
+    {
+        freeStream();
+    }
+
+    explicit operator bool() const noexcept
+    {
+        return hstream != 0;
+    }
+
+    HSTREAM get() const noexcept
+    {
+        return hstream;
+    }
+
+    void reset(BOOL mem, const void* file, QWORD offset, QWORD len, DWORD flags, DWORD freq)
+    {
+        freeStream();
+        hstream = BASS_MIDI_StreamCreateFile(mem, file, offset, len, flags, freq);
+        if (hstream == 0) {
+        AM_debugPrintLn("AudioDecoderBassmidi: got BASS error " << BASS_ErrorGetCode()
+                        << " while creating HSTREAM.");
+        }
+    }
+
+    void swap(HstreamWrapper& other) noexcept
+    {
+        std::swap(hstream, other.hstream);
+    }
+
+private:
+    HSTREAM hstream = 0;
+
+    void freeStream() noexcept
+    {
+        if (hstream == 0) {
+            return;
+        }
+        if (not BASS_StreamFree(hstream)) {
+            AM_debugPrintLn("AudioDecoderBassmidi: got BASS error " << BASS_ErrorGetCode()
+                            << " while freeing HSTREAM.");
+        }
+    }
+};
+
+
 namespace Aulib {
 
 /// \private
@@ -36,9 +95,8 @@ struct AudioDecoderBassmidi_priv {
     friend class AudioDecoderBassmidi;
 
     AudioDecoderBassmidi_priv();
-    ~AudioDecoderBassmidi_priv();
 
-    HSTREAM hstream;
+    HstreamWrapper hstream;
     Buffer<Uint8> midiData;
     bool eof;
 };
@@ -47,8 +105,7 @@ struct AudioDecoderBassmidi_priv {
 
 
 Aulib::AudioDecoderBassmidi_priv::AudioDecoderBassmidi_priv()
-    : hstream(0),
-      midiData(0),
+    : midiData(0),
       eof(false)
 {
     if (bassIsInitialized) {
@@ -59,17 +116,6 @@ Aulib::AudioDecoderBassmidi_priv::AudioDecoderBassmidi_priv()
         return;
     }
     AM_debugPrintLn("AudioDecoderBassmidi: got BASS error " << BASS_ErrorGetCode() << " while initializing.");
-}
-
-
-Aulib::AudioDecoderBassmidi_priv::~AudioDecoderBassmidi_priv()
-{
-    if (hstream) {
-        if (not BASS_StreamFree(hstream)) {
-            AM_debugPrintLn("AudioDecoderBassmidi: got BASS error " << BASS_ErrorGetCode()
-                            << " while freeing HSTREAM.");
-        }
-    }
 }
 
 
@@ -108,17 +154,12 @@ Aulib::AudioDecoderBassmidi::open(SDL_RWops* rwops)
     }
     Buffer<Uint8> newMidiData((size_t)midiDataLen);
     DWORD bassFlags = BASS_SAMPLE_FLOAT | BASS_STREAM_DECODE | BASS_MIDI_DECAYEND | BASS_MIDI_SINCINTER;
-    if (SDL_RWread(rwops, newMidiData.get(), newMidiData.size(), 1) != 1
-        or (d->hstream = BASS_MIDI_StreamCreateFile(TRUE, newMidiData.get(), 0, newMidiData.size(),
-                                                    bassFlags, 1)) == 0)
-    {
-        if (d->hstream) {
-            BASS_StreamFree(d->hstream);
-            d->hstream = 0;
-        } else {
-            AM_debugPrintLn("AudioDecoderBassmidi: got BASS error " << BASS_ErrorGetCode()
-                            << " while creating HSTREAM.");
-        }
+
+    if (SDL_RWread(rwops, newMidiData.get(), newMidiData.size(), 1) != 1) {
+        return false;
+    }
+    d->hstream.reset(TRUE, newMidiData.get(), 0, newMidiData.size(), bassFlags, 1);
+    if (not d->hstream) {
         return false;
     }
     d->midiData.swap(newMidiData);
@@ -138,7 +179,7 @@ unsigned
 Aulib::AudioDecoderBassmidi::getRate() const
 {
     BASS_CHANNELINFO inf;
-    if (BASS_ChannelGetInfo(d->hstream, &inf)) {
+    if (BASS_ChannelGetInfo(d->hstream.get(), &inf)) {
         return inf.freq;
     }
     AM_debugPrintLn("AudioDecoderBassmidi: got BASS error " << BASS_ErrorGetCode()
@@ -150,12 +191,12 @@ Aulib::AudioDecoderBassmidi::getRate() const
 size_t
 Aulib::AudioDecoderBassmidi::doDecoding(float buf[], size_t len, bool&)
 {
-    if (d->eof or d->hstream == 0) {
+    if (d->eof or not d->hstream) {
         return 0;
     }
 
     DWORD byteLen = len * sizeof(*buf);
-    DWORD ret = BASS_ChannelGetData(d->hstream, buf, byteLen | BASS_DATA_FLOAT);
+    DWORD ret = BASS_ChannelGetData(d->hstream.get(), buf, byteLen | BASS_DATA_FLOAT);
     if (ret == (DWORD)-1) {
         SDL_SetError("AudioDecoderBassmidi: got BASS error %d during decoding.\n", BASS_ErrorGetCode());
         return 0;
@@ -169,11 +210,11 @@ Aulib::AudioDecoderBassmidi::doDecoding(float buf[], size_t len, bool&)
 bool
 Aulib::AudioDecoderBassmidi::rewind()
 {
-    if (d->hstream == 0) {
+    if (not d->hstream) {
         return false;
     }
 
-    if (BASS_ChannelSetPosition(d->hstream, 0, BASS_POS_BYTE)) {
+    if (BASS_ChannelSetPosition(d->hstream.get(), 0, BASS_POS_BYTE)) {
         d->eof = false;
         return true;
     }
@@ -185,17 +226,17 @@ Aulib::AudioDecoderBassmidi::rewind()
 float
 Aulib::AudioDecoderBassmidi::duration() const
 {
-    if (d->hstream == 0) {
+    if (not d->hstream) {
         return -1;
     }
 
-    QWORD pos = BASS_ChannelGetLength(d->hstream, BASS_POS_BYTE);
+    QWORD pos = BASS_ChannelGetLength(d->hstream.get(), BASS_POS_BYTE);
     if (pos == (QWORD)-1) {
         AM_debugPrintLn("AudioDecoderBassmidi: got BASS error " << BASS_ErrorGetCode()
                         << " while getting channel length.");
         return -1;
     }
-    double sec = BASS_ChannelBytes2Seconds(d->hstream, pos);
+    double sec = BASS_ChannelBytes2Seconds(d->hstream.get(), pos);
     if (sec < 0) {
         AM_debugPrintLn("AudioDecoderBassmidi: got BASS error " << BASS_ErrorGetCode()
                         << " while translating duration from bytes to seconds.");
@@ -208,17 +249,17 @@ Aulib::AudioDecoderBassmidi::duration() const
 bool
 Aulib::AudioDecoderBassmidi::seekToTime(float seconds)
 {
-    if (d->hstream == 0) {
+    if (not d->hstream) {
         return false;
     }
 
-    QWORD bytePos = BASS_ChannelSeconds2Bytes(d->hstream, seconds);
+    QWORD bytePos = BASS_ChannelSeconds2Bytes(d->hstream.get(), seconds);
     if (bytePos == (QWORD)-1) {
         AM_debugPrintLn("AudioDecoderBassmidi: got BASS error " << BASS_ErrorGetCode()
                         << " while translating seek time to bytes.");
         return false;
     }
-    if (BASS_ChannelSetPosition(d->hstream, bytePos, BASS_POS_BYTE)) {
+    if (BASS_ChannelSetPosition(d->hstream.get(), bytePos, BASS_POS_BYTE)) {
         return true;
     }
     AM_debugPrintLn("AudioDecoderBassmidi: got BASS error " << BASS_ErrorGetCode()
