@@ -58,9 +58,8 @@ struct AudioDecoderOpus_priv {
     friend class AudioDecoderOpus;
 
     AudioDecoderOpus_priv();
-    ~AudioDecoderOpus_priv();
 
-    OggOpusFile* fOpusHandle;
+    std::unique_ptr<OggOpusFile, decltype(&op_free)> fOpusHandle;
     OpusFileCallbacks fCbs;
     bool fEOF;
     float fDuration;
@@ -70,7 +69,7 @@ struct AudioDecoderOpus_priv {
 
 
 Aulib::AudioDecoderOpus_priv::AudioDecoderOpus_priv()
-    : fOpusHandle(nullptr),
+    : fOpusHandle(nullptr, &op_free),
       fEOF(false),
       fDuration(-1.f)
 {
@@ -82,22 +81,13 @@ Aulib::AudioDecoderOpus_priv::AudioDecoderOpus_priv()
 }
 
 
-Aulib::AudioDecoderOpus_priv::~AudioDecoderOpus_priv()
-{
-}
-
-
 Aulib::AudioDecoderOpus::AudioDecoderOpus()
     : d(std::make_unique<AudioDecoderOpus_priv>())
 { }
 
 
 Aulib::AudioDecoderOpus::~AudioDecoderOpus()
-{
-    if (d->fOpusHandle) {
-        op_free(d->fOpusHandle);
-    }
-}
+{ }
 
 
 bool
@@ -107,14 +97,15 @@ Aulib::AudioDecoderOpus::open(SDL_RWops* rwops)
         return true;
     }
     int error;
-    if ((d->fOpusHandle = op_open_callbacks(rwops, &d->fCbs, nullptr, 0, &error)) == nullptr) {
+    d->fOpusHandle.reset(op_open_callbacks(rwops, &d->fCbs, nullptr, 0, &error));
+    if (not d->fOpusHandle) {
         AM_debugPrintLn("ERROR:" << error);
         if (error == OP_ENOTFORMAT) {
             AM_debugPrintLn("OP_ENOTFORMAT");
         }
         return false;
     }
-    ogg_int64_t len = op_pcm_total(d->fOpusHandle, -1);
+    ogg_int64_t len = op_pcm_total(d->fOpusHandle.get(), -1);
     // Opus is always 48kHz.
     d->fDuration = len == OP_EINVAL ? -1 : (float)len / 48000.f;
     setIsOpen(true);
@@ -148,7 +139,7 @@ Aulib::AudioDecoderOpus::doDecoding(float buf[], size_t len, bool& callAgain)
     size_t decSamples = 0;
 
     while (decSamples < len) {
-        int ret = op_read_float_stereo(d->fOpusHandle, buf + decSamples, len - decSamples);
+        int ret = op_read_float_stereo(d->fOpusHandle.get(), buf + decSamples, len - decSamples);
         if (ret == 0) {
             d->fEOF = true;
             break;
@@ -172,7 +163,7 @@ Aulib::AudioDecoderOpus::doDecoding(float buf[], size_t len, bool& callAgain)
 bool
 Aulib::AudioDecoderOpus::rewind()
 {
-    int ret = op_raw_seek(d->fOpusHandle, 0);
+    int ret = op_raw_seek(d->fOpusHandle.get(), 0);
     d->fEOF = false;
     return ret == 0 ? true : false;
 }
@@ -189,7 +180,7 @@ bool
 Aulib::AudioDecoderOpus::seekToTime(float seconds)
 {
     ogg_int64_t offset = seconds * 48000.f;
-    if (op_pcm_seek(d->fOpusHandle, offset) == 0) {
+    if (op_pcm_seek(d->fOpusHandle.get(), offset) == 0) {
         return true;
     }
     return false;

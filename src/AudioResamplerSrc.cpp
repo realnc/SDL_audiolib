@@ -28,9 +28,8 @@ struct AudioResamplerSRC_priv {
     friend class AudioResamplerSRC;
 
     AudioResamplerSRC_priv();
-    ~AudioResamplerSRC_priv();
 
-    SRC_STATE* fResampler;
+    std::unique_ptr<SRC_STATE, decltype(&src_delete)> fResampler;
     SRC_DATA fData;
 };
 
@@ -38,15 +37,9 @@ struct AudioResamplerSRC_priv {
 
 
 Aulib::AudioResamplerSRC_priv::AudioResamplerSRC_priv()
-    : fResampler(nullptr)
+    : fResampler(nullptr, &src_delete)
 {
     memset(&fData, 0, sizeof(fData));
-}
-
-
-Aulib::AudioResamplerSRC_priv::~AudioResamplerSRC_priv()
-{
-    src_delete(fResampler);
 }
 
 
@@ -63,7 +56,7 @@ Aulib::AudioResamplerSRC::~AudioResamplerSRC()
 void
 Aulib::AudioResamplerSRC::doResampling(float dst[], const float src[], size_t& dstLen, size_t& srcLen)
 {
-    if (d->fResampler == nullptr) {
+    if (not d->fResampler) {
         dstLen = srcLen = 0;
         return;
     }
@@ -75,7 +68,7 @@ Aulib::AudioResamplerSRC::doResampling(float dst[], const float src[], size_t& d
     d->fData.output_frames = dstLen / channels;
     d->fData.end_of_input = false;
 
-    src_process(d->fResampler, &d->fData);
+    src_process(d->fResampler.get(), &d->fData);
 
     dstLen = d->fData.output_frames_gen * channels;
     srcLen = d->fData.input_frames_used * channels;
@@ -85,13 +78,10 @@ Aulib::AudioResamplerSRC::doResampling(float dst[], const float src[], size_t& d
 int
 Aulib::AudioResamplerSRC::adjustForOutputSpec(unsigned dstRate, unsigned srcRate, unsigned channels)
 {
-    if (d->fResampler) {
-        src_delete(d->fResampler);
-    }
     int err;
-    d->fResampler = src_new(SRC_SINC_BEST_QUALITY, channels, &err);
     d->fData.src_ratio = (double)dstRate / (double)srcRate;
-    if (d->fResampler == nullptr) {
+    d->fResampler.reset(src_new(SRC_SINC_BEST_QUALITY, channels, &err));
+    if (not d->fResampler) {
         return -1;
     }
     return 0;

@@ -51,10 +51,9 @@ struct AudioDecoderFluidSynth_priv {
     friend class AudioDecoderFluidSynth;
 
     AudioDecoderFluidSynth_priv();
-    ~AudioDecoderFluidSynth_priv();
 
-    fluid_synth_t* fSynth;
-    fluid_player_t* fPlayer;
+    std::unique_ptr<fluid_synth_t, decltype(&delete_fluid_synth)> fSynth;
+    std::unique_ptr<fluid_player_t, decltype(&delete_fluid_player)> fPlayer;
     Buffer<Uint8> fMidiData;
     bool fEOF;
 };
@@ -63,25 +62,20 @@ struct AudioDecoderFluidSynth_priv {
 
 
 Aulib::AudioDecoderFluidSynth_priv::AudioDecoderFluidSynth_priv()
-    : fPlayer(nullptr),
+    : fSynth(nullptr, &delete_fluid_synth),
+      fPlayer(nullptr, &delete_fluid_player),
       fMidiData(0),
       fEOF(false)
 {
     if (settings == nullptr) {
         initFluidSynth();
     }
-    if ((fSynth = new_fluid_synth(settings)) == nullptr) {
+    fSynth.reset(new_fluid_synth(settings));
+    if (not fSynth) {
         return;
     }
-    fluid_synth_set_gain(fSynth, 0.7f);
-    fluid_synth_set_interp_method(fSynth, -1, FLUID_INTERP_7THORDER);
-}
-
-
-Aulib::AudioDecoderFluidSynth_priv::~AudioDecoderFluidSynth_priv()
-{
-    delete_fluid_player(fPlayer);
-    delete_fluid_synth(fSynth);
+    fluid_synth_set_gain(fSynth.get(), 0.7f);
+    fluid_synth_set_interp_method(fSynth.get(), -1, FLUID_INTERP_7THORDER);
 }
 
 
@@ -98,7 +92,7 @@ Aulib::AudioDecoderFluidSynth::~AudioDecoderFluidSynth()
 int
 Aulib::AudioDecoderFluidSynth::loadSoundfont(const char filename[])
 {
-    fluid_synth_sfload(d->fSynth, filename, true);
+    fluid_synth_sfload(d->fSynth.get(), filename, true);
     return 0;
 }
 
@@ -109,7 +103,7 @@ Aulib::AudioDecoderFluidSynth::open(SDL_RWops* rwops)
     if (isOpen()) {
         return true;
     }
-    if (d->fSynth == nullptr) {
+    if (not d->fSynth) {
         return false;
     }
 
@@ -119,18 +113,14 @@ Aulib::AudioDecoderFluidSynth::open(SDL_RWops* rwops)
         return false;
     }
     Buffer<Uint8> newMidiData((size_t)midiDataLen);
-    if (SDL_RWread(rwops, newMidiData.get(), newMidiData.size(), 1) != 1
-        or (d->fPlayer = new_fluid_player(d->fSynth)) == nullptr
-        or fluid_player_add_mem(d->fPlayer, newMidiData.get(), newMidiData.size()) != FLUID_OK
-        or fluid_player_play(d->fPlayer) != FLUID_OK)
+    if (SDL_RWread(rwops, newMidiData.get(), newMidiData.size(), 1) != 1) {
+        return false;
+    }
+    d->fPlayer.reset(new_fluid_player(d->fSynth.get()));
+    if (not d->fPlayer
+        or fluid_player_add_mem(d->fPlayer.get(), newMidiData.get(), newMidiData.size()) != FLUID_OK
+        or fluid_player_play(d->fPlayer.get()) != FLUID_OK)
     {
-        if (d->fPlayer) {
-            delete_fluid_player(d->fPlayer);
-        }
-        if (d->fSynth) {
-            delete_fluid_synth(d->fSynth);
-            d->fSynth = nullptr;
-        }
         return false;
     }
     d->fMidiData.swap(newMidiData);
@@ -161,13 +151,13 @@ size_t
 Aulib::AudioDecoderFluidSynth::doDecoding(float buf[], size_t len, bool& callAgain)
 {
     callAgain = false;
-    if (d->fSynth == nullptr or d->fEOF) {
+    if (not d->fPlayer or d->fEOF) {
         return 0;
     }
 
     len /= Aulib::spec().channels;
-    int res = fluid_synth_write_float(d->fSynth, len, buf, 0, 2, buf, 1, 2);
-    if (fluid_player_get_status(d->fPlayer) == FLUID_PLAYER_DONE) {
+    int res = fluid_synth_write_float(d->fSynth.get(), len, buf, 0, 2, buf, 1, 2);
+    if (fluid_player_get_status(d->fPlayer.get()) == FLUID_PLAYER_DONE) {
         d->fEOF = true;
     }
     if (res == FLUID_OK) {
@@ -180,11 +170,13 @@ Aulib::AudioDecoderFluidSynth::doDecoding(float buf[], size_t len, bool& callAga
 bool
 Aulib::AudioDecoderFluidSynth::rewind()
 {
-    fluid_player_stop(d->fPlayer);
-    delete_fluid_player(d->fPlayer);
-    d->fPlayer = new_fluid_player(d->fSynth);
-    fluid_player_add_mem(d->fPlayer, d->fMidiData.get(), d->fMidiData.size());
-    fluid_player_play(d->fPlayer);
+    fluid_player_stop(d->fPlayer.get());
+    d->fPlayer.reset(new_fluid_player(d->fSynth.get()));
+    if (not d->fPlayer) {
+        return false;
+    }
+    fluid_player_add_mem(d->fPlayer.get(), d->fMidiData.get(), d->fMidiData.size());
+    fluid_player_play(d->fPlayer.get());
     d->fEOF = false;
     return true;
 }

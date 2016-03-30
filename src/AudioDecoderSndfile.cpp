@@ -79,9 +79,8 @@ struct AudioDecoderSndfile_priv {
     friend class AudioDecoderSndfile;
 
     AudioDecoderSndfile_priv();
-    ~AudioDecoderSndfile_priv();
 
-    SNDFILE* fSndfile;
+    std::unique_ptr<SNDFILE, decltype(&sf_close)> fSndfile;
     SF_INFO fInfo;
     bool fEOF;
     float fDuration;
@@ -91,14 +90,9 @@ struct AudioDecoderSndfile_priv {
 
 
 Aulib::AudioDecoderSndfile_priv::AudioDecoderSndfile_priv()
-    : fSndfile(nullptr),
+    : fSndfile(nullptr, &sf_close),
       fEOF(false),
       fDuration(-1.f)
-{
-}
-
-
-Aulib::AudioDecoderSndfile_priv::~AudioDecoderSndfile_priv()
 {
 }
 
@@ -109,11 +103,7 @@ Aulib::AudioDecoderSndfile::AudioDecoderSndfile()
 
 
 Aulib::AudioDecoderSndfile::~AudioDecoderSndfile()
-{
-    if (d->fSndfile) {
-        sf_close(d->fSndfile);
-    }
-}
+{ }
 
 
 bool
@@ -129,7 +119,8 @@ Aulib::AudioDecoderSndfile::open(SDL_RWops* rwops)
     cbs.read = sfReadCb;
     cbs.write = nullptr;
     cbs.tell = sfTellCb;
-    if ((d->fSndfile = sf_open_virtual(&cbs, SFM_READ, &d->fInfo, rwops)) == nullptr) {
+    d->fSndfile.reset(sf_open_virtual(&cbs, SFM_READ, &d->fInfo, rwops));
+    if (not d->fSndfile) {
         return false;
     }
     d->fDuration = (float)d->fInfo.frames / d->fInfo.samplerate;
@@ -159,7 +150,7 @@ Aulib::AudioDecoderSndfile::doDecoding(float buf[], size_t len, bool& callAgain)
     if (d->fEOF) {
         return 0;
     }
-    sf_count_t ret = sf_read_float(d->fSndfile, buf, len);
+    sf_count_t ret = sf_read_float(d->fSndfile.get(), buf, len);
     if (ret == 0) {
         d->fEOF = true;
     }
@@ -170,7 +161,7 @@ Aulib::AudioDecoderSndfile::doDecoding(float buf[], size_t len, bool& callAgain)
 bool
 Aulib::AudioDecoderSndfile::rewind()
 {
-    return sf_seek(d->fSndfile, 0, SEEK_SET) == 0;
+    return sf_seek(d->fSndfile.get(), 0, SEEK_SET) == 0;
 }
 
 
@@ -184,7 +175,7 @@ Aulib::AudioDecoderSndfile::duration() const
 bool
 Aulib::AudioDecoderSndfile::seekToTime(float seconds)
 {
-    if (sf_seek(d->fSndfile, seconds * d->fInfo.samplerate, SEEK_SET) == -1) {
+    if (sf_seek(d->fSndfile.get(), seconds * d->fInfo.samplerate, SEEK_SET) == -1) {
         return false;
     }
     return true;

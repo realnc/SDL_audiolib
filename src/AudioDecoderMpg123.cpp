@@ -93,9 +93,8 @@ struct AudioDecoderMpg123_priv {
     friend class AudioDecoderMpg123;
 
     AudioDecoderMpg123_priv();
-    ~AudioDecoderMpg123_priv();
 
-    mpg123_handle* fMpgHandle;
+    std::unique_ptr<mpg123_handle, decltype(&mpg123_delete)> fMpgHandle;
     unsigned fChannels;
     unsigned fRate;
     bool fEOF;
@@ -106,7 +105,7 @@ struct AudioDecoderMpg123_priv {
 
 
 Aulib::AudioDecoderMpg123_priv::AudioDecoderMpg123_priv()
-    : fMpgHandle(nullptr),
+    : fMpgHandle(nullptr, &mpg123_delete),
       fChannels(0),
       fRate(0),
       fEOF(false),
@@ -115,12 +114,6 @@ Aulib::AudioDecoderMpg123_priv::AudioDecoderMpg123_priv()
     if (not initialized) {
         initLibMpg();
     }
-}
-
-
-Aulib::AudioDecoderMpg123_priv::~AudioDecoderMpg123_priv()
-{
-    mpg123_delete(fMpgHandle);
 }
 
 
@@ -142,26 +135,23 @@ Aulib::AudioDecoderMpg123::open(SDL_RWops* rwops)
     if (not initialized) {
         return false;
     }
-    if ((d->fMpgHandle = mpg123_new(nullptr, nullptr)) == nullptr) {
+    d->fMpgHandle.reset(mpg123_new(nullptr, nullptr));
+    if (not d->fMpgHandle) {
         return false;
     }
-    if (initMpgFormats(d->fMpgHandle) < 0) {
-        mpg123_delete(d->fMpgHandle);
-        d->fMpgHandle = nullptr;
+    if (initMpgFormats(d->fMpgHandle.get()) < 0) {
         return false;
     }
-    mpg123_replace_reader_handle(d->fMpgHandle, mpgReadCallback, mpgSeekCallback, nullptr);
-    mpg123_open_handle(d->fMpgHandle, rwops);
+    mpg123_replace_reader_handle(d->fMpgHandle.get(), mpgReadCallback, mpgSeekCallback, nullptr);
+    mpg123_open_handle(d->fMpgHandle.get(), rwops);
     long rate;
     int channels, encoding;
-    if (mpg123_getformat(d->fMpgHandle, &rate, &channels, &encoding) != 0) {
-        mpg123_delete(d->fMpgHandle);
-        d->fMpgHandle = nullptr;
+    if (mpg123_getformat(d->fMpgHandle.get(), &rate, &channels, &encoding) != 0) {
         return false;
     }
     d->fChannels = channels;
     d->fRate = rate;
-    off_t len = mpg123_length(d->fMpgHandle);
+    off_t len = mpg123_length(d->fMpgHandle.get());
     d->fDuration = (len == MPG123_ERR) ? -1 : ((float)len / rate);
     setIsOpen(true);
     return true;
@@ -195,12 +185,12 @@ Aulib::AudioDecoderMpg123::doDecoding(float buf[], size_t len, bool& callAgain)
     size_t totalBytes = 0;
 
     while (totalBytes < bytesWanted and not callAgain) {
-        int ret = mpg123_read(d->fMpgHandle, (unsigned char*)buf, bytesWanted, &decBytes);
+        int ret = mpg123_read(d->fMpgHandle.get(), (unsigned char*)buf, bytesWanted, &decBytes);
         totalBytes += decBytes;
         if (ret == MPG123_NEW_FORMAT) {
             long rate;
             int channels, encoding;
-            mpg123_getformat(d->fMpgHandle, &rate, &channels, &encoding);
+            mpg123_getformat(d->fMpgHandle.get(), &rate, &channels, &encoding);
             d->fChannels = channels;
             d->fRate = rate;
             callAgain = true;
@@ -216,7 +206,7 @@ Aulib::AudioDecoderMpg123::doDecoding(float buf[], size_t len, bool& callAgain)
 bool
 Aulib::AudioDecoderMpg123::rewind()
 {
-    if (mpg123_seek(d->fMpgHandle, 0, SEEK_SET) < 0) {
+    if (mpg123_seek(d->fMpgHandle.get(), 0, SEEK_SET) < 0) {
         return false;
     }
     d->fEOF = false;
@@ -234,8 +224,8 @@ Aulib::AudioDecoderMpg123::duration() const
 bool
 Aulib::AudioDecoderMpg123::seekToTime(float seconds)
 {
-    off_t targetFrame = mpg123_timeframe(d->fMpgHandle, seconds);
-    if (targetFrame >= 0 and mpg123_seek_frame(d->fMpgHandle, targetFrame, SEEK_SET) >= 0) {
+    off_t targetFrame = mpg123_timeframe(d->fMpgHandle.get(), seconds);
+    if (targetFrame >= 0 and mpg123_seek_frame(d->fMpgHandle.get(), targetFrame, SEEK_SET) >= 0) {
         return true;
     }
     return false;

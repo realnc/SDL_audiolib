@@ -76,10 +76,9 @@ namespace Aulib {
 struct AudioDecoderMusepack_priv {
 public:
     AudioDecoderMusepack_priv();
-    ~AudioDecoderMusepack_priv();
 
     mpc_reader reader;
-    mpc_demux* demuxer;
+    std::unique_ptr<mpc_demux, decltype(&mpc_demux_exit)> demuxer;
     mpc_frame_info curFrame;
     Buffer<float> curFrameBuffer;
     mpc_streaminfo strmInfo;
@@ -92,7 +91,7 @@ public:
 
 
 Aulib::AudioDecoderMusepack_priv::AudioDecoderMusepack_priv()
-    : demuxer(nullptr),
+    : demuxer(nullptr, &mpc_demux_exit),
       curFrameBuffer(MPC_DECODER_BUFFER_LENGTH),
       frameBufPos(0),
       eof(false),
@@ -106,14 +105,6 @@ Aulib::AudioDecoderMusepack_priv::AudioDecoderMusepack_priv()
     reader.data = nullptr;
     curFrame.buffer = curFrameBuffer.get();
     curFrame.samples = 0;
-}
-
-
-Aulib::AudioDecoderMusepack_priv::~AudioDecoderMusepack_priv()
-{
-    if (demuxer) {
-        mpc_demux_exit(demuxer);
-    }
 }
 
 
@@ -134,11 +125,12 @@ Aulib::AudioDecoderMusepack::open(SDL_RWops* rwops)
         return true;
     }
     d->reader.data = rwops;
-    if ((d->demuxer = mpc_demux_init(&d->reader)) == nullptr) {
+    d->demuxer.reset(mpc_demux_init(&d->reader));
+    if (not d->demuxer) {
         d->reader.data = nullptr;
         return false;
     }
-    mpc_demux_get_info(d->demuxer, &d->strmInfo);
+    mpc_demux_get_info(d->demuxer.get(), &d->strmInfo);
     setIsOpen(true);
     return true;
 }
@@ -187,7 +179,7 @@ Aulib::AudioDecoderMusepack::doDecoding(float buf[], size_t len, bool& callAgain
 
     // Decode one frame at a time, until we have enough samples.
     while (totalSamples < wantedSamples) {
-        if (mpc_demux_decode(d->demuxer, &d->curFrame) != MPC_STATUS_OK) {
+        if (mpc_demux_decode(d->demuxer.get(), &d->curFrame) != MPC_STATUS_OK) {
             AM_warnLn("AudioDecoderMusepack decoding error.");
             return 0;
         }
@@ -227,7 +219,7 @@ Aulib::AudioDecoderMusepack::seekToTime(float seconds)
     if (not d->demuxer) {
         return false;
     }
-    mpc_status status = mpc_demux_seek_second(d->demuxer, seconds);
+    mpc_status status = mpc_demux_seek_second(d->demuxer.get(), seconds);
     if (status == MPC_STATUS_OK) {
         d->eof = false;
     }

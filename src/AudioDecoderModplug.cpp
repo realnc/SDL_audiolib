@@ -54,9 +54,8 @@ struct AudioDecoderModPlug_priv {
     friend class AudioDecoderModPlug;
 
     AudioDecoderModPlug_priv();
-    ~AudioDecoderModPlug_priv();
 
-    ModPlugFile* mpHandle;
+    std::unique_ptr<ModPlugFile, decltype(&ModPlug_Unload)> mpHandle;
     bool atEOF;
     float fDuration;
 };
@@ -65,20 +64,12 @@ struct AudioDecoderModPlug_priv {
 
 
 Aulib::AudioDecoderModPlug_priv::AudioDecoderModPlug_priv()
-    : mpHandle(nullptr),
+    : mpHandle(nullptr, &ModPlug_Unload),
       atEOF(false),
       fDuration(-1.f)
 {
     if (not initialized) {
         initModPlug(Aulib::spec());
-    }
-}
-
-
-Aulib::AudioDecoderModPlug_priv::~AudioDecoderModPlug_priv()
-{
-    if (mpHandle) {
-        ModPlug_Unload(mpHandle);
     }
 }
 
@@ -104,17 +95,18 @@ Aulib::AudioDecoderModPlug::open(SDL_RWops* rwops)
     if (dataSize <= 0 or dataSize > std::numeric_limits<int>::max()) {
         return false;
     }
-    bool ret = true;
     Buffer<Uint8> data((size_t)dataSize);
     if (SDL_RWread(rwops, data.get(), data.size(), 1) != 1) {
-        ret = false;
-    } else if ((d->mpHandle = ModPlug_Load(data.get(), (int)data.size())) == nullptr) {
-        ret = false;
+        return false;
     }
-    ModPlug_SetMasterVolume(d->mpHandle, 192);
-    d->fDuration = (float)ModPlug_GetLength(d->mpHandle) / 1000.f;
-    setIsOpen(ret);
-    return ret;
+    d->mpHandle.reset(ModPlug_Load(data.get(), (int)data.size()));
+    if (not d->mpHandle) {
+        return false;
+    }
+    ModPlug_SetMasterVolume(d->mpHandle.get(), 192);
+    d->fDuration = (float)ModPlug_GetLength(d->mpHandle.get()) / 1000.f;
+    setIsOpen(true);
+    return true;
 }
 
 
@@ -140,7 +132,7 @@ Aulib::AudioDecoderModPlug::doDecoding(float buf[], size_t len, bool& callAgain)
         return 0;
     }
     Buffer<Sint32> tmpBuf(len);
-    int ret = ModPlug_Read(d->mpHandle, tmpBuf.get(), len * 4);
+    int ret = ModPlug_Read(d->mpHandle.get(), tmpBuf.get(), len * 4);
     // Convert from 32-bit to float.
     for (size_t i = 0; i < len; ++i) {
         buf[i] = (float)tmpBuf[i] / 2147483648.f;
@@ -155,7 +147,7 @@ Aulib::AudioDecoderModPlug::doDecoding(float buf[], size_t len, bool& callAgain)
 bool
 Aulib::AudioDecoderModPlug::rewind()
 {
-    ModPlug_Seek(d->mpHandle, 0);
+    ModPlug_Seek(d->mpHandle.get(), 0);
     d->atEOF = false;
     return true;
 }
@@ -171,6 +163,6 @@ Aulib::AudioDecoderModPlug::duration() const
 bool
 Aulib::AudioDecoderModPlug::seekToTime(float seconds)
 {
-    ModPlug_Seek(d->mpHandle, seconds * 1000);
+    ModPlug_Seek(d->mpHandle.get(), seconds * 1000);
     return true;
 }

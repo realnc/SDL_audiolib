@@ -29,9 +29,8 @@ namespace Aulib {
 /// \private
 struct AudioDecoderWildmidi_priv {
     AudioDecoderWildmidi_priv();
-    ~AudioDecoderWildmidi_priv();
 
-    midi* midiHandle;
+    std::unique_ptr<midi, decltype(&WildMidi_Close)> midiHandle;
     Buffer<Uint8> midiData;
     Buffer<Sint16> sampBuf;
     bool eof;
@@ -48,19 +47,11 @@ unsigned AudioDecoderWildmidi_priv::rate = 0;
 
 
 Aulib::AudioDecoderWildmidi_priv::AudioDecoderWildmidi_priv()
-    : midiHandle(nullptr),
+    : midiHandle(nullptr, &WildMidi_Close),
       midiData(0),
       sampBuf(0),
       eof(false)
 { }
-
-
-Aulib::AudioDecoderWildmidi_priv::~AudioDecoderWildmidi_priv()
-{
-    if (midiHandle) {
-        WildMidi_Close(midiHandle);
-    }
-}
 
 
 Aulib::AudioDecoderWildmidi::AudioDecoderWildmidi()
@@ -120,9 +111,11 @@ Aulib::AudioDecoderWildmidi::open(SDL_RWops* rwops)
     }
 
     Buffer<Uint8> newMidiData((size_t)newMidiDataLen);
-    if (SDL_RWread(rwops, newMidiData.get(), newMidiData.size(), 1) != 1
-        or (d->midiHandle = WildMidi_OpenBuffer(newMidiData.get(), newMidiData.size())) == nullptr)
-    {
+    if (SDL_RWread(rwops, newMidiData.get(), newMidiData.size(), 1) != 1) {
+        return false;
+    }
+    d->midiHandle.reset(WildMidi_OpenBuffer(newMidiData.get(), newMidiData.size()));
+    if (not d->midiHandle) {
         return false;
     }
     d->midiData.swap(newMidiData);
@@ -149,14 +142,14 @@ size_t
 Aulib::AudioDecoderWildmidi::doDecoding(float buf[], size_t len, bool& callAgain)
 {
     callAgain = false;
-    if (d->midiHandle == nullptr or d->eof) {
+    if (not d->midiHandle or d->eof) {
         return 0;
     }
 
     if (d->sampBuf.size() != len) {
         d->sampBuf.reset(len);
     }
-    int res = WildMidi_GetOutput(d->midiHandle, (char*)d->sampBuf.get(), len * 2);
+    int res = WildMidi_GetOutput(d->midiHandle.get(), (char*)d->sampBuf.get(), len * 2);
     if (res < 0) {
         return 0;
     }
@@ -185,7 +178,7 @@ float
 Aulib::AudioDecoderWildmidi::duration() const
 {
     _WM_Info* info;
-    if (not d->midiHandle or (info = WildMidi_GetInfo(d->midiHandle)) == nullptr) {
+    if (not d->midiHandle or (info = WildMidi_GetInfo(d->midiHandle.get())) == nullptr) {
         return -1.f;
     }
     return info->approx_total_samples / AudioDecoderWildmidi_priv::rate;
@@ -196,5 +189,5 @@ bool
 Aulib::AudioDecoderWildmidi::seekToTime(float seconds)
 {
     unsigned long samplePos = seconds * AudioDecoderWildmidi_priv::rate;
-    return (WildMidi_FastSeek(d->midiHandle, &samplePos) == 0);
+    return (WildMidi_FastSeek(d->midiHandle.get(), &samplePos) == 0);
 }

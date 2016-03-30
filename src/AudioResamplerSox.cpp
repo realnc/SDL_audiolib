@@ -30,25 +30,16 @@ struct AudioResamplerSox_priv {
     friend class AudioResamplerSox;
 
     AudioResamplerSox_priv();
-    ~AudioResamplerSox_priv();
 
-    soxr_t fResampler;
+    std::unique_ptr<soxr, decltype(&soxr_delete)> fResampler;
 };
 
 } // namespace Aulib
 
 
 Aulib::AudioResamplerSox_priv::AudioResamplerSox_priv()
-    : fResampler(nullptr)
+    : fResampler(nullptr, &soxr_delete)
 {
-}
-
-
-Aulib::AudioResamplerSox_priv::~AudioResamplerSox_priv()
-{
-    if (fResampler) {
-        soxr_delete(fResampler);
-    }
 }
 
 
@@ -65,13 +56,13 @@ Aulib::AudioResamplerSox::~AudioResamplerSox()
 void
 Aulib::AudioResamplerSox::doResampling(float dst[], const float src[], size_t& dstLen, size_t& srcLen)
 {
-    if (d->fResampler == nullptr) {
+    if (not d->fResampler) {
         dstLen = srcLen = 0;
         return;
     }
     size_t dstDone, srcDone, channels = currentChannels();
     soxr_error_t error;
-    error = soxr_process(d->fResampler, src, srcLen / channels, &srcDone, dst, dstLen / channels,
+    error = soxr_process(d->fResampler.get(), src, srcLen / channels, &srcDone, dst, dstLen / channels,
                          &dstDone);
     if (error) {
         // FIXME: What do we do?
@@ -87,10 +78,6 @@ Aulib::AudioResamplerSox::doResampling(float dst[], const float src[], size_t& d
 int
 Aulib::AudioResamplerSox::adjustForOutputSpec(unsigned dstRate, unsigned srcRate, unsigned channels)
 {
-    if (d->fResampler) {
-        soxr_delete(d->fResampler);
-    }
-
     soxr_io_spec_t spec;
     memset(&spec, 0, sizeof(spec));
     spec.itype = spec.otype = SOXR_FLOAT32_I;
@@ -99,7 +86,7 @@ Aulib::AudioResamplerSox::adjustForOutputSpec(unsigned dstRate, unsigned srcRate
     //soxr_quality_spec_t quality = soxr_quality_spec()
 
     soxr_error_t error;
-    d->fResampler = soxr_create(srcRate, dstRate, channels, &error, &spec, nullptr, nullptr);
+    d->fResampler.reset(soxr_create(srcRate, dstRate, channels, &error, &spec, nullptr, nullptr));
     if (error) {
         d->fResampler = nullptr;
         return -1;

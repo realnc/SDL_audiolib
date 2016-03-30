@@ -30,32 +30,21 @@ struct AudioResamplerSpeex_priv {
     friend class AudioResamplerSpeex;
 
     AudioResamplerSpeex_priv();
-    ~AudioResamplerSpeex_priv();
 
-    SpeexResamplerState* fResampler;
+    std::unique_ptr<SpeexResamplerState, decltype(&speex_resampler_destroy)> fResampler;
 };
 
 } // namespace Aulib
 
 
 Aulib::AudioResamplerSpeex_priv::AudioResamplerSpeex_priv()
-    : fResampler(nullptr)
-{
-}
-
-
-Aulib::AudioResamplerSpeex_priv::~AudioResamplerSpeex_priv()
-{
-    if (fResampler) {
-        speex_resampler_destroy(fResampler);
-    }
-}
+    : fResampler(nullptr, &speex_resampler_destroy)
+{ }
 
 
 Aulib::AudioResamplerSpeex::AudioResamplerSpeex()
     : d(std::make_unique<AudioResamplerSpeex_priv>())
-{
-}
+{ }
 
 
 Aulib::AudioResamplerSpeex::~AudioResamplerSpeex()
@@ -63,9 +52,10 @@ Aulib::AudioResamplerSpeex::~AudioResamplerSpeex()
 
 
 void
-Aulib::AudioResamplerSpeex::doResampling(float dst[], const float src[], size_t& dstLen, size_t& srcLen)
+Aulib::AudioResamplerSpeex::doResampling(float dst[], const float src[], size_t& dstLen,
+                                         size_t& srcLen)
 {
-    if (d->fResampler == nullptr) {
+    if (not d->fResampler) {
         dstLen = srcLen = 0;
         return;
     }
@@ -77,7 +67,7 @@ Aulib::AudioResamplerSpeex::doResampling(float dst[], const float src[], size_t&
         dstLen = srcLen = 0;
         return;
     }
-    speex_resampler_process_interleaved_float(d->fResampler, src, &spxInLen, dst, &spxOutLen);
+    speex_resampler_process_interleaved_float(d->fResampler.get(), src, &spxInLen, dst, &spxOutLen);
     dstLen = spxOutLen * channels;
     srcLen = spxInLen * channels;
 }
@@ -87,11 +77,8 @@ int
 Aulib::AudioResamplerSpeex::adjustForOutputSpec(unsigned dstRate, unsigned srcRate,
                                                 unsigned channels)
 {
-    if (d->fResampler) {
-        speex_resampler_destroy(d->fResampler);
-    }
     int err;
-    d->fResampler = speex_resampler_init(channels, srcRate, dstRate, 10, &err);
+    d->fResampler.reset(speex_resampler_init(channels, srcRate, dstRate, 10, &err));
     if (err) {
         d->fResampler = nullptr;
         return -1;
