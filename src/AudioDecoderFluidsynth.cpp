@@ -74,8 +74,13 @@ Aulib::AudioDecoderFluidSynth_priv::AudioDecoderFluidSynth_priv()
     if (not fSynth) {
         return;
     }
-    fluid_synth_set_gain(fSynth.get(), 0.7f);
+    fluid_synth_set_gain(fSynth.get(), 0.6f);
     fluid_synth_set_interp_method(fSynth.get(), -1, FLUID_INTERP_7THORDER);
+    fluid_synth_set_reverb(fSynth.get(),
+                           0.6,  // Room size
+                           0.5,  // Damping
+                           0.5,  // Width
+                           0.3); // Level
 }
 
 
