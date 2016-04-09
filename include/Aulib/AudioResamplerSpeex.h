@@ -26,7 +26,7 @@ namespace Aulib {
 /*!
  * \brief Speex resampler.
  */
-class AULIB_EXPORT AudioResamplerSpeex: public AudioResampler {
+class AULIB_EXPORT AudioResamplerSpeex final: public AudioResampler {
 public:
     AudioResamplerSpeex();
     ~AudioResamplerSpeex() override;

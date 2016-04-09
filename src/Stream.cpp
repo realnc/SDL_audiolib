@@ -23,7 +23,7 @@
 namespace Aulib {
 
 /// \private
-struct Stream_priv {
+struct Stream_priv final {
     friend class Stream;
 
     Stream_priv();

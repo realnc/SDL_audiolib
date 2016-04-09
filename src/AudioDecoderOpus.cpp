@@ -54,7 +54,7 @@ opusTellCb(void* rwops)
 namespace Aulib {
 
 /// \private
-struct AudioDecoderOpus_priv {
+struct AudioDecoderOpus_priv final {
     friend class AudioDecoderOpus;
 
     AudioDecoderOpus_priv();

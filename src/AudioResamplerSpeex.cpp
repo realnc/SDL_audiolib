@@ -26,7 +26,7 @@
 namespace Aulib {
 
 /// \private
-struct AudioResamplerSpeex_priv {
+struct AudioResamplerSpeex_priv final {
     friend class AudioResamplerSpeex;
 
     AudioResamplerSpeex_priv();

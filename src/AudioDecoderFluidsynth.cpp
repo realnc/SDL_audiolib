@@ -47,7 +47,7 @@ initFluidSynth()
 namespace Aulib {
 
 /// \private
-struct AudioDecoderFluidSynth_priv {
+struct AudioDecoderFluidSynth_priv final {
     friend class AudioDecoderFluidSynth;
 
     AudioDecoderFluidSynth_priv();

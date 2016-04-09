@@ -26,7 +26,7 @@ namespace Aulib {
 /*!
  * \brief SRC (libsamplerate) resampler.
  */
-class AULIB_EXPORT AudioResamplerSRC: public AudioResampler {
+class AULIB_EXPORT AudioResamplerSRC final: public AudioResampler {
 public:
     AudioResamplerSRC();
     ~AudioResamplerSRC() override;

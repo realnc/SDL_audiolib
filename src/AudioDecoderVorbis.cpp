@@ -55,7 +55,7 @@ vorbisTellCb(void* rwops)
 namespace Aulib {
 
 /// \private
-struct AudioDecoderVorbis_priv {
+struct AudioDecoderVorbis_priv final {
     friend class AudioDecoderVorbis;
 
     AudioDecoderVorbis_priv();

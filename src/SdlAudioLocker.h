@@ -24,7 +24,7 @@
 /*! \private
  * RAII wrapper for SDL_LockAudio().
  */
-class SdlAudioLocker {
+class SdlAudioLocker final {
 public:
     SdlAudioLocker()
     {

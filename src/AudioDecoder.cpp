@@ -35,7 +35,7 @@
 namespace Aulib {
 
 /// \private
-class AudioDecoder_priv {
+class AudioDecoder_priv final {
 public:
     AudioDecoder_priv();
 

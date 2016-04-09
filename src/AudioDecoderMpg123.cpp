@@ -89,7 +89,7 @@ mpgSeekCallback(void* rwops, off_t pos, int whence)
 namespace Aulib {
 
 /// \private
-struct AudioDecoderMpg123_priv {
+struct AudioDecoderMpg123_priv final {
     friend class AudioDecoderMpg123;
 
     AudioDecoderMpg123_priv();

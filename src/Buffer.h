@@ -29,7 +29,7 @@
  * Simple RAII wrapper for buffers/arrays. More restrictive than std::vector.
  */
 template <typename T>
-class Buffer {
+class Buffer final {
 public:
     explicit Buffer(size_t size)
         : fData(std::make_unique<T[]>(size))

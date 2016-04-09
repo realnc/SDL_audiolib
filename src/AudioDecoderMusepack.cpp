@@ -73,7 +73,7 @@ mpcCanseekCb(mpc_reader* reader)
 namespace Aulib {
 
 /// \private
-struct AudioDecoderMusepack_priv {
+struct AudioDecoderMusepack_priv final {
 public:
     AudioDecoderMusepack_priv();
 

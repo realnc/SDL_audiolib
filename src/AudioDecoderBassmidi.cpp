@@ -29,7 +29,7 @@
 static bool bassIsInitialized = false;
 
 
-class HstreamWrapper {
+class HstreamWrapper final {
 public:
     HstreamWrapper() noexcept = default;
 
@@ -91,7 +91,7 @@ private:
 namespace Aulib {
 
 /// \private
-struct AudioDecoderBassmidi_priv {
+struct AudioDecoderBassmidi_priv final {
     friend class AudioDecoderBassmidi;
 
     AudioDecoderBassmidi_priv();

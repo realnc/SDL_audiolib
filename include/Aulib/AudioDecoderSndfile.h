@@ -26,7 +26,7 @@ namespace Aulib {
 /*!
  * \brief Libsndfile decoder.
  */
-class AULIB_EXPORT AudioDecoderSndfile: public AudioDecoder {
+class AULIB_EXPORT AudioDecoderSndfile final: public AudioDecoder {
 public:
     AudioDecoderSndfile();
     ~AudioDecoderSndfile() override;

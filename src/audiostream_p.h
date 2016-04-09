@@ -28,7 +28,7 @@
 namespace Aulib {
 
 /// \private
-struct AudioStream_priv {
+struct AudioStream_priv final {
     friend class AudioStream;
     friend int init(int freq, SDL_AudioFormat format, Uint8 channels, Uint16 bufferSize);
     friend void Aulib::quit();

@@ -30,7 +30,7 @@ namespace Aulib {
  * \note Before creating any instances of this class, you need to initialize the WildMIDI library
  * by calling the AudioDecoderWildmidi::init() function once.
  */
-class AULIB_EXPORT AudioDecoderWildmidi: public AudioDecoder {
+class AULIB_EXPORT AudioDecoderWildmidi final: public AudioDecoder {
 public:
     AudioDecoderWildmidi();
     ~AudioDecoderWildmidi() override;

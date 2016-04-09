@@ -50,7 +50,7 @@ initModPlug(const SDL_AudioSpec& spec)
 namespace Aulib {
 
 /// \private
-struct AudioDecoderModPlug_priv {
+struct AudioDecoderModPlug_priv final {
     friend class AudioDecoderModPlug;
 
     AudioDecoderModPlug_priv();

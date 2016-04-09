@@ -58,7 +58,7 @@ relocateBuffer(float* buf, size_t& pos, size_t& end)
 namespace Aulib {
 
 /// \private
-struct AudioResampler_priv {
+struct AudioResampler_priv final {
     AudioResampler* q;
 
     AudioResampler_priv(AudioResampler *pub);

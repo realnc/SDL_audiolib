@@ -75,7 +75,7 @@ sfTellCb(void* rwops)
 namespace Aulib {
 
 /// \private
-struct AudioDecoderSndfile_priv {
+struct AudioDecoderSndfile_priv final {
     friend class AudioDecoderSndfile;
 
     AudioDecoderSndfile_priv();

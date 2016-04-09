@@ -26,7 +26,7 @@ namespace Aulib {
 /*!
  * \brief BASSMIDI decoder.
  */
-class AULIB_EXPORT AudioDecoderBassmidi: public AudioDecoder {
+class AULIB_EXPORT AudioDecoderBassmidi final: public AudioDecoder {
 public:
     AudioDecoderBassmidi();
     ~AudioDecoderBassmidi() override;

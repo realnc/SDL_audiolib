@@ -27,7 +27,7 @@
 namespace Aulib {
 
 /// \private
-struct AudioDecoderWildmidi_priv {
+struct AudioDecoderWildmidi_priv final {
     AudioDecoderWildmidi_priv();
 
     std::unique_ptr<midi, decltype(&WildMidi_Close)> midiHandle;
