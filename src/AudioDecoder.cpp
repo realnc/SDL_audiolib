@@ -124,6 +124,9 @@ Aulib::AudioDecoder::isOpen() const
 static void
 monoToStereo(float buf[], size_t len)
 {
+    if (len == 0 or buf == nullptr) {
+        return;
+    }
     for (size_t i = len / 2 - 1, j = len - 1; i > 0; --i) {
         buf[j--] = buf[i];
         buf[j--] = buf[i];
@@ -134,6 +137,9 @@ monoToStereo(float buf[], size_t len)
 static void
 stereoToMono(float dst[], float src[], size_t srcLen)
 {
+    if (srcLen == 0 or dst == nullptr or src == nullptr) {
+        return;
+    }
     for (size_t i = 0, j = 0; i < srcLen; i += 2, ++j) {
         dst[j] = src[i] * 0.5f;
         dst[j] += src[i + 1] * 0.5f;
