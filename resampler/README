@@ -3,7 +3,7 @@ package from the Opus codec distribution:
 
   http://www.opus-codec.org
 
-Version of opus-tools: 0.1.8
+Version of opus-tools: 0.1.10
 
 The Opus resampler is a modified version of the resampler that comes with the
 Speex codec. Although you can substitute this resampler with the one from Speex,
@@ -13,7 +13,7 @@ Therefore, it is not recommended to "unbundle" the code provided here and link
 against the Speex resampler, as this will result in very audible distortion when
 resampling audio from/to specific sample rates (44.1kHz to 96kHz, for example.)
 
-The resampler code is subject to the following two clause BSD-style license:
+The resampler code is subject to the following two-clause BSD-style license:
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions
