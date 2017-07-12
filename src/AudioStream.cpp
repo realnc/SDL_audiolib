@@ -74,7 +74,7 @@ Aulib::AudioStream::open()
 
 
 bool
-Aulib::AudioStream::play(unsigned iterations, float fadeTime)
+Aulib::AudioStream::play(int iterations, float fadeTime)
 {
     if (not open()) {
         return false;

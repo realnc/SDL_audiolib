@@ -95,8 +95,8 @@ struct AudioDecoderMpg123_priv final {
     AudioDecoderMpg123_priv();
 
     std::unique_ptr<mpg123_handle, decltype(&mpg123_delete)> fMpgHandle;
-    unsigned fChannels;
-    unsigned fRate;
+    int fChannels;
+    int fRate;
     bool fEOF;
     float fDuration;
 };
@@ -158,31 +158,31 @@ Aulib::AudioDecoderMpg123::open(SDL_RWops* rwops)
 }
 
 
-unsigned
+int
 Aulib::AudioDecoderMpg123::getChannels() const
 {
     return d->fChannels;
 }
 
 
-unsigned
+int
 Aulib::AudioDecoderMpg123::getRate() const
 {
     return d->fRate;
 }
 
 
-size_t
-Aulib::AudioDecoderMpg123::doDecoding(float buf[], size_t len, bool& callAgain)
+int
+Aulib::AudioDecoderMpg123::doDecoding(float buf[], int len, bool& callAgain)
 {
     callAgain = false;
     if (d->fEOF) {
         return 0;
     }
 
-    size_t bytesWanted = len * sizeof(*buf);
+    int bytesWanted = len * sizeof(*buf);
     size_t decBytes = 0;
-    size_t totalBytes = 0;
+    int totalBytes = 0;
 
     while (totalBytes < bytesWanted and not callAgain) {
         int ret = mpg123_read(d->fMpgHandle.get(), (unsigned char*)buf, bytesWanted, &decBytes);

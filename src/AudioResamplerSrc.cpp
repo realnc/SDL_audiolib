@@ -54,7 +54,7 @@ Aulib::AudioResamplerSRC::~AudioResamplerSRC()
 
 
 void
-Aulib::AudioResamplerSRC::doResampling(float dst[], const float src[], size_t& dstLen, size_t& srcLen)
+Aulib::AudioResamplerSRC::doResampling(float dst[], const float src[], int& dstLen, int& srcLen)
 {
     if (not d->fResampler) {
         dstLen = srcLen = 0;
@@ -63,7 +63,7 @@ Aulib::AudioResamplerSRC::doResampling(float dst[], const float src[], size_t& d
 
     d->fData.data_in = const_cast<float*>(src);
     d->fData.data_out = dst;
-    unsigned channels = currentChannels();
+    int channels = currentChannels();
     d->fData.input_frames = srcLen / channels;
     d->fData.output_frames = dstLen / channels;
     d->fData.end_of_input = false;
@@ -76,7 +76,7 @@ Aulib::AudioResamplerSRC::doResampling(float dst[], const float src[], size_t& d
 
 
 int
-Aulib::AudioResamplerSRC::adjustForOutputSpec(unsigned dstRate, unsigned srcRate, unsigned channels)
+Aulib::AudioResamplerSRC::adjustForOutputSpec(int dstRate, int srcRate, int channels)
 {
     int err;
     d->fData.src_ratio = (double)dstRate / (double)srcRate;

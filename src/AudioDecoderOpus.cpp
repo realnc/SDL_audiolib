@@ -113,22 +113,22 @@ Aulib::AudioDecoderOpus::open(SDL_RWops* rwops)
 }
 
 
-unsigned
+int
 Aulib::AudioDecoderOpus::getChannels() const
 {
     return 2;
 }
 
 
-unsigned
+int
 Aulib::AudioDecoderOpus::getRate() const
 {
     return 48000;
 }
 
 
-size_t
-Aulib::AudioDecoderOpus::doDecoding(float buf[], size_t len, bool& callAgain)
+int
+Aulib::AudioDecoderOpus::doDecoding(float buf[], int len, bool& callAgain)
 {
     callAgain = false;
 
@@ -136,7 +136,7 @@ Aulib::AudioDecoderOpus::doDecoding(float buf[], size_t len, bool& callAgain)
         return 0;
     }
 
-    size_t decSamples = 0;
+    int decSamples = 0;
 
     while (decSamples < len) {
         int ret = op_read_float_stereo(d->fOpusHandle.get(), buf + decSamples, len - decSamples);

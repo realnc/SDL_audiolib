@@ -42,11 +42,11 @@ public:
     static AudioDecoder* decoderFor(SDL_RWops* rwops);
 
     bool isOpen() const;
-    size_t decode(float buf[], size_t len, bool& callAgain);
+    int decode(float buf[], int len, bool& callAgain);
 
     virtual bool open(SDL_RWops* rwops) = 0;
-    virtual unsigned getChannels() const = 0;
-    virtual unsigned getRate() const = 0;
+    virtual int getChannels() const = 0;
+    virtual int getRate() const = 0;
     virtual bool rewind() = 0;
     virtual float duration() const = 0;
     virtual bool seekToTime(float seconds) = 0;
@@ -54,7 +54,7 @@ public:
 protected:
     void setIsOpen(bool f);
 
-    virtual size_t doDecoding(float buf[], size_t len, bool& callAgain) = 0;
+    virtual int doDecoding(float buf[], int len, bool& callAgain) = 0;
 
 private:
     const std::unique_ptr<class AudioDecoder_priv> d;

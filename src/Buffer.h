@@ -31,7 +31,7 @@
 template <typename T>
 class Buffer final {
 public:
-    explicit Buffer(size_t size)
+    explicit Buffer(int size)
         : fData(std::make_unique<T[]>(size))
         , fSize(size)
     { }
@@ -39,12 +39,12 @@ public:
     Buffer(const Buffer&) = delete;
     Buffer& operator=(const Buffer&) = delete;
 
-    size_t size() const noexcept
+    int size() const noexcept
     {
         return fSize;
     }
 
-    void reset(const size_t newSize)
+    void reset(const int newSize)
     {
         if (newSize == fSize) {
             return;
@@ -53,7 +53,7 @@ public:
         fSize = newSize;
     }
 
-    void resize(const size_t newSize)
+    void resize(const int newSize)
     {
         if (newSize == fSize) {
             return;
@@ -71,7 +71,7 @@ public:
     }
 
     // unique_ptr::operator[] is not noexcept, but in reality, it can't throw.
-    T& operator [](const size_t pos) const noexcept
+    T& operator [](const int pos) const noexcept
     {
         AM_debugAssert(pos < fSize);
         return fData[pos];
@@ -84,7 +84,7 @@ public:
 
 private:
     std::unique_ptr<T[]> fData;
-    size_t fSize;
+    int fSize;
 };
 
 #endif

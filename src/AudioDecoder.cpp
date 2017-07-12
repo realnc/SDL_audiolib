@@ -122,12 +122,12 @@ Aulib::AudioDecoder::isOpen() const
 
 // Conversion happens in-place.
 static void
-monoToStereo(float buf[], size_t len)
+monoToStereo(float buf[], int len)
 {
-    if (len == 0 or buf == nullptr) {
+    if (len < 1 or buf == nullptr) {
         return;
     }
-    for (size_t i = len / 2 - 1, j = len - 1; i > 0; --i) {
+    for (int i = len / 2 - 1, j = len - 1; i > 0; --i) {
         buf[j--] = buf[i];
         buf[j--] = buf[i];
     }
@@ -135,25 +135,25 @@ monoToStereo(float buf[], size_t len)
 
 
 static void
-stereoToMono(float dst[], float src[], size_t srcLen)
+stereoToMono(float dst[], float src[], int srcLen)
 {
-    if (srcLen == 0 or dst == nullptr or src == nullptr) {
+    if (srcLen < 1 or dst == nullptr or src == nullptr) {
         return;
     }
-    for (size_t i = 0, j = 0; i < srcLen; i += 2, ++j) {
+    for (int i = 0, j = 0; i < srcLen; i += 2, ++j) {
         dst[j] = src[i] * 0.5f;
         dst[j] += src[i + 1] * 0.5f;
     }
 }
 
 
-size_t
-Aulib::AudioDecoder::decode(float buf[], size_t len, bool& callAgain)
+int
+Aulib::AudioDecoder::decode(float buf[], int len, bool& callAgain)
 {
     const SDL_AudioSpec& spec = Aulib::spec();
 
     if (this->getChannels() == 1 and spec.channels == 2) {
-        size_t srcLen = this->doDecoding(buf, len / 2, callAgain);
+        int srcLen = this->doDecoding(buf, len / 2, callAgain);
         monoToStereo(buf, srcLen * 2);
         return srcLen * 2;
     }
@@ -162,7 +162,7 @@ Aulib::AudioDecoder::decode(float buf[], size_t len, bool& callAgain)
         if (d->stereoBuf.size() != len * 2) {
             d->stereoBuf.reset(len * 2);
         }
-        size_t srcLen = this->doDecoding(d->stereoBuf.get(), d->stereoBuf.size(), callAgain);
+        int srcLen = this->doDecoding(d->stereoBuf.get(), d->stereoBuf.size(), callAgain);
         stereoToMono(buf, d->stereoBuf.get(), srcLen);
         return srcLen / 2;
     }

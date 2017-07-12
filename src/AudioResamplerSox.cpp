@@ -54,13 +54,14 @@ Aulib::AudioResamplerSox::~AudioResamplerSox()
 
 
 void
-Aulib::AudioResamplerSox::doResampling(float dst[], const float src[], size_t& dstLen, size_t& srcLen)
+Aulib::AudioResamplerSox::doResampling(float dst[], const float src[], int& dstLen, int& srcLen)
 {
     if (not d->fResampler) {
         dstLen = srcLen = 0;
         return;
     }
-    size_t dstDone, srcDone, channels = currentChannels();
+    size_t dstDone, srcDone;
+    int channels = currentChannels();
     soxr_error_t error;
     error = soxr_process(d->fResampler.get(), src, srcLen / channels, &srcDone, dst, dstLen / channels,
                          &dstDone);
@@ -76,7 +77,7 @@ Aulib::AudioResamplerSox::doResampling(float dst[], const float src[], size_t& d
 
 
 int
-Aulib::AudioResamplerSox::adjustForOutputSpec(unsigned dstRate, unsigned srcRate, unsigned channels)
+Aulib::AudioResamplerSox::adjustForOutputSpec(int dstRate, int srcRate, int channels)
 {
     soxr_io_spec_t spec;
     memset(&spec, 0, sizeof(spec));

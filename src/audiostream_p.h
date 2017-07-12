@@ -30,7 +30,7 @@ namespace Aulib {
 /// \private
 struct AudioStream_priv final {
     friend class AudioStream;
-    friend int init(int freq, SDL_AudioFormat format, Uint8 channels, Uint16 bufferSize);
+    friend int init(int freq, SDL_AudioFormat format, int channels, int bufferSize);
     friend void Aulib::quit();
     friend const SDL_AudioSpec& Aulib::spec();
     const class AudioStream* const q;
@@ -48,27 +48,27 @@ struct AudioStream_priv final {
     bool fIsPaused;
     float fVolume;
     float fInternalVolume;
-    unsigned fCurrentIteration;
-    unsigned fWantedIterations;
-    unsigned fPlaybackStartTick;
-    unsigned fFadeInStartTick;
-    unsigned fFadeOutStartTick;
+    int fCurrentIteration;
+    int fWantedIterations;
+    int fPlaybackStartTick;
+    int fFadeInStartTick;
+    int fFadeOutStartTick;
     bool fFadingIn;
     bool fFadingOut;
     bool fStopAfterFade;
-    Uint32 fFadeInTickDuration;
-    Uint32 fFadeOutTickDuration;
+    int fFadeInTickDuration;
+    int fFadeOutTickDuration;
 
     static ::SDL_AudioSpec fAudioSpec;
     static std::vector<AudioStream*> fStreamList;
 
     // This points to an appropriate converter for the current audio format.
-    static void (*fSampleConverter)(Uint8[], float[], size_t);
+    static void (*fSampleConverter)(Uint8[], float[], int);
 
     // Sample buffers we use during decoding and mixing.
     static float* fFinalMixBuf;
     static float* fStrmBuf;
-    static size_t fBufLen;
+    static int fBufLen;
 
     void fProcessFade();
     void fStop();

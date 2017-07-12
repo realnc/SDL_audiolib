@@ -152,7 +152,7 @@ Aulib::AudioDecoderBassmidi::open(SDL_RWops* rwops)
     if (midiDataLen <= 0) {
         return false;
     }
-    Buffer<Uint8> newMidiData((size_t)midiDataLen);
+    Buffer<Uint8> newMidiData(midiDataLen);
     DWORD bassFlags = BASS_SAMPLE_FLOAT | BASS_STREAM_DECODE | BASS_MIDI_DECAYEND | BASS_MIDI_SINCINTER;
 
     if (SDL_RWread(rwops, newMidiData.get(), newMidiData.size(), 1) != 1) {
@@ -168,14 +168,14 @@ Aulib::AudioDecoderBassmidi::open(SDL_RWops* rwops)
 }
 
 
-unsigned
+int
 Aulib::AudioDecoderBassmidi::getChannels() const
 {
     return 2;
 }
 
 
-unsigned
+int
 Aulib::AudioDecoderBassmidi::getRate() const
 {
     BASS_CHANNELINFO inf;
@@ -188,8 +188,8 @@ Aulib::AudioDecoderBassmidi::getRate() const
 }
 
 
-size_t
-Aulib::AudioDecoderBassmidi::doDecoding(float buf[], size_t len, bool&)
+int
+Aulib::AudioDecoderBassmidi::doDecoding(float buf[], int len, bool&)
 {
     if (d->eof or not d->hstream) {
         return 0;

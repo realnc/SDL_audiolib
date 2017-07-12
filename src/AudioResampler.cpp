@@ -36,19 +36,19 @@
  * The tracking indices are adjusted as needed.
  */
 static void
-relocateBuffer(float* buf, size_t& pos, size_t& end)
+relocateBuffer(float* buf, int& pos, int& end)
 {
-    if (end == 0) {
+    if (end < 1) {
         return;
     }
     if (pos >= end) {
         pos = end = 0;
         return;
     }
-    if (pos == 0) {
+    if (pos < 1) {
         return;
     }
-    size_t len = end - pos;
+    int len = end - pos;
     memmove(buf, buf + pos, len * sizeof(*buf));
     pos = 0;
     end = len;
@@ -65,23 +65,23 @@ struct AudioResampler_priv final {
     ~AudioResampler_priv();
 
     AudioDecoder* fDecoder;
-    unsigned fDstRate;
-    unsigned fSrcRate;
-    unsigned fChannels;
-    unsigned fChunkSize;
+    int fDstRate;
+    int fSrcRate;
+    int fChannels;
+    int fChunkSize;
     Buffer<float> fOutBuffer;
     Buffer<float> fInBuffer;
-    size_t fOutBufferPos;
-    size_t fOutBufferEnd;
-    size_t fInBufferPos;
-    size_t fInBufferEnd;
+    int fOutBufferPos;
+    int fOutBufferEnd;
+    int fInBufferPos;
+    int fInBufferEnd;
     bool fPendingSpecChange;
 
     /* Move at most 'dstLen' samples from the output buffer into 'dst'.
      *
      * Returns the amount of samples that were actually moved.
      */
-    size_t fMoveFromOutBuffer(float dst[], size_t dstLen);
+    int fMoveFromOutBuffer(float dst[], int dstLen);
 
     /* Adjust all internal buffer sizes for the current source and target
      * sampling rates.
@@ -119,8 +119,8 @@ Aulib::AudioResampler_priv::~AudioResampler_priv()
 { }
 
 
-size_t
-Aulib::AudioResampler_priv::fMoveFromOutBuffer(float dst[], size_t dstLen)
+int
+Aulib::AudioResampler_priv::fMoveFromOutBuffer(float dst[], int dstLen)
 {
     if (fOutBufferEnd == 0) {
         return 0;
@@ -129,7 +129,7 @@ Aulib::AudioResampler_priv::fMoveFromOutBuffer(float dst[], size_t dstLen)
         fOutBufferPos = fOutBufferEnd = 0;
         return 0;
     }
-    size_t len = std::min(fOutBufferEnd - fOutBufferPos, dstLen);
+    int len = std::min(fOutBufferEnd - fOutBufferPos, dstLen);
     memcpy(dst, fOutBuffer.get() + fOutBufferPos, len * sizeof(*fOutBuffer.get()));
     fOutBufferPos += len;
     if (fOutBufferPos >= fOutBufferEnd) {
@@ -142,9 +142,9 @@ Aulib::AudioResampler_priv::fMoveFromOutBuffer(float dst[], size_t dstLen)
 void
 Aulib::AudioResampler_priv::fAdjustBufferSizes()
 {
-    size_t oldInBufLen = fInBufferEnd - fInBufferPos;
-    size_t outBufSiz = fChannels * fChunkSize;
-    size_t inBufSiz;
+    int oldInBufLen = fInBufferEnd - fInBufferPos;
+    int outBufSiz = fChannels * fChunkSize;
+    int inBufSiz;
 
     if (fDstRate == fSrcRate) {
         // In the no-op case where we don't actually resample, input and output
@@ -155,7 +155,7 @@ Aulib::AudioResampler_priv::fAdjustBufferSizes()
         // When resampling, the input buffer's size depends on the ratio between
         // the source and destination sample rates.
         inBufSiz = std::ceil((double)outBufSiz * fSrcRate / fDstRate);
-        size_t remainder = inBufSiz % fChannels;
+        auto remainder = inBufSiz % fChannels;
         if (remainder) {
             inBufSiz = inBufSiz + fChannels - remainder;
         }
@@ -175,17 +175,17 @@ Aulib::AudioResampler_priv::fAdjustBufferSizes()
 void
 Aulib::AudioResampler_priv::fResampleFromInBuffer()
 {
-    size_t inLen = fInBufferEnd - fInBufferPos;
+    int inLen = fInBufferEnd - fInBufferPos;
     float* from = fInBuffer.get() + fInBufferPos;
     float* to = fOutBuffer.get() + fOutBufferEnd;
     if (fSrcRate == fDstRate) {
         // No resampling is needed. Just copy the samples as-is.
-        size_t outLen = std::min(fOutBuffer.size() - fOutBufferEnd, inLen);
+        int outLen = std::min(fOutBuffer.size() - fOutBufferEnd, inLen);
         std::memcpy(to, from, outLen * sizeof(*from));
         fOutBufferEnd += outLen;
         fInBufferPos += outLen;
     } else {
-        size_t outLen = fOutBuffer.size() - fOutBufferEnd;
+        int outLen = fOutBuffer.size() - fOutBufferEnd;
         q->doResampling(to, from, outLen, inLen);
         fOutBufferEnd += outLen;
         fInBufferPos += inLen;
@@ -216,13 +216,13 @@ Aulib::AudioResampler::setDecoder(AudioDecoder* decoder)
 
 
 int
-Aulib::AudioResampler::setSpec(unsigned dstRate, unsigned channels, unsigned chunkSize)
+Aulib::AudioResampler::setSpec(int dstRate, int channels, int chunkSize)
 {
     d->fDstRate = dstRate;
     d->fChannels = channels;
     d->fChunkSize = chunkSize;
     d->fSrcRate = d->fDecoder->getRate();
-    d->fSrcRate = std::min(std::max(4000U, d->fSrcRate), 192000U);
+    d->fSrcRate = std::min(std::max(4000, d->fSrcRate), 192000);
     d->fAdjustBufferSizes();
     // Inform our child class about the spec change.
     adjustForOutputSpec(d->fDstRate, d->fSrcRate, d->fChannels);
@@ -230,31 +230,31 @@ Aulib::AudioResampler::setSpec(unsigned dstRate, unsigned channels, unsigned chu
 }
 
 
-unsigned
+int
 Aulib::AudioResampler::currentRate() const
 {
     return d->fDstRate;
 }
 
 
-unsigned
+int
 Aulib::AudioResampler::currentChannels() const
 {
     return d->fChannels;
 }
 
 
-unsigned
+int
 Aulib::AudioResampler::currentChunkSize() const
 {
     return d->fChunkSize;
 }
 
 
-size_t
-Aulib::AudioResampler::resample(float dst[], size_t dstLen)
+int
+Aulib::AudioResampler::resample(float dst[], int dstLen)
 {
-    size_t totalSamples = 0;
+    int totalSamples = 0;
     bool decEOF = false;
 
     if (d->fPendingSpecChange) {

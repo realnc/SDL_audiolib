@@ -36,11 +36,11 @@ struct AudioDecoderWildmidi_priv final {
     bool eof;
 
     static bool initialized;
-    static unsigned rate;
+    static int rate;
 };
 
 bool AudioDecoderWildmidi_priv::initialized = false;
-unsigned AudioDecoderWildmidi_priv::rate = 0;
+int AudioDecoderWildmidi_priv::rate = 0;
 
 } // namespace Aulib
 
@@ -64,13 +64,13 @@ Aulib::AudioDecoderWildmidi::~AudioDecoderWildmidi()
 
 
 bool
-Aulib::AudioDecoderWildmidi::init(const std::string configFile, unsigned short rate,
+Aulib::AudioDecoderWildmidi::init(const std::string configFile, int rate,
                                   bool hqResampling, bool reverb)
 {
     if (AudioDecoderWildmidi_priv::initialized) {
         return true;
     }
-    rate = std::min(std::max(11025u, (unsigned)rate), 65000u);
+    rate = std::min(std::max(11025, rate), 65000);
     AudioDecoderWildmidi_priv::rate = rate;
     unsigned short flags = 0;
     if (hqResampling) {
@@ -110,7 +110,7 @@ Aulib::AudioDecoderWildmidi::open(SDL_RWops* rwops)
         return false;
     }
 
-    Buffer<Uint8> newMidiData((size_t)newMidiDataLen);
+    Buffer<Uint8> newMidiData(newMidiDataLen);
     if (SDL_RWread(rwops, newMidiData.get(), newMidiData.size(), 1) != 1) {
         return false;
     }
@@ -124,22 +124,22 @@ Aulib::AudioDecoderWildmidi::open(SDL_RWops* rwops)
 }
 
 
-unsigned
+int
 Aulib::AudioDecoderWildmidi::getChannels() const
 {
     return 2;
 }
 
 
-unsigned
+int
 Aulib::AudioDecoderWildmidi::getRate() const
 {
     return AudioDecoderWildmidi_priv::rate;
 }
 
 
-size_t
-Aulib::AudioDecoderWildmidi::doDecoding(float buf[], size_t len, bool& callAgain)
+int
+Aulib::AudioDecoderWildmidi::doDecoding(float buf[], int len, bool& callAgain)
 {
     callAgain = false;
     if (not d->midiHandle or d->eof) {
@@ -157,7 +157,7 @@ Aulib::AudioDecoderWildmidi::doDecoding(float buf[], size_t len, bool& callAgain
     for (int i = 0; i < res / 2; ++i) {
         buf[i] = (float)d->sampBuf[i] / 32768.f;
     }
-    if ((size_t)res < len) {
+    if (res < len) {
         d->eof = true;
     }
     return res / 2;

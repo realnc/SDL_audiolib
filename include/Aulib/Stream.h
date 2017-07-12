@@ -62,7 +62,7 @@ public:
      *  \retval true Playback was started successfully, or it was already started.
      *  \retval false Playback could not be started.
      */
-    virtual bool play(unsigned iterations = 1, float fadeTime = 0.f) = 0;
+    virtual bool play(int iterations = 1, float fadeTime = 0.f) = 0;
 
     /*!
      * \brief Stop playback.

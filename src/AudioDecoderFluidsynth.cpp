@@ -117,7 +117,7 @@ Aulib::AudioDecoderFluidSynth::open(SDL_RWops* rwops)
     if (midiDataLen <= 0) {
         return false;
     }
-    Buffer<Uint8> newMidiData((size_t)midiDataLen);
+    Buffer<Uint8> newMidiData(midiDataLen);
     if (SDL_RWread(rwops, newMidiData.get(), newMidiData.size(), 1) != 1) {
         return false;
     }
@@ -134,7 +134,7 @@ Aulib::AudioDecoderFluidSynth::open(SDL_RWops* rwops)
 }
 
 
-unsigned
+int
 Aulib::AudioDecoderFluidSynth::getChannels() const
 {
     int channels;
@@ -143,7 +143,7 @@ Aulib::AudioDecoderFluidSynth::getChannels() const
     return channels * 2;
 }
 
-unsigned
+int
 Aulib::AudioDecoderFluidSynth::getRate() const
 {
     double rate;
@@ -152,8 +152,8 @@ Aulib::AudioDecoderFluidSynth::getRate() const
 }
 
 
-size_t
-Aulib::AudioDecoderFluidSynth::doDecoding(float buf[], size_t len, bool& callAgain)
+int
+Aulib::AudioDecoderFluidSynth::doDecoding(float buf[], int len, bool& callAgain)
 {
     callAgain = false;
     if (not d->fPlayer or d->fEOF) {

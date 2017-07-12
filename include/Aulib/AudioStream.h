@@ -74,7 +74,7 @@ public:
     AudioStream& operator =(const AudioStream&) = delete;
 
     bool open() override;
-    bool play(unsigned iterations = 1, float fadeTime = 0.f) override;
+    bool play(int iterations = 1, float fadeTime = 0.f) override;
     void stop(float fadeTime = 0.f) override;
     void pause(float fadeTime = 0.f) override;
     void resume(float fadeTime = 0.f) override;
@@ -88,7 +88,7 @@ public:
 
 private:
     friend struct AudioStream_priv;
-    friend int Aulib::init(int, SDL_AudioFormat, Uint8, Uint16);
+    friend int Aulib::init(int, SDL_AudioFormat, int, int);
 
     const std::unique_ptr<struct AudioStream_priv> d;
 };

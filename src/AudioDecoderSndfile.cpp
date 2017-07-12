@@ -129,22 +129,22 @@ Aulib::AudioDecoderSndfile::open(SDL_RWops* rwops)
 }
 
 
-unsigned
+int
 Aulib::AudioDecoderSndfile::getChannels() const
 {
     return d->fInfo.channels;
 }
 
 
-unsigned
+int
 Aulib::AudioDecoderSndfile::getRate() const
 {
     return d->fInfo.samplerate;
 }
 
 
-size_t
-Aulib::AudioDecoderSndfile::doDecoding(float buf[], size_t len, bool& callAgain)
+int
+Aulib::AudioDecoderSndfile::doDecoding(float buf[], int len, bool& callAgain)
 {
     callAgain = false;
     if (d->fEOF) {

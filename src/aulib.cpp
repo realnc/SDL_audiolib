@@ -40,14 +40,14 @@ sdlCallback(void*, Uint8 out[], int outLen)
 
 
 int
-Aulib::init(int freq, SDL_AudioFormat format, Uint8 channels, Uint16 bufferSize)
+Aulib::init(int freq, SDL_AudioFormat format, int channels, int bufferSize)
 {
     if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0) {
         return -1;
     }
 
     // We only support mono and stereo at this point.
-    channels = std::min(std::max((Uint8)1, channels), (Uint8)2);
+    channels = std::min(std::max(1, channels), 2);
 
     SDL_AudioSpec requestedSpec;
     memset(&requestedSpec, 0, sizeof(::SDL_AudioSpec));

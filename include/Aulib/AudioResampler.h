@@ -61,11 +61,11 @@ public:
      *  function. It is recommended to set this to the same value that was used as buffer size in
      *  the call to Aulib::init().
      */
-    int setSpec(unsigned dstRate, unsigned channels, unsigned chunkSize);
+    int setSpec(int dstRate, int channels, int chunkSize);
 
-    unsigned currentRate() const;
-    unsigned currentChannels() const;
-    unsigned currentChunkSize() const;
+    int currentRate() const;
+    int currentChannels() const;
+    int currentChunkSize() const;
 
     /*! \brief Fills an output buffer with resampled audio samples.
      *
@@ -76,7 +76,7 @@ public:
      * \return The amount of samples that were stored in the buffer. This can be smaller than
      *         'dstLen' if the decoder has no more samples left.
      */
-    size_t resample(float dst[], size_t dstLen);
+    int resample(float dst[], int dstLen);
 
 protected:
     /*! \brief Change sample rate and amount of channels.
@@ -90,7 +90,7 @@ protected:
      *
      * \param channels Amount of channels in both the source as well as the target audio buffers.
      */
-    virtual int adjustForOutputSpec(unsigned dstRate, unsigned srcRate, unsigned channels) = 0;
+    virtual int adjustForOutputSpec(int dstRate, int srcRate, int channels) = 0;
 
     /*! This function must be implemented when subclassing. It must resample
      * the audio contained in 'src' containing 'srcLen' samples, and store the
@@ -123,7 +123,7 @@ protected:
      * there's anything left at the end that cannot be resampled, simply ignore
      * it.
      */
-    virtual void doResampling(float dst[], const float src[], size_t& dstLen, size_t& srcLen) = 0;
+    virtual void doResampling(float dst[], const float src[], int& dstLen, int& srcLen) = 0;
 
 private:
     friend struct AudioResampler_priv;

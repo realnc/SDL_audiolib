@@ -52,15 +52,15 @@ Aulib::AudioResamplerSpeex::~AudioResamplerSpeex()
 
 
 void
-Aulib::AudioResamplerSpeex::doResampling(float dst[], const float src[], size_t& dstLen,
-                                         size_t& srcLen)
+Aulib::AudioResamplerSpeex::doResampling(float dst[], const float src[], int& dstLen,
+                                         int& srcLen)
 {
     if (not d->fResampler) {
         dstLen = srcLen = 0;
         return;
     }
 
-    unsigned channels = currentChannels();
+    int channels = currentChannels();
     spx_uint32_t spxInLen = srcLen / channels;
     spx_uint32_t spxOutLen = dstLen / channels;
     if (spxInLen == 0 or spxOutLen == 0) {
@@ -74,8 +74,8 @@ Aulib::AudioResamplerSpeex::doResampling(float dst[], const float src[], size_t&
 
 
 int
-Aulib::AudioResamplerSpeex::adjustForOutputSpec(unsigned dstRate, unsigned srcRate,
-                                                unsigned channels)
+Aulib::AudioResamplerSpeex::adjustForOutputSpec(int dstRate, int srcRate,
+                                                int channels)
 {
     int err;
     d->fResampler.reset(speex_resampler_init(channels, srcRate, dstRate, 10, &err));

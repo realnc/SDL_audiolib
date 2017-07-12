@@ -95,7 +95,7 @@ Aulib::AudioDecoderModPlug::open(SDL_RWops* rwops)
     if (dataSize <= 0 or dataSize > std::numeric_limits<int>::max()) {
         return false;
     }
-    Buffer<Uint8> data((size_t)dataSize);
+    Buffer<Uint8> data(dataSize);
     if (SDL_RWread(rwops, data.get(), data.size(), 1) != 1) {
         return false;
     }
@@ -110,22 +110,22 @@ Aulib::AudioDecoderModPlug::open(SDL_RWops* rwops)
 }
 
 
-unsigned
+int
 Aulib::AudioDecoderModPlug::getChannels() const
 {
     return modplugSettings.mChannels;
 }
 
 
-unsigned
+int
 Aulib::AudioDecoderModPlug::getRate() const
 {
     return modplugSettings.mFrequency;
 }
 
 
-size_t
-Aulib::AudioDecoderModPlug::doDecoding(float buf[], size_t len, bool& callAgain)
+int
+Aulib::AudioDecoderModPlug::doDecoding(float buf[], int len, bool& callAgain)
 {
     callAgain = false;
     if (d->atEOF) {
@@ -134,7 +134,7 @@ Aulib::AudioDecoderModPlug::doDecoding(float buf[], size_t len, bool& callAgain)
     Buffer<Sint32> tmpBuf(len);
     int ret = ModPlug_Read(d->mpHandle.get(), tmpBuf.get(), len * 4);
     // Convert from 32-bit to float.
-    for (size_t i = 0; i < len; ++i) {
+    for (int i = 0; i < len; ++i) {
         buf[i] = (float)tmpBuf[i] / 2147483648.f;
     }
     if (ret == 0) {

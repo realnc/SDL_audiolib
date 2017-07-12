@@ -32,9 +32,9 @@ public:
     ~AudioDecoderSndfile() override;
 
     bool open(SDL_RWops* rwops) override;
-    unsigned getChannels() const override;
-    unsigned getRate() const override;
-    size_t doDecoding(float buf[], size_t len, bool& callAgain) override;
+    int getChannels() const override;
+    int getRate() const override;
+    int doDecoding(float buf[], int len, bool& callAgain) override;
     bool rewind() override;
     float duration() const override;
     bool seekToTime(float seconds) override;

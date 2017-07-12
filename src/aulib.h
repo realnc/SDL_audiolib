@@ -50,7 +50,7 @@ namespace Aulib {
  *  \retval 0 The audio system was initialized successfully.
  *  \retval !=0 The audio system could not be initialized.
  */
-AULIB_EXPORT int init(int freq, SDL_AudioFormat format, Uint8 channels, Uint16 bufferSize);
+AULIB_EXPORT int init(int freq, SDL_AudioFormat format, int channels, int bufferSize);
 
 /*!
  *  \brief Shuts down the SDL_audiolib library.

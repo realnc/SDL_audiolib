@@ -122,22 +122,22 @@ Aulib::AudioDecoderVorbis::open(SDL_RWops* rwops)
 }
 
 
-unsigned
+int
 Aulib::AudioDecoderVorbis::getChannels() const
 {
     return d->fCurrentInfo ? d->fCurrentInfo->channels : 0;
 }
 
 
-unsigned
+int
 Aulib::AudioDecoderVorbis::getRate() const
 {
     return d->fCurrentInfo ? d->fCurrentInfo->rate : 0;
 }
 
 
-size_t
-Aulib::AudioDecoderVorbis::doDecoding(float buf[], size_t len, bool& callAgain)
+int
+Aulib::AudioDecoderVorbis::doDecoding(float buf[], int len, bool& callAgain)
 {
     callAgain = false;
 
@@ -146,7 +146,7 @@ Aulib::AudioDecoderVorbis::doDecoding(float buf[], size_t len, bool& callAgain)
     }
 
     float** out;
-    size_t decSamples = 0;
+    int decSamples = 0;
 
     while (decSamples < len and not callAgain) {
         int lastSection = d->fCurrentSection;

@@ -82,7 +82,7 @@ public:
     mpc_frame_info curFrame;
     Buffer<float> curFrameBuffer;
     mpc_streaminfo strmInfo;
-    unsigned frameBufPos;
+    int frameBufPos;
     bool eof;
     float duration;
 };
@@ -136,26 +136,26 @@ Aulib::AudioDecoderMusepack::open(SDL_RWops* rwops)
 }
 
 
-unsigned
+int
 Aulib::AudioDecoderMusepack::getChannels() const
 {
     return d->demuxer ? d->strmInfo.channels : 0;
 }
 
 
-unsigned
+int
 Aulib::AudioDecoderMusepack::getRate() const
 {
     return d->demuxer ? d->strmInfo.sample_freq : 0;
 }
 
 
-size_t
-Aulib::AudioDecoderMusepack::doDecoding(float buf[], size_t len, bool& callAgain)
+int
+Aulib::AudioDecoderMusepack::doDecoding(float buf[], int len, bool& callAgain)
 {
     callAgain = false;
-    unsigned totalSamples = 0;
-    unsigned wantedSamples = len;
+    int totalSamples = 0;
+    int wantedSamples = len;
 
     if (d->eof) {
         return 0;
@@ -163,7 +163,7 @@ Aulib::AudioDecoderMusepack::doDecoding(float buf[], size_t len, bool& callAgain
 
     // If we have any left-over samples from the previous frame, copy them out.
     if (d->curFrame.samples > 0) {
-        unsigned copyLen = std::min((size_t)d->curFrame.samples * d->strmInfo.channels, len);
+        int copyLen = std::min((int)(d->curFrame.samples * d->strmInfo.channels), len);
         std::memcpy(buf, d->curFrame.buffer + d->frameBufPos, copyLen * sizeof(*buf));
         d->curFrame.samples -= copyLen / d->strmInfo.channels;
         if (d->curFrame.samples != 0) {
@@ -183,7 +183,7 @@ Aulib::AudioDecoderMusepack::doDecoding(float buf[], size_t len, bool& callAgain
             AM_warnLn("AudioDecoderMusepack decoding error.");
             return 0;
         }
-        unsigned copyLen = std::min((size_t)d->curFrame.samples * d->strmInfo.channels, len);
+        int copyLen = std::min((int)(d->curFrame.samples * d->strmInfo.channels), len);
         std::memcpy(buf, d->curFrame.buffer, copyLen * sizeof(*buf));
         d->frameBufPos = copyLen;
         d->curFrame.samples -= copyLen / d->strmInfo.channels;
