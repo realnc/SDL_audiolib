@@ -92,6 +92,12 @@ option(
     OFF
 )
 
+option(
+    BUILD_EXAMPLE
+    "Build the example sound player."
+    ON
+)
+
 if("${CMAKE_C_COMPILER_ID}" MATCHES "^(GNU|((Apple)?Clang))$")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -W -Wextra -Wpedantic")
 endif()
@@ -337,6 +343,18 @@ if (ENABLE_SDLMIXER_EMU)
 
     install(TARGETS SDL_mixer-2.0 DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif(ENABLE_SDLMIXER_EMU)
+
+if (BUILD_EXAMPLE)
+    add_executable(
+        play
+        example/main.cpp
+    )
+
+    target_link_libraries(
+        play
+        SDL_audiolib
+    )
+endif(BUILD_EXAMPLE)
 
 configure_file(
     ${PROJECT_SOURCE_DIR}/Doxyfile.in
