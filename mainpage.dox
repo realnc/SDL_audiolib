@@ -37,9 +37,16 @@ The provided decoders are:
   Aulib::AudioDecoderVorbis instead, since the libsndfile-based decoder does not handle all types
   of Vorbis audio (streams with sample rate changes in the middle of them, for example.)
 
+
+- Aulib::AudioDecoderOpenmpt - uses [libopenmpt](https://lib.openmpt.org)
+
+  It can render various MOD file formats, like MOD, XM, S3M, IT, etc. This is the recommended
+  decoder for MOD audio files.
+
 - Aulib::AudioDecoderModPlug - uses [libmodplug](http://modplug-xmms.sourceforge.net)
 
-  It can render various MOD file formats, like MOD, XM, S3M, IT, etc.
+  It can render various MOD file formats, like MOD, XM, S3M, IT, etc. Note that libmodplug has
+  been superseded by libopenmpt.
 
 - Aulib::AudioDecoderFluidSynth - uses [FluidSynth](http://fluidsynth.elementsofsound.org)
 

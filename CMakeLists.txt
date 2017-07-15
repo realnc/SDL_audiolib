@@ -33,6 +33,12 @@ option(
 )
 
 option(
+    USE_DEC_OPENMPT
+    "Enable OpenMPT MOD decoder."
+    ON
+)
+
+option(
     USE_DEC_MODPLUG
     "Enable ModPlug MOD decoder."
     ON
@@ -164,6 +170,14 @@ if (USE_RESAMP_SOXR)
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} soxr")
 endif(USE_RESAMP_SOXR)
 
+if (USE_DEC_OPENMPT)
+    set(AULIB_SOURCES ${AULIB_SOURCES} src/AudioDecoderOpenmpt.cpp)
+    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/AudioDecoderOpenmpt.h)
+    pkg_check_modules(OPENMPT REQUIRED libopenmpt)
+    set(LIBRARY_DIRS ${LIBRARY_DIRS} ${OPENMPT_LIBRARY_DIRS})
+    set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} libopenmpt")
+endif(USE_DEC_OPENMPT)
+
 if (USE_DEC_MODPLUG)
     set(AULIB_SOURCES ${AULIB_SOURCES} src/AudioDecoderModplug.cpp)
     set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/AudioDecoderModplug.h)
@@ -286,6 +300,7 @@ include_directories(
     ${SNDFILE_INCLUDE_DIRS}
     ${VORBISFILE_INCLUDE_DIRS}
     ${OPUSFILE_INCLUDE_DIRS}
+    ${OPENMPT_INCLUDE_DIRS}
 
     # MogPlug ships a "sndfile.h" with its headers. This breaks the build,
     # since sndfile.h is expected to belong to libsndfile.
@@ -298,6 +313,7 @@ target_link_libraries(
     ${SRC_LIBRARIES}
     ${SOXR_LIBRARIES}
     ${FLUIDSYNTH_LIBRARIES}
+    ${OPENMPT_LIBRARIES}
     ${MODPLUG_LIBRARIES}
     ${MPG123_LIBRARIES}
     ${SNDFILE_LIBRARIES}

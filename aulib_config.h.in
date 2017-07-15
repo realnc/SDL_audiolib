@@ -3,6 +3,7 @@
 
 #cmakedefine USE_RESAMP_SRC
 #cmakedefine USE_RESAMP_SOXR
+#cmakedefine USE_DEC_OPENMPT
 #cmakedefine USE_DEC_MODPLUG
 #cmakedefine USE_DEC_MPG123
 #cmakedefine USE_DEC_SNDFILE
