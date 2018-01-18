@@ -103,15 +103,18 @@ Aulib::AudioDecoder::decoderFor(SDL_RWops* rwops)
     SDL_RWseek(rwops, rwPos, RW_SEEK_SET);
 #endif
 
-// TODO: Check for MIDI header.
-#if 0
 #ifdef USE_DEC_FLUIDSYNTH
-    decoder = std::make_unique<AudioDecoderFluidSynth>();
-    if (decoder->open(rwops)) {
-        return new Aulib::AudioDecoderFluidSynth;
+    {
+        char head[4];
+        if (SDL_RWread(rwops, head, 1, 4) == 4 && strncmp(head, "MThd", 4) == 0) {
+            SDL_RWseek(rwops, rwPos, RW_SEEK_SET);
+            decoder = std::make_unique<AudioDecoderFluidSynth>();
+            if (decoder->open(rwops)) {
+                return new Aulib::AudioDecoderFluidSynth;
+            }
+        }
     }
     SDL_RWseek(rwops, rwPos, RW_SEEK_SET);
-#endif
 #endif
 
 #ifdef USE_DEC_SNDFILE
