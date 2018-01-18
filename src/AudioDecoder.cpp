@@ -29,6 +29,9 @@
 #include "Aulib/AudioDecoderModplug.h"
 #include "Aulib/AudioDecoderFluidsynth.h"
 #include "Aulib/AudioDecoderSndfile.h"
+#include "Aulib/AudioDecoderOpus.h"
+#include "Aulib/AudioDecoderMusepack.h"
+#include "Aulib/AudioDecoderOpenmpt.h"
 #include "Buffer.h"
 
 
@@ -83,12 +86,31 @@ Aulib::AudioDecoder::decoderFor(SDL_RWops* rwops)
     SDL_RWseek(rwops, rwPos, RW_SEEK_SET);
 #endif
 
+#ifdef USE_DEC_LIBOPUSFILE
+    decoder = std::make_unique<AudioDecoderOpus>();
+    if (decoder->open(rwops)) {
+        return new Aulib::AudioDecoderOpus;
+    }
+    SDL_RWseek(rwops, rwPos, RW_SEEK_SET);
+#endif
+
+#ifdef USE_DEC_MUSEPACK
+    decoder = std::make_unique<AudioDecoderMusepack>();
+    if (decoder->open(rwops)) {
+        return new Aulib::AudioDecoderMusepack;
+    }
+    SDL_RWseek(rwops, rwPos, RW_SEEK_SET);
+#endif
+
+// TODO: Check for MIDI header.
+#if 0
 #ifdef USE_DEC_FLUIDSYNTH
     decoder = std::make_unique<AudioDecoderFluidSynth>();
     if (decoder->open(rwops)) {
         return new Aulib::AudioDecoderFluidSynth;
     }
     SDL_RWseek(rwops, rwPos, RW_SEEK_SET);
+#endif
 #endif
 
 #ifdef USE_DEC_SNDFILE
@@ -99,10 +121,13 @@ Aulib::AudioDecoder::decoderFor(SDL_RWops* rwops)
     SDL_RWseek(rwops, rwPos, RW_SEEK_SET);
 #endif
 
-#ifdef USE_DEC_MODPLUG
-    decoder = std::make_unique<AudioDecoderModPlug>();
+// We only try OpenMPT, not ModPlug. ModPlug thinks just about anything is a
+// module file, which would result in virtually everything we feed it giving a
+// false positive.
+#ifdef USE_DEC_OPENMPT
+    decoder = std::make_unique<AudioDecoderOpenmpt>();
     if (decoder->open(rwops)) {
-        return new Aulib::AudioDecoderModPlug;
+        return new Aulib::AudioDecoderOpenmpt;
     }
     SDL_RWseek(rwops, rwPos, RW_SEEK_SET);
 #endif
