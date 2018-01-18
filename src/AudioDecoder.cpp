@@ -67,8 +67,9 @@ Aulib::AudioDecoder::~AudioDecoder()
 Aulib::AudioDecoder*
 Aulib::AudioDecoder::decoderFor(const char* filename)
 {
-    SDL_RWops* rwops = SDL_RWFromFile(filename, "rb");
-    return AudioDecoder::decoderFor(rwops);
+    const auto rwopsClose = [](SDL_RWops* rwops) { SDL_RWclose(rwops); };
+    std::unique_ptr<SDL_RWops, decltype(rwopsClose)> rwops(SDL_RWFromFile(filename, "rb"), rwopsClose);
+    return AudioDecoder::decoderFor(rwops.get());
 }
 
 
