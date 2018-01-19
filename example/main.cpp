@@ -15,14 +15,15 @@ int main(int argc, char* argv[])
 {
     init(44100, AUDIO_S16SYS, 2, 4096);
 
+    AudioDecoderBassmidi::setDefaultSoundfont("/usr/local/share/soundfonts/gs.sf2");
+    AudioDecoderWildmidi::init("/usr/share/timidity/current/timidity.cfg", 44100, true, true);
+
     auto decoder = AudioDecoder::decoderFor(argv[1]);
     if (decoder == nullptr) {
         std::cerr << "No decoder found.\n";
         return 1;
     }
 
-    AudioDecoderBassmidi::setDefaultSoundfont("/usr/local/share/soundfonts/gs.sf2");
-    AudioDecoderWildmidi::init("/usr/share/timidity/eawpatches/timidity.cfg", 44100, true, true);
 
     auto fsynth = dynamic_cast<AudioDecoderFluidSynth*>(decoder);
     auto bassmidi = dynamic_cast<AudioDecoderBassmidi*>(decoder);
