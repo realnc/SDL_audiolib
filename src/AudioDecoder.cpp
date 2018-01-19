@@ -27,6 +27,8 @@
 #include "Aulib/AudioDecoderVorbis.h"
 #include "Aulib/AudioDecoderMpg123.h"
 #include "Aulib/AudioDecoderModplug.h"
+#include "Aulib/AudioDecoderBassmidi.h"
+#include "Aulib/AudioDecoderWildmidi.h"
 #include "Aulib/AudioDecoderFluidsynth.h"
 #include "Aulib/AudioDecoderSndfile.h"
 #include "Aulib/AudioDecoderOpus.h"
@@ -103,15 +105,27 @@ Aulib::AudioDecoder::decoderFor(SDL_RWops* rwops)
     SDL_RWseek(rwops, rwPos, RW_SEEK_SET);
 #endif
 
-#ifdef USE_DEC_FLUIDSYNTH
+#if defined(USE_DEC_FLUIDSYNTH) or defined(USE_DEC_BASSMIDI) or defined(USE_DEC_WILDMIDI)
     {
         char head[4];
         if (SDL_RWread(rwops, head, 1, 4) == 4 && strncmp(head, "MThd", 4) == 0) {
             SDL_RWseek(rwops, rwPos, RW_SEEK_SET);
+#   ifdef USE_DEC_FLUIDSYNTH
             decoder = std::make_unique<AudioDecoderFluidSynth>();
             if (decoder->open(rwops)) {
                 return new Aulib::AudioDecoderFluidSynth;
             }
+#   elif defined(USE_DEC_BASSMIDI)
+            decoder = std::make_unique<AudioDecoderBassmidi>();
+            if (decoder->open(rwops)) {
+                return new Aulib::AudioDecoderBassmidi;
+            }
+#   elif defined(USE_DEC_WILDMIDI)
+            decoder = std::make_unique<AudioDecoderWildmidi>();
+            if (decoder->open(rwops)) {
+                return new Aulib::AudioDecoderWildmidi;
+            }
+#   endif
         }
     }
     SDL_RWseek(rwops, rwPos, RW_SEEK_SET);
