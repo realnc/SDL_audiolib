@@ -101,7 +101,7 @@ option(
 option(
     BUILD_EXAMPLE
     "Build the example sound player."
-    ON
+    OFF
 )
 
 if("${CMAKE_C_COMPILER_ID}" MATCHES "^(GNU|((Apple)?Clang))$")
