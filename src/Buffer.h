@@ -71,15 +71,46 @@ public:
     }
 
     // unique_ptr::operator[] is not noexcept, but in reality, it can't throw.
-    T& operator [](const int pos) const noexcept
+    const T& operator [](const int pos) const noexcept
     {
         AM_debugAssert(pos < fSize);
         return fData[pos];
     }
 
-    T* get() const noexcept
+    T& operator [](const int pos) noexcept
+    {
+        AM_debugAssert(pos < fSize);
+        return fData[pos];
+    }
+
+    T* get() noexcept
     {
         return fData.get();
+    }
+
+    const T* get() const noexcept
+    {
+        return fData.get();
+    }
+
+    T* begin() noexcept
+    {
+        return get();
+    }
+
+    T* end() noexcept
+    {
+        return begin() + size();
+    }
+
+    const T* begin() const noexcept
+    {
+        return get();
+    }
+
+    const T* end() const noexcept
+    {
+        return begin() + size();
     }
 
 private:
