@@ -40,21 +40,12 @@
 namespace Aulib {
 
 /// \private
-class AudioDecoder_priv final {
-public:
-    AudioDecoder_priv();
-
-    Buffer<float> stereoBuf;
-    bool isOpen;
+struct AudioDecoder_priv final {
+    Buffer<float> stereoBuf{0};
+    bool isOpen = false;
 };
 
 } // namespace Aulib
-
-
-Aulib::AudioDecoder_priv::AudioDecoder_priv()
-    : stereoBuf(0),
-      isOpen(false)
-{ }
 
 
 Aulib::AudioDecoder::AudioDecoder()

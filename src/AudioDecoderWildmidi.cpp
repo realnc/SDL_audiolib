@@ -28,12 +28,10 @@ namespace Aulib {
 
 /// \private
 struct AudioDecoderWildmidi_priv final {
-    AudioDecoderWildmidi_priv();
-
-    std::unique_ptr<midi, decltype(&WildMidi_Close)> midiHandle;
-    Buffer<Uint8> midiData;
-    Buffer<Sint16> sampBuf;
-    bool eof;
+    std::unique_ptr<midi, decltype(&WildMidi_Close)> midiHandle{nullptr, &WildMidi_Close};
+    Buffer<Uint8> midiData{0};
+    Buffer<Sint16> sampBuf{0};
+    bool eof = false;
 
     static bool initialized;
     static int rate;
@@ -43,15 +41,6 @@ bool AudioDecoderWildmidi_priv::initialized = false;
 int AudioDecoderWildmidi_priv::rate = 0;
 
 } // namespace Aulib
-
-
-
-Aulib::AudioDecoderWildmidi_priv::AudioDecoderWildmidi_priv()
-    : midiHandle(nullptr, &WildMidi_Close),
-      midiData(0),
-      sampBuf(0),
-      eof(false)
-{ }
 
 
 Aulib::AudioDecoderWildmidi::AudioDecoderWildmidi()

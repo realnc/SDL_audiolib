@@ -48,24 +48,18 @@ namespace Aulib {
 
 /// \private
 struct AudioDecoderFluidSynth_priv final {
-    friend class AudioDecoderFluidSynth;
-
     AudioDecoderFluidSynth_priv();
 
-    std::unique_ptr<fluid_synth_t, decltype(&delete_fluid_synth)> fSynth;
-    std::unique_ptr<fluid_player_t, decltype(&delete_fluid_player)> fPlayer;
-    Buffer<Uint8> fMidiData;
-    bool fEOF;
+    std::unique_ptr<fluid_synth_t, decltype(&delete_fluid_synth)> fSynth{nullptr, &delete_fluid_synth};
+    std::unique_ptr<fluid_player_t, decltype(&delete_fluid_player)> fPlayer{nullptr, &delete_fluid_player};
+    Buffer<Uint8> fMidiData{0};
+    bool fEOF = false;
 };
 
 } // namespace Aulib
 
 
 Aulib::AudioDecoderFluidSynth_priv::AudioDecoderFluidSynth_priv()
-    : fSynth(nullptr, &delete_fluid_synth),
-      fPlayer(nullptr, &delete_fluid_player),
-      fMidiData(0),
-      fEOF(false)
 {
     if (settings == nullptr) {
         initFluidSynth();

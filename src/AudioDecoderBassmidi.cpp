@@ -92,21 +92,17 @@ namespace Aulib {
 
 /// \private
 struct AudioDecoderBassmidi_priv final {
-    friend class AudioDecoderBassmidi;
-
     AudioDecoderBassmidi_priv();
 
     HstreamWrapper hstream;
-    Buffer<Uint8> midiData;
-    bool eof;
+    Buffer<Uint8> midiData{0};
+    bool eof = false;
 };
 
 } // namespace Aulib
 
 
 Aulib::AudioDecoderBassmidi_priv::AudioDecoderBassmidi_priv()
-    : midiData(0),
-      eof(false)
 {
     if (bassIsInitialized) {
         return;

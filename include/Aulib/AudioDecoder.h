@@ -57,7 +57,7 @@ protected:
     virtual int doDecoding(float buf[], int len, bool& callAgain) = 0;
 
 private:
-    const std::unique_ptr<class AudioDecoder_priv> d;
+    const std::unique_ptr<struct AudioDecoder_priv> d;
 };
 
 } // namespace Aulib

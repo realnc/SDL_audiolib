@@ -76,25 +76,13 @@ namespace Aulib {
 
 /// \private
 struct AudioDecoderSndfile_priv final {
-    friend class AudioDecoderSndfile;
-
-    AudioDecoderSndfile_priv();
-
-    std::unique_ptr<SNDFILE, decltype(&sf_close)> fSndfile;
-    SF_INFO fInfo;
-    bool fEOF;
-    float fDuration;
+    std::unique_ptr<SNDFILE, decltype(&sf_close)> fSndfile{nullptr, &sf_close};
+    SF_INFO fInfo{};
+    bool fEOF = false;
+    float fDuration = -1.f;
 };
 
 } // namespace Aulib
-
-
-Aulib::AudioDecoderSndfile_priv::AudioDecoderSndfile_priv()
-    : fSndfile(nullptr, &sf_close),
-      fEOF(false),
-      fDuration(-1.f)
-{
-}
 
 
 Aulib::AudioDecoderSndfile::AudioDecoderSndfile()

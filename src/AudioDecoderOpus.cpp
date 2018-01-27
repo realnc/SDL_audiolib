@@ -55,30 +55,13 @@ namespace Aulib {
 
 /// \private
 struct AudioDecoderOpus_priv final {
-    friend class AudioDecoderOpus;
-
-    AudioDecoderOpus_priv();
-
-    std::unique_ptr<OggOpusFile, decltype(&op_free)> fOpusHandle;
-    OpusFileCallbacks fCbs;
-    bool fEOF;
-    float fDuration;
+    std::unique_ptr<OggOpusFile, decltype(&op_free)> fOpusHandle{nullptr, &op_free};
+    OpusFileCallbacks fCbs{opusReadCb, opusSeekCb, opusTellCb, nullptr};
+    bool fEOF = false;
+    float fDuration = -1.f;
 };
 
 } // namespace Aulib
-
-
-Aulib::AudioDecoderOpus_priv::AudioDecoderOpus_priv()
-    : fOpusHandle(nullptr, &op_free),
-      fEOF(false),
-      fDuration(-1.f)
-{
-    std::memset(&fCbs, 0, sizeof(fCbs));
-    fCbs.read = opusReadCb;
-    fCbs.seek = opusSeekCb;
-    fCbs.tell = opusTellCb;
-    fCbs.close = nullptr;
-}
 
 
 Aulib::AudioDecoderOpus::AudioDecoderOpus()

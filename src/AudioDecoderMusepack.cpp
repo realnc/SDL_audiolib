@@ -74,38 +74,17 @@ namespace Aulib {
 
 /// \private
 struct AudioDecoderMusepack_priv final {
-public:
-    AudioDecoderMusepack_priv();
-
-    mpc_reader reader;
-    std::unique_ptr<mpc_demux, decltype(&mpc_demux_exit)> demuxer;
-    mpc_frame_info curFrame;
-    Buffer<float> curFrameBuffer;
-    mpc_streaminfo strmInfo;
-    int frameBufPos;
-    bool eof;
-    float duration;
+    mpc_reader reader{mpcReadCb, mpcSeekCb, mpcTellCb, mpcGetSizeCb, mpcCanseekCb, nullptr};
+    std::unique_ptr<mpc_demux, decltype(&mpc_demux_exit)> demuxer{nullptr, &mpc_demux_exit};
+    Buffer<float> curFrameBuffer{MPC_DECODER_BUFFER_LENGTH};
+    mpc_frame_info curFrame{0, 0, curFrameBuffer.get(), false};
+    mpc_streaminfo strmInfo{};
+    int frameBufPos = 0;
+    bool eof = false;
+    float duration = -1.f;
 };
 
 } // namespace Aulib
-
-
-Aulib::AudioDecoderMusepack_priv::AudioDecoderMusepack_priv()
-    : demuxer(nullptr, &mpc_demux_exit),
-      curFrameBuffer(MPC_DECODER_BUFFER_LENGTH),
-      frameBufPos(0),
-      eof(false),
-      duration(-1.f)
-{
-    reader.read = mpcReadCb;
-    reader.seek = mpcSeekCb;
-    reader.tell = mpcTellCb;
-    reader.get_size = mpcGetSizeCb;
-    reader.canseek = mpcCanseekCb;
-    reader.data = nullptr;
-    curFrame.buffer = curFrameBuffer.get();
-    curFrame.samples = 0;
-}
 
 
 Aulib::AudioDecoderMusepack::AudioDecoderMusepack()

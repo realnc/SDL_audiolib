@@ -38,25 +38,10 @@ int Aulib::AudioStream_priv::fBufLen = 0;
 
 Aulib::AudioStream_priv::AudioStream_priv(AudioStream* pub, Aulib::AudioDecoder* decoder,
                                           Aulib::AudioResampler* resampler, bool closeRw)
-    : q(pub),
-      fIsOpen(false),
-      fCloseRw(closeRw),
-      fDecoder(decoder),
-      fResampler(resampler),
-      fIsPlaying(false),
-      fIsPaused(false),
-      fVolume(1.f),
-      fInternalVolume(1.f),
-      fCurrentIteration(0),
-      fWantedIterations(0),
-      fPlaybackStartTick(0),
-      fFadeInStartTick(0),
-      fFadeOutStartTick(0),
-      fFadingIn(false),
-      fFadingOut(false),
-      fStopAfterFade(false),
-      fFadeInTickDuration(0),
-      fFadeOutTickDuration(0)
+    : q(pub)
+    , fCloseRw(closeRw)
+    , fDecoder(decoder)
+    , fResampler(resampler)
 {
     if (resampler) {
         resampler->setDecoder(fDecoder.get());

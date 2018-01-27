@@ -56,32 +56,14 @@ namespace Aulib {
 
 /// \private
 struct AudioDecoderVorbis_priv final {
-    friend class AudioDecoderVorbis;
-
-    AudioDecoderVorbis_priv();
-    ~AudioDecoderVorbis_priv();
-
-    std::unique_ptr<OggVorbis_File> fVFHandle;
-    int fCurrentSection;
-    vorbis_info* fCurrentInfo;
-    bool fEOF;
-    float fDuration;
+    std::unique_ptr<OggVorbis_File> fVFHandle = nullptr;
+    int fCurrentSection = 0;
+    vorbis_info* fCurrentInfo = nullptr;
+    bool fEOF = false;
+    float fDuration = -1.f;
 };
 
 } // namespace Aulib
-
-
-Aulib::AudioDecoderVorbis_priv::AudioDecoderVorbis_priv()
-    : fVFHandle(nullptr),
-      fCurrentSection(0),
-      fCurrentInfo(nullptr),
-      fEOF(false),
-      fDuration(-1.f)
-{ }
-
-
-Aulib::AudioDecoderVorbis_priv::~AudioDecoderVorbis_priv()
-{ }
 
 
 Aulib::AudioDecoderVorbis::AudioDecoderVorbis()
@@ -103,8 +85,7 @@ Aulib::AudioDecoderVorbis::open(SDL_RWops* rwops)
     if (isOpen()) {
         return true;
     }
-    ov_callbacks cbs;
-    memset(&cbs, 0, sizeof(cbs));
+    ov_callbacks cbs{};
     cbs.read_func = vorbisReadCb;
     cbs.seek_func = vorbisSeekCb;
     cbs.tell_func = vorbisTellCb;

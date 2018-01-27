@@ -51,22 +51,17 @@ namespace Aulib {
 
 /// \private
 struct AudioDecoderModPlug_priv final {
-    friend class AudioDecoderModPlug;
-
     AudioDecoderModPlug_priv();
 
-    std::unique_ptr<ModPlugFile, decltype(&ModPlug_Unload)> mpHandle;
-    bool atEOF;
-    float fDuration;
+    std::unique_ptr<ModPlugFile, decltype(&ModPlug_Unload)> mpHandle{nullptr, &ModPlug_Unload};
+    bool atEOF = false;
+    float fDuration = -1.f;
 };
 
 } // namespace Aulib
 
 
 Aulib::AudioDecoderModPlug_priv::AudioDecoderModPlug_priv()
-    : mpHandle(nullptr, &ModPlug_Unload),
-      atEOF(false),
-      fDuration(-1.f)
 {
     if (not initialized) {
         initModPlug(Aulib::spec());

@@ -29,35 +29,31 @@ namespace Aulib {
 
 /// \private
 struct AudioStream_priv final {
-    friend class AudioStream;
-    friend int init(int freq, SDL_AudioFormat format, int channels, int bufferSize);
-    friend void Aulib::quit();
-    friend const SDL_AudioSpec& Aulib::spec();
     const class AudioStream* const q;
 
     explicit AudioStream_priv(class AudioStream* pub, class AudioDecoder *decoder,
                               class AudioResampler *resampler, bool closeRw);
     ~AudioStream_priv();
 
-    bool fIsOpen;
+    bool fIsOpen = false;
     SDL_RWops* fRWops;
     bool fCloseRw;
     std::unique_ptr<AudioDecoder> fDecoder;
     std::unique_ptr<AudioResampler> fResampler;
-    bool fIsPlaying;
-    bool fIsPaused;
-    float fVolume;
-    float fInternalVolume;
-    int fCurrentIteration;
-    int fWantedIterations;
-    int fPlaybackStartTick;
-    int fFadeInStartTick;
-    int fFadeOutStartTick;
-    bool fFadingIn;
-    bool fFadingOut;
-    bool fStopAfterFade;
-    int fFadeInTickDuration;
-    int fFadeOutTickDuration;
+    bool fIsPlaying = false;
+    bool fIsPaused = false;
+    float fVolume = 1.f;
+    float fInternalVolume = 1.f;
+    int fCurrentIteration = 0;
+    int fWantedIterations = 0;
+    int fPlaybackStartTick = 0;
+    int fFadeInStartTick = 0;
+    int fFadeOutStartTick = 0;
+    bool fFadingIn = false;
+    bool fFadingOut = false;
+    bool fStopAfterFade = false;
+    int fFadeInTickDuration = 0;
+    int fFadeOutTickDuration = 0;
 
     static ::SDL_AudioSpec fAudioSpec;
     static std::vector<AudioStream*> fStreamList;

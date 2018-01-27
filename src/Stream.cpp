@@ -24,11 +24,6 @@ namespace Aulib {
 
 /// \private
 struct Stream_priv final {
-    friend class Stream;
-
-    Stream_priv();
-    ~Stream_priv();
-
     Stream::Callback fFinishCallback;
     Stream::Callback fLoopCallback;
 };
@@ -36,20 +31,9 @@ struct Stream_priv final {
 } // namespace Aulib
 
 
-Aulib::Stream_priv::Stream_priv()
-{
-}
-
-
-Aulib::Stream_priv::~Stream_priv()
-{
-}
-
-
 Aulib::Stream::Stream()
     : d(std::make_unique<Stream_priv>())
-{
-}
+{ }
 
 
 Aulib::Stream::~Stream()

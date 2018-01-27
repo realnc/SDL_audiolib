@@ -62,20 +62,19 @@ struct AudioResampler_priv final {
     AudioResampler* q;
 
     AudioResampler_priv(AudioResampler *pub);
-    ~AudioResampler_priv();
 
-    AudioDecoder* fDecoder;
-    int fDstRate;
-    int fSrcRate;
-    int fChannels;
-    int fChunkSize;
-    Buffer<float> fOutBuffer;
-    Buffer<float> fInBuffer;
-    int fOutBufferPos;
-    int fOutBufferEnd;
-    int fInBufferPos;
-    int fInBufferEnd;
-    bool fPendingSpecChange;
+    AudioDecoder* fDecoder = nullptr;
+    int fDstRate = 0;
+    int fSrcRate = 0;
+    int fChannels = 0;
+    int fChunkSize = 0;
+    Buffer<float> fOutBuffer{0};
+    Buffer<float> fInBuffer{0};
+    int fOutBufferPos = 0;
+    int fOutBufferEnd = 0;
+    int fInBufferPos = 0;
+    int fInBufferEnd = 0;
+    bool fPendingSpecChange = false;
 
     /* Move at most 'dstLen' samples from the output buffer into 'dst'.
      *
@@ -98,24 +97,7 @@ struct AudioResampler_priv final {
 
 
 Aulib::AudioResampler_priv::AudioResampler_priv(AudioResampler* pub)
-    : q(pub),
-      fDecoder(nullptr),
-      fDstRate(0),
-      fSrcRate(0),
-      fChannels(0),
-      fChunkSize(0),
-      fOutBuffer(0),
-      fInBuffer(0),
-      fOutBufferPos(0),
-      fOutBufferEnd(0),
-      fInBufferPos(0),
-      fInBufferEnd(0),
-      fPendingSpecChange(false)
-{
-}
-
-
-Aulib::AudioResampler_priv::~AudioResampler_priv()
+    : q(pub)
 { }
 
 

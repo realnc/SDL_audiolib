@@ -27,26 +27,15 @@ namespace Aulib {
 
 /// \private
 struct AudioResamplerSox_priv final {
-    friend class AudioResamplerSox;
-
-    AudioResamplerSox_priv();
-
-    std::unique_ptr<soxr, decltype(&soxr_delete)> fResampler;
+    std::unique_ptr<soxr, decltype(&soxr_delete)> fResampler{nullptr, &soxr_delete};
 };
 
 } // namespace Aulib
 
 
-Aulib::AudioResamplerSox_priv::AudioResamplerSox_priv()
-    : fResampler(nullptr, &soxr_delete)
-{
-}
-
-
 Aulib::AudioResamplerSox::AudioResamplerSox()
     : d(std::make_unique<AudioResamplerSox_priv>())
-{
-}
+{ }
 
 
 Aulib::AudioResamplerSox::~AudioResamplerSox()
@@ -79,8 +68,7 @@ Aulib::AudioResamplerSox::doResampling(float dst[], const float src[], int& dstL
 int
 Aulib::AudioResamplerSox::adjustForOutputSpec(int dstRate, int srcRate, int channels)
 {
-    soxr_io_spec_t spec;
-    memset(&spec, 0, sizeof(spec));
+    soxr_io_spec_t spec{};
     spec.itype = spec.otype = SOXR_FLOAT32_I;
     spec.scale = 1.0;
 

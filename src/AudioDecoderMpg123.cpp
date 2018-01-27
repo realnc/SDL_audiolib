@@ -90,26 +90,19 @@ namespace Aulib {
 
 /// \private
 struct AudioDecoderMpg123_priv final {
-    friend class AudioDecoderMpg123;
-
     AudioDecoderMpg123_priv();
 
-    std::unique_ptr<mpg123_handle, decltype(&mpg123_delete)> fMpgHandle;
-    int fChannels;
-    int fRate;
-    bool fEOF;
-    float fDuration;
+    std::unique_ptr<mpg123_handle, decltype(&mpg123_delete)> fMpgHandle{nullptr, &mpg123_delete};
+    int fChannels = 0;
+    int fRate = 0;
+    bool fEOF = false;
+    float fDuration = -1.f;
 };
 
 } // namespace Aulib
 
 
 Aulib::AudioDecoderMpg123_priv::AudioDecoderMpg123_priv()
-    : fMpgHandle(nullptr, &mpg123_delete),
-      fChannels(0),
-      fRate(0),
-      fEOF(false),
-      fDuration(-1.f)
 {
     if (not initialized) {
         initLibMpg();

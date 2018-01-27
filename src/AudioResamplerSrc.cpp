@@ -25,28 +25,16 @@ namespace Aulib {
 
 /// \private
 struct AudioResamplerSRC_priv final {
-    friend class AudioResamplerSRC;
-
-    AudioResamplerSRC_priv();
-
-    std::unique_ptr<SRC_STATE, decltype(&src_delete)> fResampler;
-    SRC_DATA fData;
+    std::unique_ptr<SRC_STATE, decltype(&src_delete)> fResampler{nullptr, &src_delete};
+    SRC_DATA fData{};
 };
 
 } // namespace Aulib
 
 
-Aulib::AudioResamplerSRC_priv::AudioResamplerSRC_priv()
-    : fResampler(nullptr, &src_delete)
-{
-    memset(&fData, 0, sizeof(fData));
-}
-
-
 Aulib::AudioResamplerSRC::AudioResamplerSRC()
     : d(std::make_unique<AudioResamplerSRC_priv>())
-{
-}
+{ }
 
 
 Aulib::AudioResamplerSRC::~AudioResamplerSRC()

@@ -49,13 +49,11 @@ Aulib::init(int freq, SDL_AudioFormat format, int channels, int bufferSize)
     // We only support mono and stereo at this point.
     channels = std::min(std::max(1, channels), 2);
 
-    SDL_AudioSpec requestedSpec;
-    memset(&requestedSpec, 0, sizeof(::SDL_AudioSpec));
+    SDL_AudioSpec requestedSpec{};
     requestedSpec.freq = freq;
     requestedSpec.format = format;
     requestedSpec.channels = channels;
     requestedSpec.samples = bufferSize;
-    requestedSpec.userdata = nullptr;
     requestedSpec.callback = ::sdlCallback;
     AudioStream_priv::fAudioSpec = requestedSpec;
     if (SDL_OpenAudio(&requestedSpec, &AudioStream_priv::fAudioSpec) != 0) {

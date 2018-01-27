@@ -27,19 +27,11 @@ namespace Aulib {
 
 /// \private
 struct AudioResamplerSpeex_priv final {
-    friend class AudioResamplerSpeex;
-
-    AudioResamplerSpeex_priv();
-
-    std::unique_ptr<SpeexResamplerState, decltype(&speex_resampler_destroy)> fResampler;
+    std::unique_ptr<SpeexResamplerState, decltype(&speex_resampler_destroy)>
+        fResampler{nullptr, &speex_resampler_destroy};
 };
 
 } // namespace Aulib
-
-
-Aulib::AudioResamplerSpeex_priv::AudioResamplerSpeex_priv()
-    : fResampler(nullptr, &speex_resampler_destroy)
-{ }
 
 
 Aulib::AudioResamplerSpeex::AudioResamplerSpeex()
