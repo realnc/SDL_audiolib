@@ -11,7 +11,7 @@
 
 using namespace Aulib;
 
-int main(int argc, char* argv[])
+int main(int /*argc*/, char* argv[])
 {
     init(44100, AUDIO_S16SYS, 2, 4096);
 
@@ -25,15 +25,15 @@ int main(int argc, char* argv[])
     }
 
 
-    auto fsynth = dynamic_cast<AudioDecoderFluidSynth*>(decoder);
-    auto bassmidi = dynamic_cast<AudioDecoderBassmidi*>(decoder);
+    auto fsynth = dynamic_cast<AudioDecoderFluidSynth*>(decoder.get());
+    //auto bassmidi = dynamic_cast<AudioDecoderBassmidi*>(decoder.get());
     if (fsynth) {
         fsynth->loadSoundfont("/usr/local/share/soundfonts/gs.sf2");
     }
 
-    auto stream = std::make_unique<AudioStream>(argv[1], decoder, new AudioResamplerSpeex);
-    stream->play();
-    while (stream->isPlaying()) {
+    AudioStream stream(argv[1], std::move(decoder), std::make_unique<AudioResamplerSpeex>());
+    stream.play();
+    while (stream.isPlaying()) {
         SDL_Delay(200);
     }
     Aulib::quit();

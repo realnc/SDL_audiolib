@@ -63,7 +63,7 @@ struct AudioResampler_priv final {
 
     AudioResampler_priv(AudioResampler *pub);
 
-    AudioDecoder* fDecoder = nullptr;
+    std::shared_ptr<class AudioDecoder> fDecoder = nullptr;
     int fDstRate = 0;
     int fSrcRate = 0;
     int fChannels = 0;
@@ -190,7 +190,7 @@ Aulib::AudioResampler::~AudioResampler()
 
 
 void
-Aulib::AudioResampler::setDecoder(AudioDecoder* decoder)
+Aulib::AudioResampler::setDecoder(std::shared_ptr<class AudioDecoder> decoder)
 {
     SdlAudioLocker locker;
     d->fDecoder = decoder;

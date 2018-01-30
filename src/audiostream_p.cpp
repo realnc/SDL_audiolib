@@ -36,15 +36,15 @@ float* Aulib::AudioStream_priv::fStrmBuf = nullptr;
 int Aulib::AudioStream_priv::fBufLen = 0;
 
 
-Aulib::AudioStream_priv::AudioStream_priv(AudioStream* pub, Aulib::AudioDecoder* decoder,
-                                          Aulib::AudioResampler* resampler, bool closeRw)
+Aulib::AudioStream_priv::AudioStream_priv(AudioStream* pub, std::unique_ptr<AudioDecoder> decoder,
+                                          std::unique_ptr<AudioResampler> resampler, bool closeRw)
     : q(pub)
     , fCloseRw(closeRw)
-    , fDecoder(decoder)
-    , fResampler(resampler)
+    , fDecoder(std::move(decoder))
+    , fResampler(std::move(resampler))
 {
-    if (resampler) {
-        resampler->setDecoder(fDecoder.get());
+    if (fResampler) {
+        fResampler->setDecoder(fDecoder);
     }
 }
 

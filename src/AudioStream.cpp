@@ -31,17 +31,15 @@
 #include "SdlAudioLocker.h"
 
 
-Aulib::AudioStream::AudioStream(const char* filename, AudioDecoder* decoder,
-                                AudioResampler* resampler)
-    : AudioStream(SDL_RWFromFile(filename, "rb"), decoder, resampler, true)
-{
-    AM_debugPrintLn(d->fRWops);
-}
+Aulib::AudioStream::AudioStream(const char* filename, std::unique_ptr<AudioDecoder> decoder,
+                                std::unique_ptr<AudioResampler> resampler)
+    : AudioStream(SDL_RWFromFile(filename, "rb"), std::move(decoder), std::move(resampler), true)
+{ }
 
 
-Aulib::AudioStream::AudioStream(SDL_RWops* rwops, AudioDecoder* decoder, AudioResampler* resampler,
-                                bool closeRw)
-    : d(std::make_unique<AudioStream_priv>(this, decoder, resampler, closeRw))
+Aulib::AudioStream::AudioStream(SDL_RWops* rwops, std::unique_ptr<AudioDecoder> decoder,
+                                std::unique_ptr<AudioResampler> resampler, bool closeRw)
+    : d(std::make_unique<AudioStream_priv>(this, std::move(decoder), std::move(resampler), closeRw))
 {
     d->fRWops = rwops;
 }

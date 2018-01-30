@@ -20,6 +20,7 @@
 
 #include <aulib.h>
 #include <Aulib/Stream.h>
+#include <memory>
 
 struct SDL_RWops;
 struct SDL_AudioSpec;
@@ -46,7 +47,8 @@ public:
      *  Resampler to use for converting the sample rate of the audio we get from the decoder. If
      *  this is null, then no resampling will be performed.
      */
-    explicit AudioStream(const char* filename, class AudioDecoder* decoder, class AudioResampler* resampler);
+    explicit AudioStream(const char* filename, std::unique_ptr<class AudioDecoder> decoder,
+                         std::unique_ptr<class AudioResampler> resampler);
 
     /*!
      * \brief Constructs an audio stream from the given SDL_RWops, decoder and resampler.
@@ -64,8 +66,8 @@ public:
      * \param closeRw
      *  Specifies whether 'rwops' should be automatically closed when the stream is destroyed.
      */
-    explicit AudioStream(SDL_RWops* rwops, class AudioDecoder* decoder, class AudioResampler* resampler,
-                         bool closeRw);
+    explicit AudioStream(SDL_RWops* rwops, std::unique_ptr<AudioDecoder> decoder,
+                         std::unique_ptr<AudioResampler> resampler, bool closeRw);
 
     ~AudioStream() override;
 

@@ -30,14 +30,15 @@ namespace Aulib {
 struct AudioStream_priv final {
     const class AudioStream* const q;
 
-    explicit AudioStream_priv(class AudioStream* pub, class AudioDecoder *decoder,
-                              class AudioResampler *resampler, bool closeRw);
+    explicit AudioStream_priv(class AudioStream* pub, std::unique_ptr<class AudioDecoder> decoder,
+                              std::unique_ptr<class AudioResampler> resampler, bool closeRw);
     ~AudioStream_priv();
 
     bool fIsOpen = false;
     SDL_RWops* fRWops;
     bool fCloseRw;
-    std::unique_ptr<AudioDecoder> fDecoder;
+    // Resamplers hold a reference to decoders, so we store it as a shared_ptr.
+    std::shared_ptr<AudioDecoder> fDecoder;
     std::unique_ptr<AudioResampler> fResampler;
     bool fIsPlaying = false;
     bool fIsPaused = false;

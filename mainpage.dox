@@ -84,37 +84,31 @@ audio automatically resampled by the internal resampler to the sample rate that 
 opened with (in this case 96kHz,) you would do:
 
 \code{.cpp}
-#include <iostream>
-#include <SDL.h>
-#include <aulib.h>
 #include <Aulib/AudioStream.h>
 #include <Aulib/AudioDecoderVorbis.h>
 #include <Aulib/AudioResamplerSpeex.h>
+#include <iostream>
+#include <SDL.h>
 
 int main()
 {
-    // Initialize the SDL_audiolib library. Set the output sample rate to 96kHz, the audio format
-    // to 16-bit signed, use 2 output channels (stereo), and a 4kB output buffer.
-    if (Aulib::init(96000, AUDIO_S16SYS, 2, 4096) != 0) {
+    // Initialize the SDL_audiolib library. Set the output sample rate to 44.1kHz, the audio format
+    // to 16-bit signed, use 2 output channels (stereo), and an 8kB output buffer.
+    if (Aulib::init(44100, AUDIO_S16SYS, 2, 8192) != 0) {
         std::cerr << "Couldn't open audio: " << SDL_GetError() << '\n';
         return 1;
     }
 
-    // Create a Speex resampler.
-    Aulib::AudioResampler* resampler = new Aulib::AudioResamplerSpeex;
-
-    // Create an Ogg/Vorbis decoder.
-    Aulib::AudioDecoder* decoder = new Aulib::AudioDecoderVorbis;
-
-    // Create an audio stream that will play our Vorbis file using the above decoder and
+    // Create an audio stream that will play our Vorbis file using a Vorbis decoder and a Speex
     // resampler.
-    Aulib::AudioStream* music = new Aulib::AudioStream("music.ogg", decoder, resampler);
+    Aulib::AudioStream music("music.ogg", std::make_unique<Aulib::AudioDecoderVorbis>(),
+                             std::make_unique<Aulib::AudioResamplerSpeex>());
 
-    // Start the music.
-    music->play();
+    // Start playback.
+    music.play();
 
     // Wait while the music is still playing.
-    while (music->isPlaying()) {
+    while (music.isPlaying()) {
         SDL_Delay(200);
     }
 }

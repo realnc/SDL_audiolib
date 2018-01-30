@@ -37,8 +37,8 @@ public:
     AudioDecoder(const AudioDecoder&) = delete;
     AudioDecoder& operator =(const AudioDecoder&) = delete;
 
-    static AudioDecoder* decoderFor(const char* filename);
-    static AudioDecoder* decoderFor(SDL_RWops* rwops);
+    static std::unique_ptr<AudioDecoder> decoderFor(const char* filename);
+    static std::unique_ptr<AudioDecoder> decoderFor(SDL_RWops* rwops);
 
     bool isOpen() const;
     int decode(float buf[], int len, bool& callAgain);

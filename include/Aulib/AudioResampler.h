@@ -47,7 +47,7 @@ public:
      * \param decoder
      *  The decoder to use as source. Must not be null.
      */
-    void setDecoder(class AudioDecoder* decoder);
+    void setDecoder(std::shared_ptr<class AudioDecoder> decoder);
 
     /*! \brief Sets the target sample rate, channels and chuck size.
      *
