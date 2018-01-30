@@ -16,8 +16,7 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
-#ifndef AULIB_VERSION_H
-#define AULIB_VERSION_H
+#pragma once
 
 /*!
  * This macro expands to a string literal containing the version of SDL_audiolib.
@@ -48,5 +47,3 @@
  *     #endif
  */
 #define AULIB_VERSION_CHECK(major, minor, patch) ((major<<16)|(minor<<8)|(patch))
-
-#endif

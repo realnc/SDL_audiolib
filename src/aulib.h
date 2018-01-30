@@ -16,8 +16,7 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
-#ifndef AULIB_H
-#define AULIB_H
+#pragma once
 
 #include <SDL_audio.h>
 #include "aulib_global.h"
@@ -65,5 +64,3 @@ AULIB_EXPORT void quit();
 AULIB_EXPORT const SDL_AudioSpec& spec();
 
 } // namespace Aulib
-
-#endif

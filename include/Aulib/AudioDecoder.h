@@ -16,8 +16,7 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
-#ifndef AUDIODECODER_H
-#define AUDIODECODER_H
+#pragma once
 
 #include <memory>
 #include <SDL_stdinc.h>
@@ -53,7 +52,6 @@ public:
 
 protected:
     void setIsOpen(bool f);
-
     virtual int doDecoding(float buf[], int len, bool& callAgain) = 0;
 
 private:
@@ -61,5 +59,3 @@ private:
 };
 
 } // namespace Aulib
-
-#endif

@@ -16,8 +16,7 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
-#ifndef SDLAUDIOLOCKER_H
-#define SDLAUDIOLOCKER_H
+#pragma once
 
 #include <SDL_audio.h>
 
@@ -51,5 +50,3 @@ public:
 private:
     bool fIsLocked;
 };
-
-#endif

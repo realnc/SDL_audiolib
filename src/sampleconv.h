@@ -16,8 +16,7 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
-#ifndef SAMPLECONV_H
-#define SAMPLECONV_H
+#pragma once
 
 #include "aulib_global.h"
 #include <SDL_stdinc.h>
@@ -36,5 +35,3 @@ AULIB_NO_EXPORT void floatToFloat(Uint8 dst[], float src[], int srcLen) noexcept
 /// \endcond internal
 
 } // namespace Aulib
-
-#endif

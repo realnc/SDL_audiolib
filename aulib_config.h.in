@@ -1,5 +1,4 @@
-#ifndef AULIB_CONFIG_H
-#define AULIB_CONFIG_H
+#pragma once
 
 #cmakedefine USE_RESAMP_SRC
 #cmakedefine USE_RESAMP_SOXR
@@ -14,5 +13,3 @@
 #cmakedefine USE_DEC_FLUIDSYNTH
 #cmakedefine USE_DEC_BASSMIDI
 #cmakedefine USE_DEC_WILDMIDI
-
-#endif // AULIB_CONFIG_H

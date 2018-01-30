@@ -16,8 +16,7 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
-#ifndef DEC_MPG123_H
-#define DEC_MPG123_H
+#pragma once
 
 #include <Aulib/AudioDecoder.h>
 
@@ -44,5 +43,3 @@ private:
 };
 
 } // namespace Aulib
-
-#endif

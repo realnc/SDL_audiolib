@@ -16,9 +16,6 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
-#ifndef AM_UTIL_H
-#define AM_UTIL_H
+#pragma once
 
 #include "aulib_export.h"
-
-#endif // AM_UTIL_H

@@ -16,8 +16,7 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
-#ifndef RESAMP_SRC_H
-#define RESAMP_SRC_H
+#pragma once
 
 #include <Aulib/AudioResampler.h>
 
@@ -33,7 +32,6 @@ public:
 
 protected:
     void doResampling(float dst[], const float src[], int& dstLen, int& srcLen) override;
-
     int adjustForOutputSpec(int dstRate, int srcRate, int channels) override;
 
 private:
@@ -41,5 +39,3 @@ private:
 };
 
 } // namespace Aulib
-
-#endif

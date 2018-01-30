@@ -16,8 +16,7 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
-#ifndef BUFFER_H
-#define BUFFER_H
+#pragma once
 
 #include <cstring>
 #include <algorithm>
@@ -117,5 +116,3 @@ private:
     std::unique_ptr<T[]> fData;
     int fSize;
 };
-
-#endif
