@@ -114,9 +114,9 @@ Aulib::quit()
     if (not gInitialized) {
         return;
     }
-    for (size_t i = 0; i < AudioStream_priv::fStreamList.size(); ++i) {
-        if (AudioStream_priv::fStreamList[i]->isPlaying()) {
-            AudioStream_priv::fStreamList[i]->stop();
+    for (const auto stream : AudioStream_priv::fStreamList) {
+        if (stream->isPlaying()) {
+            stream->stop();
         }
     }
     SDL_QuitSubSystem(SDL_INIT_AUDIO);
