@@ -51,8 +51,8 @@ Mix_LoadMUS(const char* file)
 {
     AM_debugPrintLn(__func__);
 
-    Aulib::AudioDecoder* decoder = Aulib::AudioDecoder::decoderFor(file);
-    Aulib::AudioStream* strm = new Aulib::AudioStream(file, decoder, new Aulib::AudioResamplerSpeex);
+    auto strm = new Aulib::AudioStream(file, Aulib::AudioDecoder::decoderFor(file),
+                                       std::make_unique<Aulib::AudioResamplerSpeex>());
     strm->open();
     return (Mix_Music*)strm;
 }
@@ -63,9 +63,8 @@ Mix_LoadMUS_RW(SDL_RWops* rw)
 {
     AM_debugPrintLn(__func__);
 
-    Aulib::AudioDecoder* decoder = Aulib::AudioDecoder::decoderFor(rw);
-    Aulib::AudioStream* strm = new Aulib::AudioStream(rw, decoder, new Aulib::AudioResamplerSpeex,
-                                                      false);
+    auto strm = new Aulib::AudioStream(rw, Aulib::AudioDecoder::decoderFor(rw),
+                                       std::make_unique<Aulib::AudioResamplerSpeex>(), false);
     strm->open();
     return (Mix_Music*)strm;
 }
@@ -76,29 +75,29 @@ Mix_LoadMUSType_RW(SDL_RWops* rw, Mix_MusicType type, int freesrc)
 {
     AM_debugPrintLn(__func__ << " type: " << type);
 
-    Aulib::AudioDecoder* decoder = nullptr;
+    auto decoder = std::unique_ptr<Aulib::AudioDecoder>(nullptr);
     switch (type) {
         case MUS_WAV:
         case MUS_FLAC:
-            decoder = new Aulib::AudioDecoderSndfile;
+            decoder = std::make_unique<Aulib::AudioDecoderSndfile>();
             break;
 
         case MUS_MOD:
         case MUS_MODPLUG:
-            decoder = new Aulib::AudioDecoderModPlug;
+            decoder = std::make_unique<Aulib::AudioDecoderModPlug>();
             break;
 
         case MUS_MID:
-            decoder = new Aulib::AudioDecoderFluidSynth;
+            decoder = std::make_unique<Aulib::AudioDecoderFluidSynth>();
             break;
 
         case MUS_OGG:
-            decoder = new Aulib::AudioDecoderVorbis;
+            decoder = std::make_unique<Aulib::AudioDecoderVorbis>();
             break;
 
         case MUS_MP3:
         case MUS_MP3_MAD:
-            decoder = new Aulib::AudioDecoderMpg123;
+            decoder = std::make_unique<Aulib::AudioDecoderMpg123>();
             break;
 
         default:
@@ -106,8 +105,8 @@ Mix_LoadMUSType_RW(SDL_RWops* rw, Mix_MusicType type, int freesrc)
             return nullptr;
     }
 
-    Aulib::AudioStream* strm = new Aulib::AudioStream(rw, decoder, new Aulib::AudioResamplerSpeex,
-                                                      freesrc);
+    auto strm = new Aulib::AudioStream(rw, std::move(decoder),
+                                       std::make_unique<Aulib::AudioResamplerSpeex>(), freesrc);
     strm->open();
     return (Mix_Music*)strm;
 }
