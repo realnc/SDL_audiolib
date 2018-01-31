@@ -23,6 +23,7 @@
 #include <queue>
 #include <SDL_audio.h>
 #include <aulib.h>
+#include "Buffer.h"
 
 namespace Aulib {
 
@@ -59,12 +60,11 @@ struct AudioStream_priv final {
     static std::vector<AudioStream*> fStreamList;
 
     // This points to an appropriate converter for the current audio format.
-    static void (*fSampleConverter)(Uint8[], float[], int);
+    static void (*fSampleConverter)(Uint8[], const Buffer<float>& src);
 
     // Sample buffers we use during decoding and mixing.
-    static float* fFinalMixBuf;
-    static float* fStrmBuf;
-    static int fBufLen;
+    static Buffer<float> fFinalMixBuf;
+    static Buffer<float> fStrmBuf;
 
     void fProcessFade();
     void fStop();

@@ -122,8 +122,6 @@ Aulib::quit()
     SDL_QuitSubSystem(SDL_INIT_AUDIO);
     AudioStream_priv::fSampleConverter = nullptr;
     gInitialized = false;
-    delete[] Aulib::AudioStream_priv::fFinalMixBuf;
-    delete[] Aulib::AudioStream_priv::fStrmBuf;
 }
 
 

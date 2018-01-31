@@ -21,17 +21,20 @@
 #include "aulib_global.h"
 #include <SDL_stdinc.h>
 
+template <typename T>
+class Buffer;
+
 namespace Aulib {
 
 /// \cond internal
-AULIB_NO_EXPORT void floatToS8(Uint8 dst[], float src[], int srcLen) noexcept;
-AULIB_NO_EXPORT void floatToU8(Uint8 dst[], float src[], int srcLen) noexcept;
-AULIB_NO_EXPORT void floatToS16LSB(Uint8 dst[], float src[], int srcLen) noexcept;
-AULIB_NO_EXPORT void floatToU16LSB(Uint8 dst[], float src[], int srcLen) noexcept;
-AULIB_NO_EXPORT void floatToS16MSB(Uint8 dst[], float src[], int srcLen) noexcept;
-AULIB_NO_EXPORT void floatToU16MSB(Uint8 dst[], float src[], int srcLen) noexcept;
-AULIB_NO_EXPORT void floatToS32LSB(Uint8 dst[], float src[], int srcLen) noexcept;
-AULIB_NO_EXPORT void floatToFloat(Uint8 dst[], float src[], int srcLen) noexcept;
+AULIB_NO_EXPORT void floatToS8(Uint8 dst[], const Buffer<float>& src) noexcept;
+AULIB_NO_EXPORT void floatToU8(Uint8 dst[], const Buffer<float>& src) noexcept;
+AULIB_NO_EXPORT void floatToS16LSB(Uint8 dst[], const Buffer<float>& src) noexcept;
+AULIB_NO_EXPORT void floatToU16LSB(Uint8 dst[], const Buffer<float>& src) noexcept;
+AULIB_NO_EXPORT void floatToS16MSB(Uint8 dst[], const Buffer<float>& src) noexcept;
+AULIB_NO_EXPORT void floatToU16MSB(Uint8 dst[], const Buffer<float>& src) noexcept;
+AULIB_NO_EXPORT void floatToS32LSB(Uint8 dst[], const Buffer<float>& src) noexcept;
+AULIB_NO_EXPORT void floatToFloat(Uint8 dst[], const Buffer<float>& src) noexcept;
 /// \endcond internal
 
 } // namespace Aulib

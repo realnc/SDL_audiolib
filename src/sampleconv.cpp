@@ -20,6 +20,7 @@
 #include <SDL_endian.h>
 #include <SDL_version.h>
 #include <limits>
+#include "Buffer.h"
 
 
 /* Convert and clip a float sample to an integer sample. This works for
@@ -44,37 +45,37 @@ floatSampleToInt(T& dst, float src) noexcept
 
 template <typename T>
 static void
-floatBufToInt(T dst[], const float src[], int srcLen) noexcept
+floatBufToInt(T dst[], const Buffer<float>& src) noexcept
 {
-    for (int i = 0; i < srcLen; ++i) {
+    for (int i = 0; i < src.size(); ++i) {
         floatSampleToInt(dst[i], src[i]);
     }
 }
 
 
 void
-Aulib::floatToS8(Uint8 dst[], float src[], int srcLen) noexcept
+Aulib::floatToS8(Uint8 dst[], const Buffer<float>& src) noexcept
 {
-    floatBufToInt((Sint8*)dst, src, srcLen);
+    floatBufToInt((Sint8*)dst, src);
 }
 
 
 void
-Aulib::floatToU8(Uint8 dst[], float src[], int srcLen) noexcept
+Aulib::floatToU8(Uint8 dst[], const Buffer<float>& src) noexcept
 {
-    floatBufToInt(dst, src, srcLen);
+    floatBufToInt(dst, src);
 }
 
 
 void
-Aulib::floatToS16LSB(Uint8 dst[], float src[], int srcLen) noexcept
+Aulib::floatToS16LSB(Uint8 dst[], const Buffer<float>& src) noexcept
 {
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-    floatBufToInt((Sint16*)dst, src, srcLen);
+    floatBufToInt((Sint16*)dst, src);
 #else
     Sint16 sample;
-    for (int i = 0; i < srcLen; ++i) {
-        floatSampleToInt(sample, src[i]);
+    for (auto i : src) {
+        floatSampleToInt(sample, i);
         *dst++ = *(Uint8*)((unsigned char*)&sample + 1);
         *dst++ = *(Uint8*)((unsigned char*)&sample);
     }
@@ -83,14 +84,14 @@ Aulib::floatToS16LSB(Uint8 dst[], float src[], int srcLen) noexcept
 
 
 void
-Aulib::floatToU16LSB(Uint8 dst[], float src[], int srcLen) noexcept
+Aulib::floatToU16LSB(Uint8 dst[], const Buffer<float>& src) noexcept
 {
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-    floatBufToInt((Uint16*)dst, src, srcLen);
+    floatBufToInt((Uint16*)dst, src);
 #else
     Uint16 sample;
-    for (int i = 0; i < srcLen; ++i) {
-        floatSampleToInt(sample, src[i]);
+    for (auto i : src) {
+        floatSampleToInt(sample, i);
         *dst++ = *(Uint8*)((unsigned char*)&sample + 1);
         *dst++ = *(Uint8*)((unsigned char*)&sample);
     }
@@ -99,14 +100,14 @@ Aulib::floatToU16LSB(Uint8 dst[], float src[], int srcLen) noexcept
 
 
 void
-Aulib::floatToS16MSB(Uint8 dst[], float src[], int srcLen) noexcept
+Aulib::floatToS16MSB(Uint8 dst[], const Buffer<float>& src) noexcept
 {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-    floatBufToInt((Sint16*)dst, src, srcLen);
+    floatBufToInt((Sint16*)dst, src);
 #else
     Sint16 sample;
-    for (int i = 0; i < srcLen; ++i) {
-        floatSampleToInt(sample, src[i]);
+    for (auto i : src) {
+        floatSampleToInt(sample, i);
         *dst++ = *(Uint8*)((unsigned char*)&sample + 1);
         *dst++ = *(Uint8*)((unsigned char*)&sample);
     }
@@ -115,14 +116,14 @@ Aulib::floatToS16MSB(Uint8 dst[], float src[], int srcLen) noexcept
 
 
 void
-Aulib::floatToU16MSB(Uint8 dst[], float src[], int srcLen) noexcept
+Aulib::floatToU16MSB(Uint8 dst[], const Buffer<float>& src) noexcept
 {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-    floatBufToInt((Uint16*)dst, src, srcLen);
+    floatBufToInt((Uint16*)dst, src);
 #else
     Uint16 sample;
-    for (int i = 0; i < srcLen; ++i) {
-        floatSampleToInt(sample, src[i]);
+    for (auto i : src) {
+        floatSampleToInt(sample, i);
         *dst++ = *(Uint8*)((unsigned char*)&sample + 1);
         *dst++ = *(Uint8*)((unsigned char*)&sample);
     }
@@ -131,16 +132,16 @@ Aulib::floatToU16MSB(Uint8 dst[], float src[], int srcLen) noexcept
 
 
 void
-Aulib::floatToS32LSB(Uint8 dst[], float src[], int srcLen) noexcept
+Aulib::floatToS32LSB(Uint8 dst[], const Buffer<float>& src) noexcept
 {
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-    floatBufToInt((Sint32*)dst, src, srcLen);
+    floatBufToInt((Sint32*)dst, src);
 #else
     // FIXME: 4 bytes
     abort();
     Sint32 sample;
-    for (int i = 0; i < srcLen; ++i) {
-        floatSampleToInt(sample, src[i]);
+    for (auto i : src) {
+        floatSampleToInt(sample, i);
         *dst++ = *(Uint8*)((unsigned char*)&sample + 1);
         *dst++ = *(Uint8*)((unsigned char*)&sample);
     }
@@ -149,7 +150,7 @@ Aulib::floatToS32LSB(Uint8 dst[], float src[], int srcLen) noexcept
 
 
 void
-Aulib::floatToFloat(Uint8 dst[], float src[], int srcLen) noexcept
+Aulib::floatToFloat(Uint8 dst[], const Buffer<float>& src) noexcept
 {
-    memcpy(dst, src, srcLen * sizeof(*src));
+    memcpy(dst, src.get(), src.size() * sizeof(*src.get()));
 }
