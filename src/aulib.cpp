@@ -91,9 +91,17 @@ Aulib::init(int freq, SDL_AudioFormat format, int channels, int bufferSize)
             AM_debugPrintLn("S32LSB");
             AudioStream_priv::fSampleConverter = Aulib::floatToS32LSB;
             break;
+        case AUDIO_S32MSB:
+            AM_debugPrintLn("S32MSB");
+            AudioStream_priv::fSampleConverter = Aulib::floatToS32MSB;
+            break;
         case AUDIO_F32LSB:
             AM_debugPrintLn("F32LSB");
-            AudioStream_priv::fSampleConverter = Aulib::floatToFloat;
+            AudioStream_priv::fSampleConverter = Aulib::floatToFloatLSB;
+            break;
+        case AUDIO_F32MSB:
+            AM_debugPrintLn("F32MSB");
+            AudioStream_priv::fSampleConverter = Aulib::floatToFloatMSB;
             break;
         default:
             AM_warnLn("Unknown audio format spec: " << AudioStream_priv::fAudioSpec.format);

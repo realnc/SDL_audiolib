@@ -154,7 +154,41 @@ Aulib::floatToS32LSB(Uint8 dst[], const Buffer<float>& src) noexcept
 
 
 void
-Aulib::floatToFloat(Uint8 dst[], const Buffer<float>& src) noexcept
+Aulib::floatToS32MSB(Uint8 dst[], const Buffer<float>& src) noexcept
 {
+    floatToMsbInt<Sint32>(dst, src);
+}
+
+
+static void
+floatToSwappedFloat(Uint8 dst[], const Buffer<float>& src) noexcept
+{
+    for (auto i : src) {
+        *dst++ = *(Uint8*)((unsigned char*)&i + 3);
+        *dst++ = *(Uint8*)((unsigned char*)&i + 2);
+        *dst++ = *(Uint8*)((unsigned char*)&i + 1);
+        *dst++ = *(Uint8*)((unsigned char*)&i);
+    }
+}
+
+
+void
+Aulib::floatToFloatLSB(Uint8 dst[], const Buffer<float>& src) noexcept
+{
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
     memcpy(dst, src.get(), src.size() * sizeof(*src.get()));
+#else
+    floatToSwappedFloat(dst, src);
+#endif
+}
+
+
+void
+Aulib::floatToFloatMSB(Uint8 dst[], const Buffer<float>& src) noexcept
+{
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    memcpy(dst, src.get(), src.size() * sizeof(*src.get()));
+#else
+    floatToSwappedFloat(dst, src);
+#endif
 }

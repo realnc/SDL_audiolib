@@ -34,7 +34,9 @@ AULIB_NO_EXPORT void floatToU16LSB(Uint8 dst[], const Buffer<float>& src) noexce
 AULIB_NO_EXPORT void floatToS16MSB(Uint8 dst[], const Buffer<float>& src) noexcept;
 AULIB_NO_EXPORT void floatToU16MSB(Uint8 dst[], const Buffer<float>& src) noexcept;
 AULIB_NO_EXPORT void floatToS32LSB(Uint8 dst[], const Buffer<float>& src) noexcept;
-AULIB_NO_EXPORT void floatToFloat(Uint8 dst[], const Buffer<float>& src) noexcept;
+AULIB_NO_EXPORT void floatToS32MSB(Uint8 dst[], const Buffer<float>& src) noexcept;
+AULIB_NO_EXPORT void floatToFloatLSB(Uint8 dst[], const Buffer<float>& src) noexcept;
+AULIB_NO_EXPORT void floatToFloatMSB(Uint8 dst[], const Buffer<float>& src) noexcept;
 /// \endcond internal
 
 } // namespace Aulib
