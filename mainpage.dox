@@ -81,7 +81,7 @@ it is resampled using one of the available resamplers:
 
 Usage of the library is fairly simple. To play a music.ogg file containing Vorbis audio and having the
 audio automatically resampled by the internal resampler to the sample rate that the audio device is
-opened with (in this case 96kHz,) you would do:
+opened with (in this case 44.1kHz,) you would do:
 
 \code{.cpp}
 #include <Aulib/AudioStream.h>
