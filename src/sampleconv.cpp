@@ -28,18 +28,18 @@
  * unsigned.)
  */
 template <typename T>
-static T
+static constexpr T
 floatSampleToInt(const float src) noexcept
 {
     if (src >= 1.f) {
         return std::numeric_limits<T>::max();
-    } else if (src < -1.f) {
-        return std::numeric_limits<T>::min();
-    } else {
-        return src * static_cast<float>(1UL << (sizeof(T) * 8 - 1))
-               + (static_cast<float>(1UL << (sizeof(T) * 8 - 1))
-                  + static_cast<float>(std::numeric_limits<T>::min()));
     }
+    if (src < -1.f) {
+        return std::numeric_limits<T>::min();
+    }
+    return src * static_cast<float>(1UL << (sizeof(T) * 8 - 1))
+           + (static_cast<float>(1UL << (sizeof(T) * 8 - 1))
+              + static_cast<float>(std::numeric_limits<T>::min()));
 }
 
 
