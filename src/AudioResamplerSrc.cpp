@@ -37,8 +37,7 @@ Aulib::AudioResamplerSRC::AudioResamplerSRC()
 { }
 
 
-Aulib::AudioResamplerSRC::~AudioResamplerSRC()
-{ }
+Aulib::AudioResamplerSRC::~AudioResamplerSRC() = default;
 
 
 void
@@ -54,7 +53,7 @@ Aulib::AudioResamplerSRC::doResampling(float dst[], const float src[], int& dstL
     int channels = currentChannels();
     d->fData.input_frames = srcLen / channels;
     d->fData.output_frames = dstLen / channels;
-    d->fData.end_of_input = false;
+    d->fData.end_of_input = 0;
 
     src_process(d->fResampler.get(), &d->fData);
 

@@ -18,13 +18,13 @@
 */
 #include "Aulib/AudioDecoderBassmidi.h"
 
-#include <SDL_rwops.h>
-#include <SDL_audio.h>
-#include <bass.h>
-#include <bassmidi.h>
+#include "Buffer.h"
 #include "aulib.h"
 #include "aulib_debug.h"
-#include "Buffer.h"
+#include <SDL_audio.h>
+#include <SDL_rwops.h>
+#include <bass.h>
+#include <bassmidi.h>
 
 static bool bassIsInitialized = false;
 
@@ -80,7 +80,7 @@ private:
         if (hstream == 0) {
             return;
         }
-        if (not BASS_StreamFree(hstream)) {
+        if (BASS_StreamFree(hstream) == 0) {
             AM_debugPrintLn("AudioDecoderBassmidi: got BASS error " << BASS_ErrorGetCode()
                             << " while freeing HSTREAM.");
         }
@@ -107,7 +107,7 @@ Aulib::AudioDecoderBassmidi_priv::AudioDecoderBassmidi_priv()
     if (bassIsInitialized) {
         return;
     }
-    if (BASS_Init(0, Aulib::spec().freq, 0, nullptr, nullptr)) {
+    if (BASS_Init(0, Aulib::spec().freq, 0, nullptr, nullptr) != 0) {
         bassIsInitialized = true;
         return;
     }
@@ -120,14 +120,13 @@ Aulib::AudioDecoderBassmidi::AudioDecoderBassmidi()
 { }
 
 
-Aulib::AudioDecoderBassmidi::~AudioDecoderBassmidi()
-{ }
+Aulib::AudioDecoderBassmidi::~AudioDecoderBassmidi() = default;
 
 
 bool
 Aulib::AudioDecoderBassmidi::setDefaultSoundfont(const char filename[])
 {
-    if (BASS_SetConfigPtr(BASS_CONFIG_MIDI_DEFFONT, filename)) {
+    if (BASS_SetConfigPtr(BASS_CONFIG_MIDI_DEFFONT, filename) != 0) {
         return true;
     }
     AM_debugPrintLn("AudioDecoderBassmidi: got BASS error " << BASS_ErrorGetCode()
@@ -175,7 +174,7 @@ int
 Aulib::AudioDecoderBassmidi::getRate() const
 {
     BASS_CHANNELINFO inf;
-    if (BASS_ChannelGetInfo(d->hstream.get(), &inf)) {
+    if (BASS_ChannelGetInfo(d->hstream.get(), &inf) != 0) {
         return inf.freq;
     }
     AM_debugPrintLn("AudioDecoderBassmidi: got BASS error " << BASS_ErrorGetCode()
@@ -185,7 +184,7 @@ Aulib::AudioDecoderBassmidi::getRate() const
 
 
 int
-Aulib::AudioDecoderBassmidi::doDecoding(float buf[], int len, bool&)
+Aulib::AudioDecoderBassmidi::doDecoding(float buf[], int len, bool& /*callAgain*/)
 {
     if (d->eof or not d->hstream) {
         return 0;
@@ -196,7 +195,8 @@ Aulib::AudioDecoderBassmidi::doDecoding(float buf[], int len, bool&)
     if (ret == (DWORD)-1) {
         SDL_SetError("AudioDecoderBassmidi: got BASS error %d during decoding.\n", BASS_ErrorGetCode());
         return 0;
-    } else if (ret < byteLen) {
+    }
+    if (ret < byteLen) {
         d->eof = true;
     }
     return ret / sizeof(*buf);
@@ -210,7 +210,7 @@ Aulib::AudioDecoderBassmidi::rewind()
         return false;
     }
 
-    if (BASS_ChannelSetPosition(d->hstream.get(), 0, BASS_POS_BYTE)) {
+    if (BASS_ChannelSetPosition(d->hstream.get(), 0, BASS_POS_BYTE) != 0) {
         d->eof = false;
         return true;
     }
@@ -255,7 +255,7 @@ Aulib::AudioDecoderBassmidi::seekToTime(float seconds)
                         << " while translating seek time to bytes.");
         return false;
     }
-    if (BASS_ChannelSetPosition(d->hstream.get(), bytePos, BASS_POS_BYTE)) {
+    if (BASS_ChannelSetPosition(d->hstream.get(), bytePos, BASS_POS_BYTE) != 0) {
         return true;
     }
     AM_debugPrintLn("AudioDecoderBassmidi: got BASS error " << BASS_ErrorGetCode()

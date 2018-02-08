@@ -33,10 +33,12 @@ public:
     bool open(SDL_RWops* rwops) override;
     int getChannels() const override;
     int getRate() const override;
-    int doDecoding(float buf[], int len, bool& callAgain) override;
     bool rewind() override;
     float duration() const override;
     bool seekToTime(float seconds) override;
+
+protected:
+    int doDecoding(float buf[], int len, bool& callAgain) override;
 
 private:
     const std::unique_ptr<struct AudioDecoderSndfile_priv> d;

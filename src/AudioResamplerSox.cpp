@@ -18,9 +18,9 @@
 */
 #include "Aulib/AudioResamplerSox.h"
 
+#include "aulib_debug.h"
 #include <cstring>
 #include <soxr.h>
-#include "aulib_debug.h"
 
 
 namespace Aulib {
@@ -38,8 +38,7 @@ Aulib::AudioResamplerSox::AudioResamplerSox()
 { }
 
 
-Aulib::AudioResamplerSox::~AudioResamplerSox()
-{ }
+Aulib::AudioResamplerSox::~AudioResamplerSox() = default;
 
 
 void
@@ -54,7 +53,7 @@ Aulib::AudioResamplerSox::doResampling(float dst[], const float src[], int& dstL
     soxr_error_t error;
     error = soxr_process(d->fResampler.get(), src, srcLen / channels, &srcDone, dst, dstLen / channels,
                          &dstDone);
-    if (error) {
+    if (error != nullptr) {
         // FIXME: What do we do?
         AM_warnLn("soxr_process() error: " << error);
         dstLen = srcLen = 0;
@@ -76,7 +75,7 @@ Aulib::AudioResamplerSox::adjustForOutputSpec(int dstRate, int srcRate, int chan
 
     soxr_error_t error;
     d->fResampler.reset(soxr_create(srcRate, dstRate, channels, &error, &spec, nullptr, nullptr));
-    if (error) {
+    if (error != nullptr) {
         d->fResampler = nullptr;
         return -1;
     }

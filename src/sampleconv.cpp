@@ -17,10 +17,11 @@
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
 #include "sampleconv.h"
+
+#include "Buffer.h"
+#include <limits>
 #include <SDL_endian.h>
 #include <SDL_version.h>
-#include <limits>
-#include "Buffer.h"
 
 
 /* Convert and clip a float sample to an integer sample. This works for
@@ -50,7 +51,7 @@ static void
 floatToInt(Uint8 dst[], const Buffer<float>& src) noexcept
 {
     for (auto i : src) {
-        T sample = floatSampleToInt<decltype(sample)>(i);
+        auto sample = floatSampleToInt<T>(i);
         memcpy(dst, &sample, sizeof(sample));
         dst += sizeof(sample);
     }
@@ -66,7 +67,7 @@ floatToSwappedInt(Uint8 dst[], const Buffer<float>& src) noexcept
     static_assert(sizeof(T) == 2 or sizeof(T) == 4, "");
 
     for (auto i : src) {
-        T sample = floatSampleToInt<decltype(sample)>(i);
+        auto sample = floatSampleToInt<T>(i);
         switch (sizeof(T)) {
         case 4:
             *dst++ = *(Uint8*)((unsigned char*)&sample + 3);

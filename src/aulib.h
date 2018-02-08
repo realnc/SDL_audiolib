@@ -18,8 +18,8 @@
 */
 #pragma once
 
-#include <SDL_audio.h>
 #include "aulib_global.h"
+#include <SDL_audio.h>
 
 struct SDL_AudioSpec;
 

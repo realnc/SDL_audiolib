@@ -17,8 +17,9 @@
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
 #include "Aulib/Stream.h"
-#include "aulib_debug.h"
 
+#include "aulib_debug.h"
+#include <utility>
 
 namespace Aulib {
 
@@ -36,14 +37,13 @@ Aulib::Stream::Stream()
 { }
 
 
-Aulib::Stream::~Stream()
-{ }
+Aulib::Stream::~Stream() = default;
 
 
 void
 Aulib::Stream::setFinishCallback(Callback func)
 {
-    d->fFinishCallback = func;
+    d->fFinishCallback = std::move(func);
 }
 
 
@@ -57,7 +57,7 @@ Aulib::Stream::unsetFinishCallback()
 void
 Aulib::Stream::setLoopCallback(Callback func)
 {
-    d->fLoopCallback = func;
+    d->fLoopCallback = std::move(func);
 }
 
 

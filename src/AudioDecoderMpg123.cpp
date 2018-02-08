@@ -18,12 +18,10 @@
 */
 #include "Aulib/AudioDecoderMpg123.h"
 
-#include <unistd.h>
-#include <mpg123.h>
-#include <SDL_rwops.h>
-#include <SDL_audio.h>
-#include "aulib_global.h"
 #include "aulib_debug.h"
+#include <SDL_audio.h>
+#include <SDL_rwops.h>
+#include <mpg123.h>
 
 
 static bool initialized = false;
@@ -115,8 +113,7 @@ Aulib::AudioDecoderMpg123::AudioDecoderMpg123()
 { }
 
 
-Aulib::AudioDecoderMpg123::~AudioDecoderMpg123()
-{ }
+Aulib::AudioDecoderMpg123::~AudioDecoderMpg123() = default;
 
 
 bool
@@ -218,8 +215,5 @@ bool
 Aulib::AudioDecoderMpg123::seekToTime(float seconds)
 {
     off_t targetFrame = mpg123_timeframe(d->fMpgHandle.get(), seconds);
-    if (targetFrame >= 0 and mpg123_seek_frame(d->fMpgHandle.get(), targetFrame, SEEK_SET) >= 0) {
-        return true;
-    }
-    return false;
+    return targetFrame >= 0 and mpg123_seek_frame(d->fMpgHandle.get(), targetFrame, SEEK_SET) >= 0;
 }

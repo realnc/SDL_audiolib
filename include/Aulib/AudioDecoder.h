@@ -18,9 +18,9 @@
 */
 #pragma once
 
-#include <memory>
+#include "aulib_export.h"
 #include <SDL_stdinc.h>
-#include "aulib_global.h"
+#include <memory>
 
 struct SDL_RWops;
 

@@ -38,9 +38,9 @@ static void (*gMusicFinishHook)() = nullptr;
 }
 
 static void
-musicFinishHookWrapper(Aulib::Stream&)
+musicFinishHookWrapper(Aulib::Stream& /*unused*/)
 {
-    if (gMusicFinishHook) {
+    if (gMusicFinishHook != nullptr) {
         gMusicFinishHook();
     }
 }
@@ -106,7 +106,8 @@ Mix_LoadMUSType_RW(SDL_RWops* rw, Mix_MusicType type, int freesrc)
     }
 
     auto strm = new Aulib::AudioStream(rw, std::move(decoder),
-                                       std::make_unique<Aulib::AudioResamplerSpeex>(), freesrc);
+                                       std::make_unique<Aulib::AudioResamplerSpeex>(),
+                                       freesrc != 0);
     strm->open();
     return (Mix_Music*)strm;
 }
@@ -117,7 +118,7 @@ Mix_FreeMusic(Mix_Music* music)
 {
     AM_debugPrintLn(__func__);
 
-    Aulib::AudioStream* strm = (Aulib::AudioStream*)music;
+    auto* strm = (Aulib::AudioStream*)music;
     if (gMusic == strm) {
         gMusic = nullptr;
     }
@@ -165,13 +166,13 @@ Mix_HookMusicFinished(void (*music_finished)())
     AM_debugPrintLn(__func__);
 
     if (music_finished == nullptr) {
-        if (gMusic) {
+        if (gMusic != nullptr) {
             gMusic->unsetFinishCallback();
         }
         gMusicFinishHook = nullptr;
     } else {
         gMusicFinishHook = music_finished;
-        if (gMusic) {
+        if (gMusic != nullptr) {
             gMusic->setFinishCallback(musicFinishHookWrapper);
         }
     }
@@ -192,7 +193,7 @@ Mix_PlayMusic(Mix_Music* music, int loops)
 {
     AM_debugPrintLn(__func__);
 
-    if (gMusic) {
+    if (gMusic != nullptr) {
         gMusic->stop();
         gMusic = nullptr;
     }
@@ -201,7 +202,7 @@ Mix_PlayMusic(Mix_Music* music, int loops)
     }
     gMusic = (Aulib::AudioStream*)music;
     gMusic->setVolume(gMusicVolume);
-    return gMusic->play(loops == -1 ? 0 : loops);
+    return static_cast<int>(gMusic->play(loops == -1 ? 0 : loops));
 }
 
 
@@ -233,7 +234,7 @@ Mix_VolumeMusic(int volume)
 
     if (volume >= 0) {
         gMusicVolume = (float)volume / (float)MIX_MAX_VOLUME;
-        if (gMusic) {
+        if (gMusic != nullptr) {
             gMusic->setVolume(gMusicVolume);
         }
     }
@@ -246,7 +247,7 @@ Mix_HaltMusic()
 {
     AM_debugPrintLn(__func__);
 
-    if (gMusic) {
+    if (gMusic != nullptr) {
         gMusic->stop();
         gMusic = nullptr;
     }
@@ -277,7 +278,7 @@ Mix_PauseMusic()
 {
     AM_debugPrintLn(__func__);
 
-    if (gMusic) {
+    if (gMusic != nullptr) {
         gMusic->pause();
     }
 }
@@ -288,7 +289,7 @@ Mix_ResumeMusic()
 {
     AM_debugPrintLn(__func__);
 
-    if (gMusic and gMusic->isPaused()) {
+    if (gMusic != nullptr and gMusic->isPaused()) {
         gMusic->resume();
     }
 }
@@ -299,7 +300,7 @@ Mix_RewindMusic()
 {
     AM_debugPrintLn(__func__);
 
-    if (gMusic) {
+    if (gMusic != nullptr) {
         gMusic->rewind();
     }
 }
@@ -310,10 +311,10 @@ Mix_PausedMusic()
 {
     AM_debugPrintLn(__func__);
 
-    if (gMusic) {
-        return gMusic->isPaused();
+    if (gMusic != nullptr) {
+        return static_cast<int>(gMusic->isPaused());
     }
-    return false;
+    return 0;
 }
 
 
@@ -331,10 +332,10 @@ Mix_PlayingMusic()
 {
     AM_debugPrintLn(__func__);
 
-    if (gMusic) {
-        return gMusic->isPlaying();
+    if (gMusic != nullptr) {
+        return static_cast<int>(gMusic->isPlaying());
     }
-    return false;
+    return 0;
 }
 
 

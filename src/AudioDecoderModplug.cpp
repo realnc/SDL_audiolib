@@ -17,14 +17,12 @@
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
 #include "Aulib/AudioDecoderModplug.h"
-#include "aulib_global.h"
 
-#include <limits>
-#include <libmodplug/modplug.h>
-#include <SDL_audio.h>
-
-#include "aulib.h"
 #include "Buffer.h"
+#include "aulib.h"
+#include <limits>
+#include <SDL_audio.h>
+#include <libmodplug/modplug.h>
 
 static ModPlug_Settings modplugSettings;
 static bool initialized = false;
@@ -75,8 +73,7 @@ Aulib::AudioDecoderModPlug::AudioDecoderModPlug()
 }
 
 
-Aulib::AudioDecoderModPlug::~AudioDecoderModPlug()
-{ }
+Aulib::AudioDecoderModPlug::~AudioDecoderModPlug() = default;
 
 
 bool

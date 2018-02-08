@@ -18,10 +18,9 @@
 */
 #include "Aulib/AudioDecoderVorbis.h"
 
-#include <vorbis/vorbisfile.h>
-#include <SDL_rwops.h>
-
 #include "aulib_debug.h"
+#include <SDL_rwops.h>
+#include <vorbis/vorbisfile.h>
 
 
 extern "C" {
@@ -56,7 +55,7 @@ namespace Aulib {
 
 /// \private
 struct AudioDecoderVorbis_priv final {
-    std::unique_ptr<OggVorbis_File> fVFHandle = nullptr;
+    std::unique_ptr<OggVorbis_File, decltype(&ov_clear)> fVFHandle{nullptr, ov_clear};
     int fCurrentSection = 0;
     vorbis_info* fCurrentInfo = nullptr;
     bool fEOF = false;
@@ -71,12 +70,7 @@ Aulib::AudioDecoderVorbis::AudioDecoderVorbis()
 { }
 
 
-Aulib::AudioDecoderVorbis::~AudioDecoderVorbis()
-{
-    if (d->fVFHandle) {
-        ov_clear(d->fVFHandle.get());
-    }
-}
+Aulib::AudioDecoderVorbis::~AudioDecoderVorbis() = default;
 
 
 bool
@@ -90,12 +84,12 @@ Aulib::AudioDecoderVorbis::open(SDL_RWops* rwops)
     cbs.seek_func = vorbisSeekCb;
     cbs.tell_func = vorbisTellCb;
     cbs.close_func = nullptr;
-    auto newHandle = std::make_unique<OggVorbis_File>();
+    auto newHandle = decltype(d->fVFHandle){new OggVorbis_File, ov_clear};
     if (ov_open_callbacks(rwops, newHandle.get(), nullptr, 0, cbs) != 0) {
         return false;
     }
     d->fCurrentInfo = ov_info(newHandle.get(), -1);
-    double len = ov_time_total(newHandle.get(), -1);
+    auto len = ov_time_total(newHandle.get(), -1);
     d->fDuration = len == OV_EINVAL ? -1 : len;
     d->fVFHandle.swap(newHandle);
     setIsOpen(true);
@@ -106,14 +100,14 @@ Aulib::AudioDecoderVorbis::open(SDL_RWops* rwops)
 int
 Aulib::AudioDecoderVorbis::getChannels() const
 {
-    return d->fCurrentInfo ? d->fCurrentInfo->channels : 0;
+    return d->fCurrentInfo != nullptr ? d->fCurrentInfo->channels : 0;
 }
 
 
 int
 Aulib::AudioDecoderVorbis::getRate() const
 {
-    return d->fCurrentInfo ? d->fCurrentInfo->rate : 0;
+    return d->fCurrentInfo != nullptr ? d->fCurrentInfo->rate : 0;
 }
 
 
@@ -175,7 +169,7 @@ Aulib::AudioDecoderVorbis::rewind()
     } else {
         ret = ov_raw_seek_lap(d->fVFHandle.get(), 0);
     }
-    return ret == 0 ? true : false;
+    return ret == 0;
 }
 
 
@@ -189,8 +183,5 @@ Aulib::AudioDecoderVorbis::duration() const
 bool
 Aulib::AudioDecoderVorbis::seekToTime(float seconds)
 {
-    if (ov_time_seek_lap(d->fVFHandle.get(), seconds) == 0) {
-        return true;
-    }
-    return false;
+    return ov_time_seek_lap(d->fVFHandle.get(), seconds) == 0;
 }

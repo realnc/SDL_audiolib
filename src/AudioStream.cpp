@@ -17,18 +17,17 @@
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
 #include "Aulib/AudioStream.h"
-#include "audiostream_p.h"
 
-#include <SDL_timer.h>
-#include <SDL_audio.h>
-
-#include "aulib_global.h"
-#include "aulib.h"
 #include "Aulib/AudioDecoder.h"
 #include "Aulib/AudioResampler.h"
-#include "sampleconv.h"
-#include "aulib_debug.h"
 #include "SdlAudioLocker.h"
+#include "audiostream_p.h"
+#include "aulib.h"
+#include "aulib_debug.h"
+#include "aulib_global.h"
+#include "sampleconv.h"
+#include <SDL_audio.h>
+#include <SDL_timer.h>
 
 
 Aulib::AudioStream::AudioStream(const char* filename, std::unique_ptr<AudioDecoder> decoder,
@@ -39,10 +38,9 @@ Aulib::AudioStream::AudioStream(const char* filename, std::unique_ptr<AudioDecod
 
 Aulib::AudioStream::AudioStream(SDL_RWops* rwops, std::unique_ptr<AudioDecoder> decoder,
                                 std::unique_ptr<AudioResampler> resampler, bool closeRw)
-    : d(std::make_unique<AudioStream_priv>(this, std::move(decoder), std::move(resampler), closeRw))
-{
-    d->fRWops = rwops;
-}
+    : d(std::make_unique<AudioStream_priv>(this, std::move(decoder), std::move(resampler), rwops,
+                                           closeRw))
+{ }
 
 
 Aulib::AudioStream::~AudioStream()

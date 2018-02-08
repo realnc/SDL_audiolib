@@ -17,12 +17,13 @@
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
 #include "Aulib/AudioDecoderXmp.h"
-#include <type_traits>
-#include <limits>
-#include <xmp.h>
-#include <SDL_rwops.h>
+
 #include "Buffer.h"
 #include "aulib.h"
+#include <limits>
+#include <type_traits>
+#include <SDL_rwops.h>
+#include <xmp.h>
 
 namespace Aulib {
 
@@ -42,8 +43,7 @@ Aulib::AudioDecoderXmp::AudioDecoderXmp()
 { }
 
 
-Aulib::AudioDecoderXmp::~AudioDecoderXmp()
-{ }
+Aulib::AudioDecoderXmp::~AudioDecoderXmp() = default;
 
 
 bool

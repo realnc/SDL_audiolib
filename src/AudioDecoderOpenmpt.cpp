@@ -17,12 +17,13 @@
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
 #include "Aulib/AudioDecoderOpenmpt.h"
+
 #include "Buffer.h"
 #include "aulib.h"
-#include <libopenmpt/libopenmpt.hpp>
-#include <memory>
 #include <limits>
+#include <memory>
 #include <SDL_rwops.h>
+#include <libopenmpt/libopenmpt.hpp>
 
 namespace Aulib {
 
@@ -41,8 +42,7 @@ Aulib::AudioDecoderOpenmpt::AudioDecoderOpenmpt()
 { }
 
 
-Aulib::AudioDecoderOpenmpt::~AudioDecoderOpenmpt()
-{ }
+Aulib::AudioDecoderOpenmpt::~AudioDecoderOpenmpt() = default;
 
 
 bool

@@ -18,13 +18,12 @@
 */
 #include "Aulib/AudioDecoderFluidsynth.h"
 
-#include <SDL_rwops.h>
-#include <SDL_audio.h>
-#include <fluidsynth.h>
-
+#include "Buffer.h"
 #include "aulib.h"
 #include "aulib_debug.h"
-#include "Buffer.h"
+#include <SDL_audio.h>
+#include <SDL_rwops.h>
+#include <fluidsynth.h>
 
 
 static fluid_settings_t* settings = nullptr;
@@ -33,7 +32,7 @@ static fluid_settings_t* settings = nullptr;
 static int
 initFluidSynth()
 {
-    if (settings) {
+    if (settings != nullptr) {
         return 0;
     }
     if ((settings = new_fluid_settings()) == nullptr) {
@@ -84,14 +83,13 @@ Aulib::AudioDecoderFluidSynth::AudioDecoderFluidSynth()
 }
 
 
-Aulib::AudioDecoderFluidSynth::~AudioDecoderFluidSynth()
-{ }
+Aulib::AudioDecoderFluidSynth::~AudioDecoderFluidSynth() = default;
 
 
 int
 Aulib::AudioDecoderFluidSynth::loadSoundfont(const char filename[])
 {
-    fluid_synth_sfload(d->fSynth.get(), filename, true);
+    fluid_synth_sfload(d->fSynth.get(), filename, 1);
     return 0;
 }
 
@@ -190,7 +188,7 @@ Aulib::AudioDecoderFluidSynth::duration() const
 
 
 bool
-Aulib::AudioDecoderFluidSynth::seekToTime(float)
+Aulib::AudioDecoderFluidSynth::seekToTime(float /*seconds*/)
 {
     // We don't support seeking.
     return false;

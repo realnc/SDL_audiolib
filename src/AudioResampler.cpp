@@ -18,15 +18,16 @@
 */
 #include "Aulib/AudioResampler.h"
 
-#include <algorithm>
-#include <cstring>
-#include <cmath>
-#include <SDL_audio.h>
 #include "Aulib/AudioDecoder.h"
-#include "aulib_global.h"
-#include "aulib_debug.h"
-#include "SdlAudioLocker.h"
 #include "Buffer.h"
+#include "SdlAudioLocker.h"
+#include "aulib_debug.h"
+#include "aulib_global.h"
+#include <algorithm>
+#include <cmath>
+#include <cstring>
+#include <utility>
+#include <SDL_audio.h>
 
 
 /* Relocate any samples in the specified buffer to the beginning:
@@ -138,7 +139,7 @@ Aulib::AudioResampler_priv::fAdjustBufferSizes()
         // the source and destination sample rates.
         inBufSiz = std::ceil((double)outBufSiz * fSrcRate / fDstRate);
         auto remainder = inBufSiz % fChannels;
-        if (remainder) {
+        if (remainder != 0) {
             inBufSiz = inBufSiz + fChannels - remainder;
         }
     }
@@ -181,19 +182,17 @@ Aulib::AudioResampler_priv::fResampleFromInBuffer()
 
 Aulib::AudioResampler::AudioResampler()
     : d(std::make_unique<AudioResampler_priv>(this))
-{
-}
-
-
-Aulib::AudioResampler::~AudioResampler()
 { }
+
+
+Aulib::AudioResampler::~AudioResampler() = default;
 
 
 void
 Aulib::AudioResampler::setDecoder(std::shared_ptr<class AudioDecoder> decoder)
 {
     SdlAudioLocker locker;
-    d->fDecoder = decoder;
+    d->fDecoder = std::move(decoder);
 }
 
 

@@ -18,10 +18,10 @@
 */
 #pragma once
 
+#include "aulib_global.h"
 #include <memory>
 #include <functional>
 #include <SDL_stdinc.h>
-#include "aulib_global.h"
 
 namespace Aulib {
 

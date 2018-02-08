@@ -1,15 +1,15 @@
 #pragma once
 
-#cmakedefine USE_RESAMP_SRC
-#cmakedefine USE_RESAMP_SOXR
-#cmakedefine USE_DEC_OPENMPT
-#cmakedefine USE_DEC_XMP
-#cmakedefine USE_DEC_MODPLUG
-#cmakedefine USE_DEC_MPG123
-#cmakedefine USE_DEC_SNDFILE
-#cmakedefine USE_DEC_LIBVORBIS
-#cmakedefine USE_DEC_LIBOPUSFILE
-#cmakedefine USE_DEC_MUSEPACK
-#cmakedefine USE_DEC_FLUIDSYNTH
-#cmakedefine USE_DEC_BASSMIDI
-#cmakedefine USE_DEC_WILDMIDI
+#cmakedefine USE_RESAMP_SRC 1
+#cmakedefine USE_RESAMP_SOXR 1
+#cmakedefine USE_DEC_OPENMPT 1
+#cmakedefine USE_DEC_XMP 1
+#cmakedefine USE_DEC_MODPLUG 1
+#cmakedefine USE_DEC_MPG123 1
+#cmakedefine USE_DEC_SNDFILE 1
+#cmakedefine USE_DEC_LIBVORBIS 1
+#cmakedefine USE_DEC_LIBOPUSFILE 1
+#cmakedefine USE_DEC_MUSEPACK 1
+#cmakedefine USE_DEC_FLUIDSYNTH 1
+#cmakedefine USE_DEC_BASSMIDI 1
+#cmakedefine USE_DEC_WILDMIDI 1

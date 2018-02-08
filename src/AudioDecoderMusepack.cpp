@@ -18,13 +18,13 @@
 */
 #include "Aulib/AudioDecoderMusepack.h"
 
-#include <cstring>
-#include <mpc/reader.h>
-#include <mpc/mpcdec.h>
-#include <SDL_rwops.h>
 #include "aulib_debug.h"
 #include "aulib_config.h"
 #include "Buffer.h"
+#include <cstring>
+#include <SDL_rwops.h>
+#include <mpc/mpcdec.h>
+#include <mpc/reader.h>
 
 #ifdef MPC_FIXED_POINT
 #error Fixed point decoder versions of libmpcdec are not supported!
@@ -77,7 +77,7 @@ struct AudioDecoderMusepack_priv final {
     mpc_reader reader{mpcReadCb, mpcSeekCb, mpcTellCb, mpcGetSizeCb, mpcCanseekCb, nullptr};
     std::unique_ptr<mpc_demux, decltype(&mpc_demux_exit)> demuxer{nullptr, &mpc_demux_exit};
     Buffer<float> curFrameBuffer{MPC_DECODER_BUFFER_LENGTH};
-    mpc_frame_info curFrame{0, 0, curFrameBuffer.get(), false};
+    mpc_frame_info curFrame{0, 0, curFrameBuffer.get(), 0};
     mpc_streaminfo strmInfo{};
     int frameBufPos = 0;
     bool eof = false;
@@ -89,12 +89,10 @@ struct AudioDecoderMusepack_priv final {
 
 Aulib::AudioDecoderMusepack::AudioDecoderMusepack()
     : d(std::make_unique<AudioDecoderMusepack_priv>())
-{
-}
-
-
-Aulib::AudioDecoderMusepack::~AudioDecoderMusepack()
 { }
+
+
+Aulib::AudioDecoderMusepack::~AudioDecoderMusepack() = default;
 
 
 bool

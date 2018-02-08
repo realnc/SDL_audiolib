@@ -18,10 +18,10 @@
 */
 #include "Aulib/AudioDecoderWildmidi.h"
 
-#include <algorithm>
-#include <wildmidi_lib.h>
-#include <SDL_rwops.h>
 #include "Buffer.h"
+#include <algorithm>
+#include <SDL_rwops.h>
+#include <wildmidi_lib.h>
 
 
 namespace Aulib {
@@ -29,7 +29,7 @@ namespace Aulib {
 /// \private
 struct AudioDecoderWildmidi_priv final {
     std::unique_ptr<midi, decltype(&WildMidi_Close)> midiHandle{nullptr, &WildMidi_Close};
-    Buffer<Uint8> midiData{0};
+    Buffer<unsigned char> midiData{0};
     Buffer<Sint16> sampBuf{0};
     bool eof = false;
 
@@ -48,12 +48,11 @@ Aulib::AudioDecoderWildmidi::AudioDecoderWildmidi()
 { }
 
 
-Aulib::AudioDecoderWildmidi::~AudioDecoderWildmidi()
-{ }
+Aulib::AudioDecoderWildmidi::~AudioDecoderWildmidi() = default;
 
 
 bool
-Aulib::AudioDecoderWildmidi::init(const std::string configFile, int rate,
+Aulib::AudioDecoderWildmidi::init(const std::string& configFile, int rate,
                                   bool hqResampling, bool reverb)
 {
     if (AudioDecoderWildmidi_priv::initialized) {
@@ -99,7 +98,7 @@ Aulib::AudioDecoderWildmidi::open(SDL_RWops* rwops)
         return false;
     }
 
-    Buffer<Uint8> newMidiData(newMidiDataLen);
+    Buffer<unsigned char> newMidiData(newMidiDataLen);
     if (SDL_RWread(rwops, newMidiData.get(), newMidiData.size(), 1) != 1) {
         return false;
     }

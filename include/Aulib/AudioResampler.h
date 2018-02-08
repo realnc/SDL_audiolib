@@ -18,9 +18,9 @@
 */
 #pragma once
 
+#include "aulib_global.h"
 #include <memory>
 #include <cstddef>
-#include "aulib_global.h"
 
 namespace Aulib {
 

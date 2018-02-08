@@ -17,10 +17,10 @@
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
 #include "Aulib/AudioResamplerSpeex.h"
-#include "aulib_global.h"
 
-#include "speex_resampler.h"
 #include "Aulib/AudioDecoder.h"
+#include "aulib_global.h"
+#include "speex_resampler.h"
 
 
 namespace Aulib {
@@ -39,8 +39,7 @@ Aulib::AudioResamplerSpeex::AudioResamplerSpeex()
 { }
 
 
-Aulib::AudioResamplerSpeex::~AudioResamplerSpeex()
-{ }
+Aulib::AudioResamplerSpeex::~AudioResamplerSpeex() = default;
 
 
 void
@@ -71,7 +70,7 @@ Aulib::AudioResamplerSpeex::adjustForOutputSpec(int dstRate, int srcRate,
 {
     int err;
     d->fResampler.reset(speex_resampler_init(channels, srcRate, dstRate, 10, &err));
-    if (err) {
+    if (err != 0) {
         d->fResampler = nullptr;
         return -1;
     }

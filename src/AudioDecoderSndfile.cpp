@@ -18,10 +18,10 @@
 */
 #include <Aulib/AudioDecoderSndfile.h>
 
-#include <sndfile.h>
-#include <SDL_version.h>
-#include <SDL_rwops.h>
 #include "aulib_debug.h"
+#include <SDL_rwops.h>
+#include <SDL_version.h>
+#include <sndfile.h>
 
 
 extern "C" {
@@ -90,8 +90,7 @@ Aulib::AudioDecoderSndfile::AudioDecoderSndfile()
 { }
 
 
-Aulib::AudioDecoderSndfile::~AudioDecoderSndfile()
-{ }
+Aulib::AudioDecoderSndfile::~AudioDecoderSndfile() = default;
 
 
 bool
@@ -163,8 +162,5 @@ Aulib::AudioDecoderSndfile::duration() const
 bool
 Aulib::AudioDecoderSndfile::seekToTime(float seconds)
 {
-    if (sf_seek(d->fSndfile.get(), seconds * d->fInfo.samplerate, SEEK_SET) == -1) {
-        return false;
-    }
-    return true;
+    return sf_seek(d->fSndfile.get(), seconds * d->fInfo.samplerate, SEEK_SET) != -1;
 }

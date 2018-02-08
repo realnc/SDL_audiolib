@@ -79,13 +79,13 @@ Mix_QuerySpec(int* frequency, Uint16* format, int* channels)
     AM_debugPrintLn(__func__);
 
     const SDL_AudioSpec& spec = Aulib::spec();
-    if (frequency) {
+    if (frequency != nullptr) {
         *frequency = spec.freq;
     }
-    if (format) {
+    if (format != nullptr) {
         *format = spec.format;
     }
-    if (channels) {
+    if (channels != nullptr) {
         *channels = spec.channels;
     }
     return 1; // TODO
@@ -235,7 +235,7 @@ Mix_GroupChannel(int /*which*/, int /*tag*/)
 {
     AM_debugPrintLn(__func__);
 
-    return false;
+    return 0;
 }
 
 
@@ -244,7 +244,7 @@ Mix_GroupChannels(int /*from*/, int /*to*/, int /*tag*/)
 {
     AM_debugPrintLn(__func__);
 
-    return false;
+    return 0;
 }
 
 

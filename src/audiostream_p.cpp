@@ -18,14 +18,13 @@
 */
 #include "audiostream_p.h"
 
+#include "Aulib/AudioDecoder.h"
+#include "Aulib/AudioResampler.h"
+#include "Aulib/AudioStream.h"
+#include "aulib_debug.h"
 #include <algorithm>
 #include <cmath>
 #include <SDL_timer.h>
-
-#include "Aulib/AudioStream.h"
-#include "Aulib/AudioResampler.h"
-#include "Aulib/AudioDecoder.h"
-#include "aulib_debug.h"
 
 
 void (*Aulib::AudioStream_priv::fSampleConverter)(Uint8[], const Buffer<float>& src) = nullptr;
@@ -36,8 +35,10 @@ Buffer<float> Aulib::AudioStream_priv::fStrmBuf{0};
 
 
 Aulib::AudioStream_priv::AudioStream_priv(AudioStream* pub, std::unique_ptr<AudioDecoder> decoder,
-                                          std::unique_ptr<AudioResampler> resampler, bool closeRw)
+                                          std::unique_ptr<AudioResampler> resampler,
+                                          SDL_RWops* rwops, bool closeRw)
     : q(pub)
+    , fRWops(rwops)
     , fCloseRw(closeRw)
     , fDecoder(std::move(decoder))
     , fResampler(std::move(resampler))
@@ -50,7 +51,7 @@ Aulib::AudioStream_priv::AudioStream_priv(AudioStream* pub, std::unique_ptr<Audi
 
 Aulib::AudioStream_priv::~AudioStream_priv()
 {
-    if (fCloseRw and fRWops) {
+    if (fCloseRw and fRWops != nullptr) {
         SDL_RWclose(fRWops);
     }
 }
@@ -99,7 +100,7 @@ Aulib::AudioStream_priv::fStop()
 
 
 void
-Aulib::AudioStream_priv::fSdlCallbackImpl(void*, Uint8 out[], int outLen)
+Aulib::AudioStream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int outLen)
 {
     AM_debugAssert(AudioStream_priv::fSampleConverter != nullptr);
 

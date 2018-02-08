@@ -17,10 +17,11 @@
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
 #include "Aulib/AudioDecoderOpus.h"
-#include <cstring>
-#include <opusfile.h>
-#include <SDL_rwops.h>
+
 #include "aulib_debug.h"
+#include <cstring>
+#include <SDL_rwops.h>
+#include <opusfile.h>
 
 
 extern "C" {
@@ -69,8 +70,7 @@ Aulib::AudioDecoderOpus::AudioDecoderOpus()
 { }
 
 
-Aulib::AudioDecoderOpus::~AudioDecoderOpus()
-{ }
+Aulib::AudioDecoderOpus::~AudioDecoderOpus() = default;
 
 
 bool
@@ -148,7 +148,7 @@ Aulib::AudioDecoderOpus::rewind()
 {
     int ret = op_raw_seek(d->fOpusHandle.get(), 0);
     d->fEOF = false;
-    return ret == 0 ? true : false;
+    return ret == 0;
 }
 
 
@@ -163,8 +163,5 @@ bool
 Aulib::AudioDecoderOpus::seekToTime(float seconds)
 {
     ogg_int64_t offset = seconds * 48000.f;
-    if (op_pcm_seek(d->fOpusHandle.get(), offset) == 0) {
-        return true;
-    }
-    return false;
+    return op_pcm_seek(d->fOpusHandle.get(), offset) == 0;
 }

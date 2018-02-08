@@ -18,10 +18,10 @@
 */
 #pragma once
 
-#include <cstring>
-#include <algorithm>
-#include <memory>
 #include "aulib_debug.h"
+#include <algorithm>
+#include <cstring>
+#include <memory>
 
 /*! \private
  *

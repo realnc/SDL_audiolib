@@ -18,12 +18,11 @@
 */
 #pragma once
 
+#include "Buffer.h"
+#include "aulib.h"
 #include <memory>
 #include <vector>
-#include <queue>
 #include <SDL_audio.h>
-#include <aulib.h>
-#include "Buffer.h"
 
 namespace Aulib {
 
@@ -32,7 +31,8 @@ struct AudioStream_priv final {
     const class AudioStream* const q;
 
     explicit AudioStream_priv(class AudioStream* pub, std::unique_ptr<class AudioDecoder> decoder,
-                              std::unique_ptr<class AudioResampler> resampler, bool closeRw);
+                              std::unique_ptr<class AudioResampler> resampler, SDL_RWops* rwops,
+                              bool closeRw);
     ~AudioStream_priv();
 
     bool fIsOpen = false;
@@ -69,7 +69,7 @@ struct AudioStream_priv final {
     void fProcessFade();
     void fStop();
 
-    static void fSdlCallbackImpl(void*, Uint8 out[], int outLen);
+    static void fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int outLen);
 };
 
 } // namespace Aulib

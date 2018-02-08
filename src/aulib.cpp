@@ -17,14 +17,14 @@
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
 #include "aulib.h"
-#include <SDL.h>
-#include <SDL_audio.h>
-#include <SDL_version.h>
 
 #include "Aulib/AudioStream.h"
 #include "audiostream_p.h"
-#include "sampleconv.h"
 #include "aulib_debug.h"
+#include "sampleconv.h"
+#include <SDL.h>
+#include <SDL_audio.h>
+#include <SDL_version.h>
 
 
 static bool gInitialized = false;
@@ -32,7 +32,7 @@ static bool gInitialized = false;
 
 extern "C" {
 static void
-sdlCallback(void*, Uint8 out[], int outLen)
+sdlCallback(void* /*unused*/, Uint8 out[], int outLen)
 {
     Aulib::AudioStream_priv::fSdlCallbackImpl(nullptr, out, outLen);
 }
@@ -109,7 +109,7 @@ Aulib::init(int freq, SDL_AudioFormat format, int channels, int bufferSize)
             return -1;
     }
 
-    SDL_PauseAudio(false);
+    SDL_PauseAudio(0);
     gInitialized = true;
     std::atexit(Aulib::quit);
     return 0;

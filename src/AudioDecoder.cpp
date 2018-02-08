@@ -18,24 +18,22 @@
 */
 #include "Aulib/AudioDecoder.h"
 
-#include <SDL_audio.h>
-#include <SDL_rwops.h>
-
-#include "aulib_global.h"
-#include "aulib.h"
-#include "aulib_config.h"
-#include "Aulib/AudioDecoderVorbis.h"
-#include "Aulib/AudioDecoderMpg123.h"
-#include "Aulib/AudioDecoderModplug.h"
 #include "Aulib/AudioDecoderBassmidi.h"
-#include "Aulib/AudioDecoderWildmidi.h"
 #include "Aulib/AudioDecoderFluidsynth.h"
-#include "Aulib/AudioDecoderSndfile.h"
-#include "Aulib/AudioDecoderOpus.h"
+#include "Aulib/AudioDecoderModplug.h"
+#include "Aulib/AudioDecoderMpg123.h"
 #include "Aulib/AudioDecoderMusepack.h"
 #include "Aulib/AudioDecoderOpenmpt.h"
+#include "Aulib/AudioDecoderOpus.h"
+#include "Aulib/AudioDecoderSndfile.h"
+#include "Aulib/AudioDecoderVorbis.h"
+#include "Aulib/AudioDecoderWildmidi.h"
 #include "Aulib/AudioDecoderXmp.h"
 #include "Buffer.h"
+#include "aulib.h"
+#include "aulib_config.h"
+#include <SDL_audio.h>
+#include <SDL_rwops.h>
 
 namespace Aulib {
 
@@ -53,8 +51,7 @@ Aulib::AudioDecoder::AudioDecoder()
 { }
 
 
-Aulib::AudioDecoder::~AudioDecoder()
-{ }
+Aulib::AudioDecoder::~AudioDecoder() = default;
 
 
 std::unique_ptr<Aulib::AudioDecoder>
@@ -72,7 +69,7 @@ Aulib::AudioDecoder::decoderFor(SDL_RWops* rwops)
     std::unique_ptr<AudioDecoder> decoder;
     auto rwPos = SDL_RWtell(rwops);
 
-#ifdef USE_DEC_LIBVORBIS
+#if USE_DEC_LIBVORBIS
     decoder = std::make_unique<AudioDecoderVorbis>();
     if (decoder->open(rwops)) {
         return std::make_unique<Aulib::AudioDecoderVorbis>();
@@ -80,7 +77,7 @@ Aulib::AudioDecoder::decoderFor(SDL_RWops* rwops)
     SDL_RWseek(rwops, rwPos, RW_SEEK_SET);
 #endif
 
-#ifdef USE_DEC_LIBOPUSFILE
+#if USE_DEC_LIBOPUSFILE
     decoder = std::make_unique<AudioDecoderOpus>();
     if (decoder->open(rwops)) {
         return std::make_unique<Aulib::AudioDecoderOpus>();
@@ -88,7 +85,7 @@ Aulib::AudioDecoder::decoderFor(SDL_RWops* rwops)
     SDL_RWseek(rwops, rwPos, RW_SEEK_SET);
 #endif
 
-#ifdef USE_DEC_MUSEPACK
+#if USE_DEC_MUSEPACK
     decoder = std::make_unique<AudioDecoderMusepack>();
     if (decoder->open(rwops)) {
         return std::make_unique<Aulib::AudioDecoderMusepack>();
@@ -96,22 +93,22 @@ Aulib::AudioDecoder::decoderFor(SDL_RWops* rwops)
     SDL_RWseek(rwops, rwPos, RW_SEEK_SET);
 #endif
 
-#if defined(USE_DEC_FLUIDSYNTH) or defined(USE_DEC_BASSMIDI) or defined(USE_DEC_WILDMIDI)
+#if USE_DEC_FLUIDSYNTH or USE_DEC_BASSMIDI or USE_DEC_WILDMIDI
     {
         char head[4];
         if (SDL_RWread(rwops, head, 1, 4) == 4 && strncmp(head, "MThd", 4) == 0) {
             SDL_RWseek(rwops, rwPos, RW_SEEK_SET);
-#   ifdef USE_DEC_FLUIDSYNTH
+#   if USE_DEC_FLUIDSYNTH
             decoder = std::make_unique<AudioDecoderFluidSynth>();
             if (decoder->open(rwops)) {
                 return std::make_unique<Aulib::AudioDecoderFluidSynth>();
             }
-#   elif defined(USE_DEC_BASSMIDI)
+#   elif USE_DEC_BASSMIDI
             decoder = std::make_unique<AudioDecoderBassmidi>();
             if (decoder->open(rwops)) {
                 return std::make_unique<Aulib::AudioDecoderBassmidi>();
             }
-#   elif defined(USE_DEC_WILDMIDI)
+#   elif USE_DEC_WILDMIDI
             decoder = std::make_unique<AudioDecoderWildmidi>();
             if (decoder->open(rwops)) {
                 return std::make_unique<Aulib::AudioDecoderWildmidi>();
@@ -122,7 +119,7 @@ Aulib::AudioDecoder::decoderFor(SDL_RWops* rwops)
     SDL_RWseek(rwops, rwPos, RW_SEEK_SET);
 #endif
 
-#ifdef USE_DEC_SNDFILE
+#if USE_DEC_SNDFILE
     decoder = std::make_unique<AudioDecoderSndfile>();
     if (decoder->open(rwops)) {
         return std::make_unique<Aulib::AudioDecoderSndfile>();
@@ -130,7 +127,7 @@ Aulib::AudioDecoder::decoderFor(SDL_RWops* rwops)
     SDL_RWseek(rwops, rwPos, RW_SEEK_SET);
 #endif
 
-#ifdef USE_DEC_OPENMPT
+#if USE_DEC_OPENMPT
     decoder = std::make_unique<AudioDecoderOpenmpt>();
     if (decoder->open(rwops)) {
         return std::make_unique<Aulib::AudioDecoderOpenmpt>();
@@ -138,7 +135,7 @@ Aulib::AudioDecoder::decoderFor(SDL_RWops* rwops)
     SDL_RWseek(rwops, rwPos, RW_SEEK_SET);
 #endif
 
-#ifdef USE_DEC_XMP
+#if USE_DEC_XMP
     decoder = std::make_unique<AudioDecoderXmp>();
     if (decoder->open(rwops)) {
         return std::make_unique<Aulib::AudioDecoderXmp>();
@@ -146,13 +143,13 @@ Aulib::AudioDecoder::decoderFor(SDL_RWops* rwops)
     SDL_RWseek(rwops, rwPos, RW_SEEK_SET);
 #endif
 
-#ifdef USE_DEC_MODPLUG
+#if USE_DEC_MODPLUG
     // We don't try ModPlug, since it thinks just about anything is a module
     // file, which would result in virtually everything we feed it giving a
     // false positive.
 #endif
 
-#ifdef USE_DEC_MPG123
+#if USE_DEC_MPG123
     decoder = std::make_unique<AudioDecoderMpg123>();
     if (decoder->open(rwops)) {
         return std::make_unique<Aulib::AudioDecoderMpg123>();
@@ -186,7 +183,7 @@ monoToStereo(float buf[], int len)
 
 
 static void
-stereoToMono(float dst[], float src[], int srcLen)
+stereoToMono(float dst[], const float src[], int srcLen)
 {
     if (srcLen < 1 or dst == nullptr or src == nullptr) {
         return;
