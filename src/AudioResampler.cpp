@@ -50,7 +50,7 @@ relocateBuffer(float* buf, int& pos, int& end)
         return;
     }
     int len = end - pos;
-    memmove(buf, buf + pos, len * sizeof(*buf));
+    memmove(buf, buf + pos, static_cast<size_t>(len) * sizeof(*buf));
     pos = 0;
     end = len;
 }
@@ -113,7 +113,8 @@ Aulib::AudioResampler_priv::fMoveFromOutBuffer(float dst[], int dstLen)
         return 0;
     }
     int len = std::min(fOutBufferEnd - fOutBufferPos, dstLen);
-    memcpy(dst, fOutBuffer.get() + fOutBufferPos, len * sizeof(*fOutBuffer.get()));
+    memcpy(dst, fOutBuffer.get() + fOutBufferPos,
+           static_cast<size_t>(len) * sizeof(*fOutBuffer.get()));
     fOutBufferPos += len;
     if (fOutBufferPos >= fOutBufferEnd) {
         fOutBufferEnd = fOutBufferPos = 0;
@@ -164,7 +165,7 @@ Aulib::AudioResampler_priv::fResampleFromInBuffer()
     if (fSrcRate == fDstRate) {
         // No resampling is needed. Just copy the samples as-is.
         int outLen = std::min(fOutBuffer.size() - fOutBufferEnd, inLen);
-        std::memcpy(to, from, outLen * sizeof(*from));
+        std::memcpy(to, from, static_cast<size_t>(outLen) * sizeof(*from));
         fOutBufferEnd += outLen;
         fInBufferPos += outLen;
     } else {

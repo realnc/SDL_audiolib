@@ -52,15 +52,15 @@ Aulib::AudioResamplerSpeex::doResampling(float dst[], const float src[], int& ds
     }
 
     int channels = currentChannels();
-    spx_uint32_t spxInLen = srcLen / channels;
-    spx_uint32_t spxOutLen = dstLen / channels;
+    auto spxInLen = static_cast<spx_uint32_t>(srcLen / channels);
+    auto spxOutLen = static_cast<spx_uint32_t>(dstLen / channels);
     if (spxInLen == 0 or spxOutLen == 0) {
         dstLen = srcLen = 0;
         return;
     }
     speex_resampler_process_interleaved_float(d->fResampler.get(), src, &spxInLen, dst, &spxOutLen);
-    dstLen = spxOutLen * channels;
-    srcLen = spxInLen * channels;
+    dstLen = static_cast<int>(spxOutLen) * channels;
+    srcLen = static_cast<int>(spxInLen) * channels;
 }
 
 
@@ -69,7 +69,9 @@ Aulib::AudioResamplerSpeex::adjustForOutputSpec(int dstRate, int srcRate,
                                                 int channels)
 {
     int err;
-    d->fResampler.reset(speex_resampler_init(channels, srcRate, dstRate, 10, &err));
+    d->fResampler.reset(speex_resampler_init(static_cast<spx_uint32_t>(channels),
+                                             static_cast<spx_uint32_t>(srcRate),
+                                             static_cast<spx_uint32_t>(dstRate), 10, &err));
     if (err != 0) {
         d->fResampler = nullptr;
         return -1;

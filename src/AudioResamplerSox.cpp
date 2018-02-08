@@ -51,16 +51,16 @@ Aulib::AudioResamplerSox::doResampling(float dst[], const float src[], int& dstL
     size_t dstDone, srcDone;
     int channels = currentChannels();
     soxr_error_t error;
-    error = soxr_process(d->fResampler.get(), src, srcLen / channels, &srcDone, dst, dstLen / channels,
-                         &dstDone);
+    error = soxr_process(d->fResampler.get(), src, static_cast<size_t>(srcLen / channels),
+                         &srcDone, dst, static_cast<size_t>(dstLen / channels), &dstDone);
     if (error != nullptr) {
         // FIXME: What do we do?
         AM_warnLn("soxr_process() error: " << error);
         dstLen = srcLen = 0;
         return;
     }
-    dstLen = dstDone * channels;
-    srcLen = srcDone * channels;
+    dstLen = static_cast<int>(dstDone) * channels;
+    srcLen = static_cast<int>(srcDone) * channels;
 }
 
 
@@ -74,7 +74,8 @@ Aulib::AudioResamplerSox::adjustForOutputSpec(int dstRate, int srcRate, int chan
     //soxr_quality_spec_t quality = soxr_quality_spec()
 
     soxr_error_t error;
-    d->fResampler.reset(soxr_create(srcRate, dstRate, channels, &error, &spec, nullptr, nullptr));
+    d->fResampler.reset(soxr_create(srcRate, dstRate, static_cast<unsigned>(channels), &error,
+                                    &spec, nullptr, nullptr));
     if (error != nullptr) {
         d->fResampler = nullptr;
         return -1;

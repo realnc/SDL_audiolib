@@ -61,7 +61,7 @@ extern "C" {
 static ssize_t
 mpgReadCallback(void* rwops, void* buf, size_t len)
 {
-    return SDL_RWread(static_cast<SDL_RWops*>(rwops), buf, 1, len);
+    return static_cast<ssize_t>(SDL_RWread(static_cast<SDL_RWops*>(rwops), buf, 1, len));
 }
 
 
@@ -170,12 +170,13 @@ Aulib::AudioDecoderMpg123::doDecoding(float buf[], int len, bool& callAgain)
         return 0;
     }
 
-    int bytesWanted = len * sizeof(*buf);
+    int bytesWanted = len * static_cast<int>(sizeof(*buf));
     size_t decBytes = 0;
     int totalBytes = 0;
 
     while (totalBytes < bytesWanted and not callAgain) {
-        int ret = mpg123_read(d->fMpgHandle.get(), (unsigned char*)buf, bytesWanted, &decBytes);
+        int ret = mpg123_read(d->fMpgHandle.get(), (unsigned char*)buf,
+                              static_cast<size_t>(bytesWanted), &decBytes);
         totalBytes += decBytes;
         if (ret == MPG123_NEW_FORMAT) {
             long rate;
@@ -189,7 +190,7 @@ Aulib::AudioDecoderMpg123::doDecoding(float buf[], int len, bool& callAgain)
             break;
         }
     }
-    return totalBytes / sizeof(*buf);
+    return totalBytes / static_cast<int>(sizeof(*buf));
 }
 
 

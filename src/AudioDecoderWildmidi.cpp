@@ -102,7 +102,7 @@ Aulib::AudioDecoderWildmidi::open(SDL_RWops* rwops)
     if (SDL_RWread(rwops, newMidiData.get(), newMidiData.size(), 1) != 1) {
         return false;
     }
-    d->midiHandle.reset(WildMidi_OpenBuffer(newMidiData.get(), newMidiData.size()));
+    d->midiHandle.reset(WildMidi_OpenBuffer(newMidiData.get(), newMidiData.usize()));
     if (not d->midiHandle) {
         return false;
     }
@@ -137,7 +137,8 @@ Aulib::AudioDecoderWildmidi::doDecoding(float buf[], int len, bool& callAgain)
     if (d->sampBuf.size() != len) {
         d->sampBuf.reset(len);
     }
-    int res = WildMidi_GetOutput(d->midiHandle.get(), (char*)d->sampBuf.get(), len * 2);
+    int res = WildMidi_GetOutput(d->midiHandle.get(), (char*)d->sampBuf.get(),
+                                 static_cast<unsigned long>(len) * 2);
     if (res < 0) {
         return 0;
     }
@@ -169,7 +170,7 @@ Aulib::AudioDecoderWildmidi::duration() const
     if (not d->midiHandle or (info = WildMidi_GetInfo(d->midiHandle.get())) == nullptr) {
         return -1.f;
     }
-    return info->approx_total_samples / AudioDecoderWildmidi_priv::rate;
+    return static_cast<long>(info->approx_total_samples) / AudioDecoderWildmidi_priv::rate;
 }
 
 

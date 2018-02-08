@@ -27,7 +27,7 @@ int main(int /*argc*/, char* argv[])
 
     auto fsynth = dynamic_cast<AudioDecoderFluidSynth*>(decoder.get());
     //auto bassmidi = dynamic_cast<AudioDecoderBassmidi*>(decoder.get());
-    if (fsynth) {
+    if (fsynth != nullptr) {
         fsynth->loadSoundfont("/usr/local/share/soundfonts/gs.sf2");
     }
 

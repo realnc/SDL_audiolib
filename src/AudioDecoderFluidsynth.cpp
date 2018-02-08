@@ -115,7 +115,7 @@ Aulib::AudioDecoderFluidSynth::open(SDL_RWops* rwops)
     }
     d->fPlayer.reset(new_fluid_player(d->fSynth.get()));
     if (not d->fPlayer
-        or fluid_player_add_mem(d->fPlayer.get(), newMidiData.get(), newMidiData.size()) != FLUID_OK
+        or fluid_player_add_mem(d->fPlayer.get(), newMidiData.get(), newMidiData.usize()) != FLUID_OK
         or fluid_player_play(d->fPlayer.get()) != FLUID_OK)
     {
         return false;
@@ -172,7 +172,7 @@ Aulib::AudioDecoderFluidSynth::rewind()
     if (not d->fPlayer) {
         return false;
     }
-    fluid_player_add_mem(d->fPlayer.get(), d->fMidiData.get(), d->fMidiData.size());
+    fluid_player_add_mem(d->fPlayer.get(), d->fMidiData.get(), d->fMidiData.usize());
     fluid_player_play(d->fPlayer.get());
     d->fEOF = false;
     return true;

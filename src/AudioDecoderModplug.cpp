@@ -132,7 +132,7 @@ Aulib::AudioDecoderModPlug::doDecoding(float buf[], int len, bool& callAgain)
     if (ret == 0) {
         d->atEOF = true;
     }
-    return ret / sizeof(*buf);
+    return ret / static_cast<int>(sizeof(*buf));
 }
 
 

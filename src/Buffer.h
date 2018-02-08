@@ -43,6 +43,11 @@ public:
         return fSize;
     }
 
+    size_t usize() const noexcept
+    {
+        return size();
+    }
+
     void reset(const int newSize)
     {
         if (newSize == fSize) {

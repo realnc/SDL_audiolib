@@ -123,10 +123,11 @@ Aulib::AudioDecoderOpenmpt::doDecoding(float buf[], int len, bool& callAgain)
     }
     int ret;
     if (Aulib::spec().channels == 2) {
-        ret = d->fModule->read_interleaved_stereo(Aulib::spec().freq, len / 2, buf) * 2;
+        ret = d->fModule->read_interleaved_stereo(Aulib::spec().freq, static_cast<size_t>(len / 2),
+                                                  buf) * 2;
     } else {
         AM_debugAssert(Aulib::spec().channels == 1);
-        ret = d->fModule->read(Aulib::spec().freq, len, buf);
+        ret = d->fModule->read(Aulib::spec().freq, static_cast<size_t>(len), buf);
     }
     if (ret == 0) {
         d->atEOF = true;

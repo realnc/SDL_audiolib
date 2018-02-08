@@ -141,7 +141,8 @@ Aulib::AudioDecoderMusepack::doDecoding(float buf[], int len, bool& callAgain)
     // If we have any left-over samples from the previous frame, copy them out.
     if (d->curFrame.samples > 0) {
         int copyLen = std::min((int)(d->curFrame.samples * d->strmInfo.channels), len);
-        std::memcpy(buf, d->curFrame.buffer + d->frameBufPos, copyLen * sizeof(*buf));
+        std::memcpy(buf, d->curFrame.buffer + d->frameBufPos,
+                    static_cast<size_t>(copyLen) * sizeof(*buf));
         d->curFrame.samples -= copyLen / d->strmInfo.channels;
         if (d->curFrame.samples != 0) {
             // There's still more samples left.
@@ -161,7 +162,7 @@ Aulib::AudioDecoderMusepack::doDecoding(float buf[], int len, bool& callAgain)
             return 0;
         }
         int copyLen = std::min((int)(d->curFrame.samples * d->strmInfo.channels), len);
-        std::memcpy(buf, d->curFrame.buffer, copyLen * sizeof(*buf));
+        std::memcpy(buf, d->curFrame.buffer, static_cast<size_t>(copyLen) * sizeof(*buf));
         d->frameBufPos = copyLen;
         d->curFrame.samples -= copyLen / d->strmInfo.channels;
         totalSamples += copyLen;

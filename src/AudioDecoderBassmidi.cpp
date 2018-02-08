@@ -190,7 +190,7 @@ Aulib::AudioDecoderBassmidi::doDecoding(float buf[], int len, bool& /*callAgain*
         return 0;
     }
 
-    DWORD byteLen = len * sizeof(*buf);
+    DWORD byteLen = len * static_cast<int>(sizeof(*buf));
     DWORD ret = BASS_ChannelGetData(d->hstream.get(), buf, byteLen | BASS_DATA_FLOAT);
     if (ret == (DWORD)-1) {
         SDL_SetError("AudioDecoderBassmidi: got BASS error %d during decoding.\n", BASS_ErrorGetCode());
@@ -199,7 +199,7 @@ Aulib::AudioDecoderBassmidi::doDecoding(float buf[], int len, bool& /*callAgain*
     if (ret < byteLen) {
         d->eof = true;
     }
-    return ret / sizeof(*buf);
+    return ret / static_cast<int>(sizeof(*buf));
 }
 
 

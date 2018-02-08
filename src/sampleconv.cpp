@@ -177,7 +177,7 @@ void
 Aulib::floatToFloatLSB(Uint8 dst[], const Buffer<float>& src) noexcept
 {
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-    memcpy(dst, src.get(), src.size() * sizeof(*src.get()));
+    memcpy(dst, src.get(), src.usize() * sizeof(*src.get()));
 #else
     floatToSwappedFloat(dst, src);
 #endif
