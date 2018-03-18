@@ -30,7 +30,7 @@ public:
     AudioDecoderFluidSynth();
     ~AudioDecoderFluidSynth() override;
 
-    int loadSoundfont(const char filename[]);
+    int loadSoundfont(const std::string& filename);
 
     bool open(SDL_RWops* rwops) override;
     int getChannels() const override;

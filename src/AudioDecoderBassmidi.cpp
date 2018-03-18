@@ -124,9 +124,9 @@ Aulib::AudioDecoderBassmidi::~AudioDecoderBassmidi() = default;
 
 
 bool
-Aulib::AudioDecoderBassmidi::setDefaultSoundfont(const char filename[])
+Aulib::AudioDecoderBassmidi::setDefaultSoundfont(const std::string& filename)
 {
-    if (BASS_SetConfigPtr(BASS_CONFIG_MIDI_DEFFONT, filename) != 0) {
+    if (BASS_SetConfigPtr(BASS_CONFIG_MIDI_DEFFONT, filename.c_str()) != 0) {
         return true;
     }
     AM_debugPrintLn("AudioDecoderBassmidi: got BASS error " << BASS_ErrorGetCode()

@@ -55,10 +55,11 @@ Aulib::AudioDecoder::~AudioDecoder() = default;
 
 
 std::unique_ptr<Aulib::AudioDecoder>
-Aulib::AudioDecoder::decoderFor(const char* filename)
+Aulib::AudioDecoder::decoderFor(const std::string& filename)
 {
     const auto rwopsClose = [](SDL_RWops* rwops) { SDL_RWclose(rwops); };
-    std::unique_ptr<SDL_RWops, decltype(rwopsClose)> rwops(SDL_RWFromFile(filename, "rb"), rwopsClose);
+    std::unique_ptr<SDL_RWops, decltype(rwopsClose)> rwops(SDL_RWFromFile(filename.c_str(), "rb"),
+                                                           rwopsClose);
     return AudioDecoder::decoderFor(rwops.get());
 }
 

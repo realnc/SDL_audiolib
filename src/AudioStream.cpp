@@ -30,9 +30,9 @@
 #include <SDL_timer.h>
 
 
-Aulib::AudioStream::AudioStream(const char* filename, std::unique_ptr<AudioDecoder> decoder,
+Aulib::AudioStream::AudioStream(const std::string& filename, std::unique_ptr<AudioDecoder> decoder,
                                 std::unique_ptr<AudioResampler> resampler)
-    : AudioStream(SDL_RWFromFile(filename, "rb"), std::move(decoder), std::move(resampler), true)
+    : AudioStream(SDL_RWFromFile(filename.c_str(), "rb"), std::move(decoder), std::move(resampler), true)
 { }
 
 

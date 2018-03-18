@@ -41,7 +41,7 @@ public:
      *  \retval true The default soundfont was successfully set.
      *  \retval false An error occured.
      */
-    static bool setDefaultSoundfont(const char filename[]);
+    static bool setDefaultSoundfont(const std::string& filename);
 
     bool open(SDL_RWops* rwops) override;
     int getChannels() const override;

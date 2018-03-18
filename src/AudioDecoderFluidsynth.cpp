@@ -87,9 +87,9 @@ Aulib::AudioDecoderFluidSynth::~AudioDecoderFluidSynth() = default;
 
 
 int
-Aulib::AudioDecoderFluidSynth::loadSoundfont(const char filename[])
+Aulib::AudioDecoderFluidSynth::loadSoundfont(const std::string& filename)
 {
-    fluid_synth_sfload(d->fSynth.get(), filename, 1);
+    fluid_synth_sfload(d->fSynth.get(), filename.c_str(), 1);
     return 0;
 }
 

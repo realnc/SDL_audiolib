@@ -47,7 +47,7 @@ public:
      *  Resampler to use for converting the sample rate of the audio we get from the decoder. If
      *  this is null, then no resampling will be performed.
      */
-    explicit AudioStream(const char* filename, std::unique_ptr<class AudioDecoder> decoder,
+    explicit AudioStream(const std::string& filename, std::unique_ptr<class AudioDecoder> decoder,
                          std::unique_ptr<class AudioResampler> resampler);
 
     /*!
