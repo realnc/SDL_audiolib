@@ -10,8 +10,17 @@ namespace Aulib {
  */
 class AULIB_EXPORT AudioResamplerSpeex final: public AudioResampler {
 public:
-    AudioResamplerSpeex();
+    /*!
+     * \param quality
+     *      Speex resampler quality level, from 0 to 10. The value is clamped
+     *      if it lies outside this range. Note that the quality can be changed
+     *      later on if required.
+     */
+    explicit AudioResamplerSpeex(int quality = 5);
     ~AudioResamplerSpeex() override;
+
+    int quality() const noexcept;
+    void setQuality(int quality);
 
 protected:
     void doResampling(float dst[], const float src[], int& dstLen, int& srcLen) override;
