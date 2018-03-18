@@ -30,10 +30,12 @@
 template <typename T>
 class Buffer final {
 public:
-    explicit Buffer(int size)
+    explicit Buffer(const int size)
         : fData(std::make_unique<T[]>(size))
         , fSize(size)
-    { }
+    {
+        AM_debugAssert(size >= 0);
+    }
 
     Buffer(const Buffer&) = delete;
     Buffer& operator=(const Buffer&) = delete;
@@ -50,18 +52,14 @@ public:
 
     void reset(const int newSize)
     {
-        if (newSize == fSize) {
-            return;
-        }
+        AM_debugAssert(newSize >= 0);
         fData = std::make_unique<T[]>(newSize);
         fSize = newSize;
     }
 
     void resize(const int newSize)
     {
-        if (newSize == fSize) {
-            return;
-        }
+        AM_debugAssert(newSize >= 0);
         auto newData = std::make_unique<T[]>(newSize);
         std::memcpy(newData.get(), fData.get(), sizeof(T) * std::min(newSize, fSize));
         fData.swap(newData);
@@ -77,13 +75,13 @@ public:
     // unique_ptr::operator[] is not noexcept, but in reality, it can't throw.
     const T& operator [](const int pos) const noexcept
     {
-        AM_debugAssert(pos < fSize);
+        AM_debugAssert(pos >= 0 and pos < fSize);
         return fData[pos];
     }
 
     T& operator [](const int pos) noexcept
     {
-        AM_debugAssert(pos < fSize);
+        AM_debugAssert(pos >= 0 and pos < fSize);
         return fData[pos];
     }
 

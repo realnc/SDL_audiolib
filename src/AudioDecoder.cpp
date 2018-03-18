@@ -169,7 +169,7 @@ Aulib::AudioDecoder::isOpen() const
 
 
 // Conversion happens in-place.
-static void
+static constexpr void
 monoToStereo(float buf[], int len)
 {
     if (len < 1 or buf == nullptr) {
@@ -182,7 +182,7 @@ monoToStereo(float buf[], int len)
 }
 
 
-static void
+static constexpr void
 stereoToMono(float dst[], const float src[], int srcLen)
 {
     if (srcLen < 1 or dst == nullptr or src == nullptr) {
