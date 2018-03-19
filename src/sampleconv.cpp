@@ -30,7 +30,7 @@ floatSampleToInt(const float src) noexcept
 /* Convert float samples into integer samples.
  */
 template<typename T>
-static constexpr void
+static void
 floatToInt(Uint8 dst[], const Buffer<float>& src) noexcept
 {
     for (auto i : src) {
@@ -44,7 +44,7 @@ floatToInt(Uint8 dst[], const Buffer<float>& src) noexcept
 /* Convert float samples to endian-swapped integer samples.
  */
 template<typename T>
-static constexpr void
+static void
 floatToSwappedInt(Uint8 dst[], const Buffer<float>& src) noexcept
 {
     static_assert(sizeof(T) == 2 or sizeof(T) == 4, "");
@@ -65,7 +65,7 @@ floatToSwappedInt(Uint8 dst[], const Buffer<float>& src) noexcept
 
 
 template<typename T>
-static constexpr void
+static void
 floatToLsbInt(Uint8 dst[], const Buffer<float>& src) noexcept
 {
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
@@ -77,7 +77,7 @@ floatToLsbInt(Uint8 dst[], const Buffer<float>& src) noexcept
 
 
 template<typename T>
-static constexpr void
+static void
 floatToMsbInt(Uint8 dst[], const Buffer<float>& src) noexcept
 {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
@@ -144,7 +144,7 @@ Aulib::floatToS32MSB(Uint8 dst[], const Buffer<float>& src) noexcept
 }
 
 
-static constexpr void
+static void
 floatToSwappedFloat(Uint8 dst[], const Buffer<float>& src) noexcept
 {
     for (auto i : src) {
