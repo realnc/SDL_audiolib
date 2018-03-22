@@ -4,7 +4,7 @@
 /*!
  * This macro expands to a string literal containing the version of SDL_audiolib.
  */
-#define AULIB_VERSION_STR "@AULIB_VERSION_STR@"
+#define AULIB_VERSION_STR "@SDL_audiolib_VERSION@"
 
 /*!
  * This macro expands to a numeric value of the form 0xMMNNPP (MM = major, NN = minor, PP = patch)

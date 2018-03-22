@@ -1,24 +1,10 @@
 cmake_minimum_required(VERSION 3.1)
-project(SDL_audiolib)
-include(FindPkgConfig)
-include(GenerateExportHeader)
 
-set(AULIB_VERSION_STR "0.0.0")
-set(AULIB_VERSION 0x000000)
-
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-cmake_policy(SET CMP0063 NEW)
-set(CMAKE_CXX_VISIBILITY_PRESET hidden)
-set(CMAKE_C_VISIBILITY_PRESET hidden)
-set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
-
-configure_file(
-    ${PROJECT_SOURCE_DIR}/aulib_version.h.in
-    ${PROJECT_BINARY_DIR}/aulib_version.h
+project(SDL_audiolib
+    VERSION 0.0.0
+    DESCRIPTION "An audio decoding, resampling and mixing library."
 )
+set(AULIB_VERSION 0x000000)
 
 option(
     USE_RESAMP_SRC
@@ -110,6 +96,23 @@ option(
     OFF
 )
 
+include(FindPkgConfig)
+include(GenerateExportHeader)
+
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+cmake_policy(SET CMP0063 NEW)
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_C_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
+
+configure_file(
+    ${PROJECT_SOURCE_DIR}/aulib_version.h.in
+    ${PROJECT_BINARY_DIR}/aulib_version.h
+)
+
 if("${CMAKE_C_COMPILER_ID}" MATCHES "^(GNU|((Apple)?Clang))$")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -W -Wextra -Wpedantic")
 endif()
@@ -117,13 +120,6 @@ endif()
 if("${CMAKE_CXX_COMPILER_ID}" MATCHES "^(GNU|((Apple)?Clang))$")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -W -Wextra -Wpedantic")
 endif()
-
-add_definitions(
-    -DSPX_RESAMPLE_EXPORT=
-    -DOUTSIDE_SPEEX
-    -DFLOATING_POINT
-    -DRANDOM_PREFIX=SDL_audiolib
-)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DAULIB_DEBUG)
@@ -133,8 +129,6 @@ configure_file (
     ${PROJECT_SOURCE_DIR}/aulib_config.h.in
     ${PROJECT_BINARY_DIR}/aulib_config.h
 )
-
-include_directories(${PROJECT_BINARY_DIR})
 
 # Headers in include/SDL_Audiolib/
 set(
@@ -292,8 +286,17 @@ add_library(
     resampler/resample.c
 )
 
+target_compile_definitions(
+    SDL_audiolib
+    PRIVATE
+        -DSPX_RESAMPLE_EXPORT=
+        -DOUTSIDE_SPEEX
+        -DFLOATING_POINT
+        -DRANDOM_PREFIX=SDL_audiolib
+)
+
 set_target_properties(
-    SDL_audiolib PROPERTIES VERSION 0.0.0 SOVERSION 0
+    SDL_audiolib PROPERTIES VERSION ${SDL_audiolib_VERSION} SOVERSION 0
 )
 
 generate_export_header(
@@ -301,41 +304,50 @@ generate_export_header(
     BASE_NAME aulib
 )
 
-include_directories(
-    ${PROJECT_BINARY_DIR}
-    ${PROJECT_SOURCE_DIR}/src
-    ${PROJECT_SOURCE_DIR}/resampler
-    ${PROJECT_SOURCE_DIR}/include
-    ${SDL_INCLUDE_DIRS}
-    ${SRC_INCLUDE_DIRS}
-    ${SOXR_INCLUDE_DIRS}
-    ${FLUIDSYNTH_INCLUDE_DIRS}
-    ${MPG123_INCLUDE_DIRS}
-    ${SNDFILE_INCLUDE_DIRS}
-    ${VORBISFILE_INCLUDE_DIRS}
-    ${OPUSFILE_INCLUDE_DIRS}
-    ${OPENMPT_INCLUDE_DIRS}
-    ${XMP_INCLUDE_DIRS}
+target_include_directories(
+    SDL_audiolib
 
-    # MogPlug ships a "sndfile.h" with its headers. This breaks the build,
-    # since sndfile.h is expected to belong to libsndfile.
-    #${MODPLUG_INCLUDE_DIRS}
+    PUBLIC
+        ${SDL_INCLUDE_DIRS}
+        ${PROJECT_SOURCE_DIR}/include
+        ${PROJECT_SOURCE_DIR}/src
+        ${PROJECT_BINARY_DIR}
+
+    PRIVATE
+        ${PROJECT_SOURCE_DIR}/resampler
+        ${SRC_INCLUDE_DIRS}
+        ${SOXR_INCLUDE_DIRS}
+        ${FLUIDSYNTH_INCLUDE_DIRS}
+        ${MPG123_INCLUDE_DIRS}
+        ${SNDFILE_INCLUDE_DIRS}
+        ${VORBISFILE_INCLUDE_DIRS}
+        ${OPUSFILE_INCLUDE_DIRS}
+        ${OPENMPT_INCLUDE_DIRS}
+        ${XMP_INCLUDE_DIRS}
+
+        # MogPlug ships a "sndfile.h" with its headers. This breaks the build,
+        # since sndfile.h is expected to belong to libsndfile.
+        #${MODPLUG_INCLUDE_DIRS}
 )
 
 target_link_libraries(
     SDL_audiolib
-    ${SDL_LIBRARIES}
-    ${SRC_LIBRARIES}
-    ${SOXR_LIBRARIES}
-    ${FLUIDSYNTH_LIBRARIES}
-    ${OPENMPT_LIBRARIES}
-    ${XMP_LIBRARIES}
-    ${MODPLUG_LIBRARIES}
-    ${MPG123_LIBRARIES}
-    ${SNDFILE_LIBRARIES}
-    ${VORBISFILE_LIBRARIES}
-    ${OPUSFILE_LIBRARIES}
-    ${EXTRA_LIBRARIES}
+
+    PUBLIC
+        ${SDL_LIBRARIES}
+
+    PRIVATE
+        ${SRC_LIBRARIES}
+        ${SOXR_LIBRARIES}
+        ${FLUIDSYNTH_LIBRARIES}
+        ${OPENMPT_LIBRARIES}
+        ${XMP_LIBRARIES}
+        ${MODPLUG_LIBRARIES}
+        ${MPG123_LIBRARIES}
+        ${SNDFILE_LIBRARIES}
+        ${VORBISFILE_LIBRARIES}
+        ${OPUSFILE_LIBRARIES}
+        ${EXTRA_LIBRARIES}
 )
 
 if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
@@ -349,10 +361,8 @@ configure_file(
 )
 
 install(TARGETS SDL_audiolib DESTINATION ${CMAKE_INSTALL_LIBDIR})
-
 install(FILES ${PUBLIC_HEADERS} DESTINATION include/SDL_audiolib)
 install(FILES ${PUBLIC_HEADERS_AULIB_DIR} DESTINATION include/SDL_audiolib/Aulib)
-
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/SDL_audiolib.pc
         DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 
