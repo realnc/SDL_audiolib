@@ -96,6 +96,12 @@ option(
     OFF
 )
 
+option(
+    BUILD_SHARED_LIBS
+    "Build shared library instead of static."
+    ON
+)
+
 include(FindPkgConfig)
 include(GenerateExportHeader)
 
