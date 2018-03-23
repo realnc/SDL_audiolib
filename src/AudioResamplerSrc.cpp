@@ -43,7 +43,7 @@ Aulib::AudioResamplerSRC::doResampling(float dst[], const float src[], int& dstL
         return;
     }
 
-    d->fData.data_in = const_cast<float*>(src);
+    d->fData.data_in = src;
     d->fData.data_out = dst;
     int channels = currentChannels();
     d->fData.input_frames = srcLen / channels;
