@@ -8,19 +8,31 @@ namespace Aulib {
 
 /// \private
 struct AudioResamplerSRC_priv final {
+    explicit AudioResamplerSRC_priv(AudioResamplerSRC::Quality quality)
+        : fQuality(quality)
+    { }
+
     std::unique_ptr<SRC_STATE, decltype(&src_delete)> fResampler{nullptr, &src_delete};
     SRC_DATA fData{};
+    AudioResamplerSRC::Quality fQuality;
 };
 
 } // namespace Aulib
 
 
-Aulib::AudioResamplerSRC::AudioResamplerSRC()
-    : d(std::make_unique<AudioResamplerSRC_priv>())
+Aulib::AudioResamplerSRC::AudioResamplerSRC(Quality quality)
+    : d(std::make_unique<AudioResamplerSRC_priv>(quality))
 { }
 
 
 Aulib::AudioResamplerSRC::~AudioResamplerSRC() = default;
+
+
+Aulib::AudioResamplerSRC::Quality
+Aulib::AudioResamplerSRC::quality() const noexcept
+{
+    return d->fQuality;
+}
 
 
 void
@@ -50,7 +62,17 @@ Aulib::AudioResamplerSRC::adjustForOutputSpec(int dstRate, int srcRate, int chan
 {
     int err;
     d->fData.src_ratio = (double)dstRate / (double)srcRate;
-    d->fResampler.reset(src_new(SRC_SINC_BEST_QUALITY, channels, &err));
+
+    int src_q;
+    switch (d->fQuality) {
+    case Quality::Linear:        src_q = SRC_LINEAR; break;
+    case Quality::ZeroOrderHold: src_q = SRC_ZERO_ORDER_HOLD; break;
+    case Quality::SincFastest:   src_q = SRC_SINC_FASTEST; break;
+    case Quality::SincMedium:    src_q = SRC_SINC_MEDIUM_QUALITY; break;
+    case Quality::SincBest:      src_q = SRC_SINC_BEST_QUALITY; break;
+    }
+
+    d->fResampler.reset(src_new(src_q, channels, &err));
     if (not d->fResampler) {
         return -1;
     }
