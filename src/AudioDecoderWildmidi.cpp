@@ -153,7 +153,7 @@ Aulib::AudioDecoderWildmidi::duration() const
     if (not d->midiHandle or (info = WildMidi_GetInfo(d->midiHandle.get())) == nullptr) {
         return -1.f;
     }
-    return static_cast<long>(info->approx_total_samples) / AudioDecoderWildmidi_priv::rate;
+    return static_cast<float>(info->approx_total_samples) / AudioDecoderWildmidi_priv::rate;
 }
 
 
