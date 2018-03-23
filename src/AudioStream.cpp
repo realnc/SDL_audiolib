@@ -12,6 +12,27 @@
 #include <SDL_audio.h>
 #include <SDL_timer.h>
 
+/* This is implemented here in order to avoid having the dtor call stop(),
+ * which is a virtual.
+ */
+static void
+stop_impl(Aulib::AudioStream_priv* d, float fadeTime)
+{
+    if (not d->fIsOpen or not d->fIsPlaying) {
+        return;
+    }
+    SdlAudioLocker locker;
+    if (fadeTime > 0.f) {
+        d->fFadingIn = false;
+        d->fFadingOut = true;
+        d->fFadeOutTickDuration = fadeTime * 1000.f;
+        d->fFadeOutStartTick = SDL_GetTicks();
+        d->fStopAfterFade = true;
+    } else {
+        d->fStop();
+    }
+}
+
 
 Aulib::AudioStream::AudioStream(const std::string& filename, std::unique_ptr<AudioDecoder> decoder,
                                 std::unique_ptr<AudioResampler> resampler)
@@ -28,7 +49,7 @@ Aulib::AudioStream::AudioStream(SDL_RWops* rwops, std::unique_ptr<AudioDecoder> 
 
 Aulib::AudioStream::~AudioStream()
 {
-    this->stop();
+    stop_impl(d.get(), 0.f);
 }
 
 
@@ -83,19 +104,7 @@ Aulib::AudioStream::play(int iterations, float fadeTime)
 void
 Aulib::AudioStream::stop(float fadeTime)
 {
-    if (not d->fIsOpen or not d->fIsPlaying) {
-        return;
-    }
-    SdlAudioLocker locker;
-    if (fadeTime > 0.f) {
-        d->fFadingIn = false;
-        d->fFadingOut = true;
-        d->fFadeOutTickDuration = fadeTime * 1000.f;
-        d->fFadeOutStartTick = SDL_GetTicks();
-        d->fStopAfterFade = true;
-    } else {
-        d->fStop();
-    }
+    stop_impl(d.get(), fadeTime);
 }
 
 
