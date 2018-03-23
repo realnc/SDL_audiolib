@@ -10,8 +10,26 @@ namespace Aulib {
  */
 class AULIB_EXPORT AudioResamplerSox final: public AudioResampler {
 public:
-    AudioResamplerSox();
+    /*!
+     * \brief SoX resampler quality levels.
+     *
+     * These represent the five standard SoX resampler quality levels, where
+     * "Quick" is the fastest but lowest quality, and "VeryHigh" is the slowest
+     * but highest quality.
+     */
+    enum class Quality {
+        Quick, Low, Medium, High, VeryHigh
+    };
+
+    /*!
+     * \param quality
+     *      Resampling quality. Note that the quality can *not* be changed
+     *      later on.
+     */
+    explicit AudioResamplerSox(Quality quality = Quality::High);
     ~AudioResamplerSox() override;
+
+    Quality quality() const noexcept;
 
 protected:
     void doResampling(float dst[], const float src[], int& dstLen, int& srcLen) override;

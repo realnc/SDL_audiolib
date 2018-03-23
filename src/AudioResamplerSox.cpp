@@ -10,18 +10,30 @@ namespace Aulib {
 
 /// \private
 struct AudioResamplerSox_priv final {
+    explicit AudioResamplerSox_priv(AudioResamplerSox::Quality q)
+        : fQuality(q)
+    { }
+
     std::unique_ptr<soxr, decltype(&soxr_delete)> fResampler{nullptr, &soxr_delete};
+    AudioResamplerSox::Quality fQuality;
 };
 
 } // namespace Aulib
 
 
-Aulib::AudioResamplerSox::AudioResamplerSox()
-    : d(std::make_unique<AudioResamplerSox_priv>())
+Aulib::AudioResamplerSox::AudioResamplerSox(Quality quality)
+    : d(std::make_unique<AudioResamplerSox_priv>(quality))
 { }
 
 
 Aulib::AudioResamplerSox::~AudioResamplerSox() = default;
+
+
+Aulib::AudioResamplerSox::Quality
+Aulib::AudioResamplerSox::quality() const noexcept
+{
+    return d->fQuality;
+}
 
 
 void
@@ -50,15 +62,23 @@ Aulib::AudioResamplerSox::doResampling(float dst[], const float src[], int& dstL
 int
 Aulib::AudioResamplerSox::adjustForOutputSpec(int dstRate, int srcRate, int channels)
 {
-    soxr_io_spec_t spec{};
-    spec.itype = spec.otype = SOXR_FLOAT32_I;
-    spec.scale = 1.0;
+    soxr_io_spec_t io_spec{};
+    io_spec.itype = io_spec.otype = SOXR_FLOAT32_I;
+    io_spec.scale = 1.0;
 
-    //soxr_quality_spec_t quality = soxr_quality_spec()
+    int sox_q;
+    switch (d->fQuality) {
+    case Quality::Quick:    sox_q = SOXR_QQ; break;
+    case Quality::Low:      sox_q = SOXR_LQ; break;
+    case Quality::Medium:   sox_q = SOXR_MQ; break;
+    case Quality::High:     sox_q = SOXR_HQ; break;
+    case Quality::VeryHigh: sox_q = SOXR_VHQ; break;
+    }
+    auto q_spec = soxr_quality_spec(sox_q, 0);
 
     soxr_error_t error;
     d->fResampler.reset(soxr_create(srcRate, dstRate, static_cast<unsigned>(channels), &error,
-                                    &spec, nullptr, nullptr));
+                                    &io_spec, &q_spec, nullptr));
     if (error != nullptr) {
         d->fResampler = nullptr;
         return -1;
