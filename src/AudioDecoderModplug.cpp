@@ -74,12 +74,12 @@ Aulib::AudioDecoderModPlug::open(SDL_RWops* rwops)
     if (SDL_RWread(rwops, data.get(), data.size(), 1) != 1) {
         return false;
     }
-    d->mpHandle.reset(ModPlug_Load(data.get(), (int)data.size()));
+    d->mpHandle.reset(ModPlug_Load(data.get(), data.size()));
     if (not d->mpHandle) {
         return false;
     }
     ModPlug_SetMasterVolume(d->mpHandle.get(), 192);
-    d->fDuration = (float)ModPlug_GetLength(d->mpHandle.get()) / 1000.f;
+    d->fDuration = ModPlug_GetLength(d->mpHandle.get()) / 1000.f;
     setIsOpen(true);
     return true;
 }
@@ -110,7 +110,7 @@ Aulib::AudioDecoderModPlug::doDecoding(float buf[], int len, bool& callAgain)
     int ret = ModPlug_Read(d->mpHandle.get(), tmpBuf.get(), len * 4);
     // Convert from 32-bit to float.
     for (int i = 0; i < len; ++i) {
-        buf[i] = (float)tmpBuf[i] / 2147483648.f;
+        buf[i] = tmpBuf[i] / 2147483648.f;
     }
     if (ret == 0) {
         d->atEOF = true;

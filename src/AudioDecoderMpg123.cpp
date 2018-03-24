@@ -125,7 +125,7 @@ Aulib::AudioDecoderMpg123::open(SDL_RWops* rwops)
     d->fChannels = channels;
     d->fRate = rate;
     off_t len = mpg123_length(d->fMpgHandle.get());
-    d->fDuration = (len == MPG123_ERR) ? -1 : ((float)len / rate);
+    d->fDuration = (len == MPG123_ERR) ? -1 : (static_cast<float>(len) / rate);
     setIsOpen(true);
     return true;
 }
@@ -158,7 +158,7 @@ Aulib::AudioDecoderMpg123::doDecoding(float buf[], int len, bool& callAgain)
     int totalBytes = 0;
 
     while (totalBytes < bytesWanted and not callAgain) {
-        int ret = mpg123_read(d->fMpgHandle.get(), (unsigned char*)buf,
+        int ret = mpg123_read(d->fMpgHandle.get(), reinterpret_cast<unsigned char*>(buf),
                               static_cast<size_t>(bytesWanted), &decBytes);
         totalBytes += decBytes;
         if (ret == MPG123_NEW_FORMAT) {

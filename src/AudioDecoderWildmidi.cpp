@@ -120,14 +120,14 @@ Aulib::AudioDecoderWildmidi::doDecoding(float buf[], int len, bool& callAgain)
     if (d->sampBuf.size() != len) {
         d->sampBuf.reset(len);
     }
-    int res = WildMidi_GetOutput(d->midiHandle.get(), (char*)d->sampBuf.get(),
+    int res = WildMidi_GetOutput(d->midiHandle.get(), reinterpret_cast<char*>(d->sampBuf.get()),
                                  static_cast<unsigned long>(len) * 2);
     if (res < 0) {
         return 0;
     }
     // Convert from 16-bit to float.
     for (int i = 0; i < res / 2; ++i) {
-        buf[i] = (float)d->sampBuf[i] / 32768.f;
+        buf[i] = d->sampBuf[i] / 32768.f;
     }
     if (res < len) {
         d->eof = true;

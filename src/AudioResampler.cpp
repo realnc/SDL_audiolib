@@ -45,7 +45,7 @@ namespace Aulib {
 struct AudioResampler_priv final {
     AudioResampler* q;
 
-    AudioResampler_priv(AudioResampler *pub);
+    explicit AudioResampler_priv(AudioResampler* pub);
 
     std::shared_ptr<class AudioDecoder> fDecoder = nullptr;
     int fDstRate = 0;
@@ -121,7 +121,7 @@ Aulib::AudioResampler_priv::fAdjustBufferSizes()
     } else {
         // When resampling, the input buffer's size depends on the ratio between
         // the source and destination sample rates.
-        inBufSiz = std::ceil((double)outBufSiz * fSrcRate / fDstRate);
+        inBufSiz = std::ceil(static_cast<float>(outBufSiz) * fSrcRate / fDstRate);
         auto remainder = inBufSiz % fChannels;
         if (remainder != 0) {
             inBufSiz = inBufSiz + fChannels - remainder;

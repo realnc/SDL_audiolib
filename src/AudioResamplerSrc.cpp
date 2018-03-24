@@ -3,6 +3,7 @@
 
 #include <cstring>
 #include <samplerate.h>
+#include "aulib_debug.h"
 
 namespace Aulib {
 
@@ -61,7 +62,7 @@ int
 Aulib::AudioResamplerSRC::adjustForOutputSpec(int dstRate, int srcRate, int channels)
 {
     int err;
-    d->fData.src_ratio = (double)dstRate / (double)srcRate;
+    d->fData.src_ratio = static_cast<double>(dstRate) / srcRate;
 
     int src_q;
     switch (d->fQuality) {

@@ -175,7 +175,7 @@ Aulib::AudioDecoderBassmidi::doDecoding(float buf[], int len, bool& /*callAgain*
 
     DWORD byteLen = len * static_cast<int>(sizeof(*buf));
     DWORD ret = BASS_ChannelGetData(d->hstream.get(), buf, byteLen | BASS_DATA_FLOAT);
-    if (ret == (DWORD)-1) {
+    if (ret == static_cast<DWORD>(-1)) {
         SDL_SetError("AudioDecoderBassmidi: got BASS error %d during decoding.\n", BASS_ErrorGetCode());
         return 0;
     }
@@ -210,7 +210,7 @@ Aulib::AudioDecoderBassmidi::duration() const
     }
 
     QWORD pos = BASS_ChannelGetLength(d->hstream.get(), BASS_POS_BYTE);
-    if (pos == (QWORD)-1) {
+    if (pos == static_cast<QWORD>(-1)) {
         AM_debugPrintLn("AudioDecoderBassmidi: got BASS error " << BASS_ErrorGetCode()
                         << " while getting channel length.");
         return -1;
@@ -233,7 +233,7 @@ Aulib::AudioDecoderBassmidi::seekToTime(float seconds)
     }
 
     QWORD bytePos = BASS_ChannelSeconds2Bytes(d->hstream.get(), seconds);
-    if (bytePos == (QWORD)-1) {
+    if (bytePos == static_cast<QWORD>(-1)) {
         AM_debugPrintLn("AudioDecoderBassmidi: got BASS error " << BASS_ErrorGetCode()
                         << " while translating seek time to bytes.");
         return false;

@@ -73,7 +73,7 @@ Aulib::AudioDecoderOpus::open(SDL_RWops* rwops)
     }
     ogg_int64_t len = op_pcm_total(d->fOpusHandle.get(), -1);
     // Opus is always 48kHz.
-    d->fDuration = len == OP_EINVAL ? -1 : (float)len / 48000.f;
+    d->fDuration = len == OP_EINVAL ? -1 : len / 48000.f;
     setIsOpen(true);
     return true;
 }

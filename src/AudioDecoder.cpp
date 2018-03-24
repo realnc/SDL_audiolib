@@ -79,8 +79,8 @@ Aulib::AudioDecoder::decoderFor(SDL_RWops* rwops)
 
 #if USE_DEC_FLUIDSYNTH or USE_DEC_BASSMIDI or USE_DEC_WILDMIDI
     {
-        char head[4];
-        if (SDL_RWread(rwops, head, 1, 4) == 4 && strncmp(head, "MThd", 4) == 0) {
+        std::array<char, 5> head{};
+        if (SDL_RWread(rwops, head.data(), 1, 4) == 4 and head == decltype(head){"MThd"}) {
             SDL_RWseek(rwops, rwPos, RW_SEEK_SET);
 #   if USE_DEC_FLUIDSYNTH
             decoder = std::make_unique<AudioDecoderFluidSynth>();

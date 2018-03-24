@@ -110,7 +110,7 @@ Aulib::AudioDecoderXmp::doDecoding(float buf[], int len, bool& callAgain)
     auto ret = xmp_play_buffer(d->fContext.get(), tmpBuf.get(), len * 2, 1);
     // Convert from 16-bit to float.
     for (int i = 0; i < len; ++i) {
-        buf[i] = (float)tmpBuf[i] / 32768.f;
+        buf[i] = tmpBuf[i] / 32768.f;
     }
     if (ret == -XMP_END) {
         d->fEof = true;

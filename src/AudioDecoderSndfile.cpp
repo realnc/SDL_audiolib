@@ -12,7 +12,7 @@ extern "C" {
 static sf_count_t
 sfLenCb(void* rwops)
 {
-    Sint64 size = SDL_RWsize((SDL_RWops*)rwops);
+    Sint64 size = SDL_RWsize(static_cast<SDL_RWops*>(rwops));
     if (size < 0) {
         return 0;
     }
@@ -33,7 +33,7 @@ sfSeekCb(sf_count_t offset, int whence, void* rwops)
         default:
             whence = RW_SEEK_END;
     }
-    int pos = SDL_RWseek((SDL_RWops*)rwops, offset, whence);
+    int pos = SDL_RWseek(static_cast<SDL_RWops*>(rwops), offset, whence);
     return pos;
 }
 
@@ -41,7 +41,7 @@ sfSeekCb(sf_count_t offset, int whence, void* rwops)
 static sf_count_t
 sfReadCb(void* dst, sf_count_t count, void* rwops)
 {
-    int ret = SDL_RWread((SDL_RWops*)rwops, dst, 1, count);
+    int ret = SDL_RWread(static_cast<SDL_RWops*>(rwops), dst, 1, count);
     return ret;
 }
 
@@ -49,7 +49,7 @@ sfReadCb(void* dst, sf_count_t count, void* rwops)
 static sf_count_t
 sfTellCb(void* rwops)
 {
-    return SDL_RWtell((SDL_RWops*)rwops);
+    return SDL_RWtell(static_cast<SDL_RWops*>(rwops));
 }
 
 } // extern "C"
@@ -93,7 +93,7 @@ Aulib::AudioDecoderSndfile::open(SDL_RWops* rwops)
     if (not d->fSndfile) {
         return false;
     }
-    d->fDuration = (float)d->fInfo.frames / d->fInfo.samplerate;
+    d->fDuration = static_cast<float>(d->fInfo.frames) / d->fInfo.samplerate;
     setIsOpen(true);
     return true;
 }

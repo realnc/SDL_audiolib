@@ -51,7 +51,8 @@ Aulib::AudioStream_priv::fProcessFade()
             fFadingIn = false;
             return;
         }
-        fInternalVolume = std::pow((float)(now - fFadeInStartTick) / fFadeInTickDuration, 3.f);
+        fInternalVolume = std::pow(static_cast<float>(now - fFadeInStartTick) / fFadeInTickDuration,
+                                   3.f);
     } else if (fFadingOut) {
         Sint64 now = SDL_GetTicks();
         Sint64 curPos = now - fFadeOutStartTick;
@@ -66,8 +67,8 @@ Aulib::AudioStream_priv::fProcessFade()
             }
             return;
         }
-        fInternalVolume = std::pow(-(float)(now - fFadeOutStartTick) / fFadeOutTickDuration + 1.f,
-                                   3.f);
+        fInternalVolume = std::pow(-static_cast<float>(now - fFadeOutStartTick)
+                                   / fFadeOutTickDuration + 1.f, 3.f);
     }
 }
 
