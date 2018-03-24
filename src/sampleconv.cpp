@@ -49,17 +49,12 @@ floatToSwappedInt(Uint8 dst[], const Buffer<float>& src) noexcept
 {
     static_assert(sizeof(T) == 2 or sizeof(T) == 4, "");
 
-    for (auto i : src) {
-        auto sample = floatSampleToInt<T>(i);
-        switch (sizeof(T)) {
-        case 4:
-            *dst++ = *(Uint8*)((unsigned char*)&sample + 3);
-            *dst++ = *(Uint8*)((unsigned char*)&sample + 2);
-            // fall-through
-        default:
-            *dst++ = *(Uint8*)((unsigned char*)&sample + 1);
-            *dst++ = *(Uint8*)((unsigned char*)&sample);
-        }
+    for (const auto i : src) {
+        const T sample = sizeof(sample) == 2
+                ? SDL_Swap16(floatSampleToInt<T>(i))
+                : SDL_Swap32(floatSampleToInt<T>(i));
+        memcpy(dst, &sample, sizeof(sample));
+        dst += sizeof(sample);
     }
 }
 
@@ -147,11 +142,10 @@ Aulib::floatToS32MSB(Uint8 dst[], const Buffer<float>& src) noexcept
 static void
 floatToSwappedFloat(Uint8 dst[], const Buffer<float>& src) noexcept
 {
-    for (auto i : src) {
-        *dst++ = *(Uint8*)((unsigned char*)&i + 3);
-        *dst++ = *(Uint8*)((unsigned char*)&i + 2);
-        *dst++ = *(Uint8*)((unsigned char*)&i + 1);
-        *dst++ = *(Uint8*)((unsigned char*)&i);
+    for (const auto i : src) {
+        const auto swapped = SDL_SwapFloat(i);
+        memcpy(dst, &swapped, sizeof(swapped));
+        dst += sizeof(swapped);
     }
 }
 
