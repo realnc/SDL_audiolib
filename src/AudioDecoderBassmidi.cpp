@@ -23,7 +23,9 @@ public:
     }
 
     HstreamWrapper(const HstreamWrapper&) = delete;
+    HstreamWrapper(HstreamWrapper&&) = delete;
     HstreamWrapper& operator =(const HstreamWrapper&) = delete;
+    HstreamWrapper& operator =(HstreamWrapper&&) = delete;
 
     ~HstreamWrapper()
     {
