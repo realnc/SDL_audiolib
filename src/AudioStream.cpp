@@ -88,6 +88,7 @@ Aulib::AudioStream::play(int iterations, float fadeTime)
     if (fadeTime > 0.f) {
         d->fInternalVolume = 0.f;
         d->fFadingIn = true;
+        d->fFadingOut = false;
         d->fFadeInTickDuration = fadeTime * 1000.f;
         d->fFadeInStartTick = d->fPlaybackStartTick;
     } else {
