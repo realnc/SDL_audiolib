@@ -14,6 +14,15 @@ public:
     ~AudioDecoderFluidSynth() override;
 
     int loadSoundfont(const std::string& filename);
+    /*!
+     * \brief Load a soundfont from an rwops.
+     *
+     * Ownership of the rwops is transfered to the decoder. The rwops is closed immediately if an
+     * error occurs.
+     *
+     * \return 0 on success, non-zero if an error occurred.
+     */
+    int loadSoundfont(SDL_RWops* rwops);
 
     bool open(SDL_RWops* rwops) override;
     int getChannels() const override;
