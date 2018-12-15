@@ -125,7 +125,6 @@ Aulib::AudioDecoderFluidSynth_priv::AudioDecoderFluidSynth_priv()
     if (not fSynth) {
         return;
     }
-    fluid_synth_set_gain(fSynth.get(), 0.6f);
     fluid_synth_set_interp_method(fSynth.get(), -1, FLUID_INTERP_7THORDER);
     fluid_synth_set_reverb(fSynth.get(),
                            0.6,  // Room size
@@ -179,6 +178,20 @@ Aulib::AudioDecoderFluidSynth::loadSoundfont(SDL_RWops* rwops)
         return -1;
     }
     return 0;
+}
+
+
+float
+Aulib::AudioDecoderFluidSynth::gain() const
+{
+    return fluid_synth_get_gain(d->fSynth.get());
+}
+
+
+void
+Aulib::AudioDecoderFluidSynth::setGain(float gain)
+{
+    fluid_synth_set_gain(d->fSynth.get(), gain);
 }
 
 
