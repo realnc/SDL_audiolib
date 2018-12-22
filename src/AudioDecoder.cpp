@@ -15,6 +15,7 @@
 #include "Buffer.h"
 #include "aulib.h"
 #include "aulib_config.h"
+#include <array>
 #include <SDL_audio.h>
 #include <SDL_rwops.h>
 
