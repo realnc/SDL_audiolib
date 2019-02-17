@@ -177,6 +177,29 @@ Aulib::AudioStream::volume() const
 }
 
 
+void
+Aulib::AudioStream::mute()
+{
+    SdlAudioLocker locker;
+    d->fIsMuted = true;
+}
+
+
+void
+Aulib::AudioStream::unmute()
+{
+    SdlAudioLocker locker;
+    d->fIsMuted = false;
+}
+
+
+bool
+Aulib::AudioStream::isMuted() const
+{
+    return d->fIsMuted;
+}
+
+
 bool
 Aulib::AudioStream::isPlaying() const
 {

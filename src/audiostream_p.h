@@ -38,6 +38,7 @@ struct AudioStream_priv final {
     bool fStopAfterFade = false;
     int fFadeInTickDuration = 0;
     int fFadeOutTickDuration = 0;
+    bool fIsMuted = false;
 
     static ::SDL_AudioSpec fAudioSpec;
     static std::vector<AudioStream*> fStreamList;

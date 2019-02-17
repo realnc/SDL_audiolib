@@ -65,6 +65,9 @@ public:
     bool rewind() override;
     void setVolume(float volume) override;
     float volume() const override;
+    void mute() override;
+    void unmute() override;
+    bool isMuted() const override;
     bool isPlaying() const override;
     bool isPaused() const override;
     float duration() const override;

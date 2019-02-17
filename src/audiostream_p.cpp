@@ -144,7 +144,7 @@ Aulib::AudioStream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int out
         float volume = stream->d->fVolume * stream->d->fInternalVolume;
 
         // Avoid mixing on zero volume.
-        if (volume > 0.f) {
+        if (not stream->d->fIsMuted and volume > 0.f) {
             // Avoid scaling operation when volume is 1.
             if (volume != 1.f) {
                 for (int i = 0; i < len; ++i) {

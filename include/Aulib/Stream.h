@@ -103,6 +103,23 @@ public:
     virtual float volume() const = 0;
 
     /*!
+     * \brief Mute the stream.
+     *
+     * A muted stream still accepts volume changes, but it will stay inaudible until it is unmuted.
+     */
+    virtual void mute() = 0;
+
+    /*!
+     * \brief Unmute the stream.
+     */
+    virtual void unmute() = 0;
+
+    /*!
+     * \brief Returns true if the stream is muted, false otherwise.
+     */
+    virtual bool isMuted() const = 0;
+
+    /*!
      * \brief Get current playback state.
      *
      * Note that a paused stream is still considered as being in the playback state.
