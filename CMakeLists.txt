@@ -288,7 +288,6 @@ add_library(
     resampler/arch.h
     resampler/resample_sse.h
     resampler/speex_resampler.h
-    resampler/stack_alloc.h
     resampler/resample.c
 )
 
