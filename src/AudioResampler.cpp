@@ -6,12 +6,11 @@
 #include "SdlAudioLocker.h"
 #include "aulib_debug.h"
 #include "aulib_global.h"
+#include <SDL_audio.h>
 #include <algorithm>
 #include <cmath>
 #include <cstring>
 #include <utility>
-#include <SDL_audio.h>
-
 
 /* Relocate any samples in the specified buffer to the beginning:
  *
@@ -19,8 +18,7 @@
  *
  * The tracking indices are adjusted as needed.
  */
-static void
-relocateBuffer(float* buf, int& pos, int& end)
+static void relocateBuffer(float* buf, int& pos, int& end)
 {
     if (end < 1) {
         return;
@@ -38,11 +36,11 @@ relocateBuffer(float* buf, int& pos, int& end)
     end = len;
 }
 
-
 namespace Aulib {
 
 /// \private
-struct AudioResampler_priv final {
+struct AudioResampler_priv final
+{
     AudioResampler* q;
 
     explicit AudioResampler_priv(AudioResampler* pub);
@@ -79,14 +77,11 @@ struct AudioResampler_priv final {
 
 } // namespace Aulib
 
-
 Aulib::AudioResampler_priv::AudioResampler_priv(AudioResampler* pub)
     : q(pub)
-{ }
+{}
 
-
-int
-Aulib::AudioResampler_priv::fMoveFromOutBuffer(float dst[], int dstLen)
+int Aulib::AudioResampler_priv::fMoveFromOutBuffer(float dst[], int dstLen)
 {
     if (fOutBufferEnd == 0) {
         return 0;
@@ -105,9 +100,7 @@ Aulib::AudioResampler_priv::fMoveFromOutBuffer(float dst[], int dstLen)
     return len;
 }
 
-
-void
-Aulib::AudioResampler_priv::fAdjustBufferSizes()
+void Aulib::AudioResampler_priv::fAdjustBufferSizes()
 {
     int oldInBufLen = fInBufferEnd - fInBufferPos;
     int outBufSiz = fChannels * fChunkSize;
@@ -138,9 +131,7 @@ Aulib::AudioResampler_priv::fAdjustBufferSizes()
     }
 }
 
-
-void
-Aulib::AudioResampler_priv::fResampleFromInBuffer()
+void Aulib::AudioResampler_priv::fResampleFromInBuffer()
 {
     int inLen = fInBufferEnd - fInBufferPos;
     float* from = fInBuffer.get() + fInBufferPos;
@@ -163,25 +154,19 @@ Aulib::AudioResampler_priv::fResampleFromInBuffer()
     }
 }
 
-
 Aulib::AudioResampler::AudioResampler()
     : d(std::make_unique<AudioResampler_priv>(this))
-{ }
-
+{}
 
 Aulib::AudioResampler::~AudioResampler() = default;
 
-
-void
-Aulib::AudioResampler::setDecoder(std::shared_ptr<class AudioDecoder> decoder)
+void Aulib::AudioResampler::setDecoder(std::shared_ptr<class AudioDecoder> decoder)
 {
     SdlAudioLocker locker;
     d->fDecoder = std::move(decoder);
 }
 
-
-int
-Aulib::AudioResampler::setSpec(int dstRate, int channels, int chunkSize)
+int Aulib::AudioResampler::setSpec(int dstRate, int channels, int chunkSize)
 {
     d->fDstRate = dstRate;
     d->fChannels = channels;
@@ -194,30 +179,22 @@ Aulib::AudioResampler::setSpec(int dstRate, int channels, int chunkSize)
     return 0;
 }
 
-
-int
-Aulib::AudioResampler::currentRate() const
+int Aulib::AudioResampler::currentRate() const
 {
     return d->fDstRate;
 }
 
-
-int
-Aulib::AudioResampler::currentChannels() const
+int Aulib::AudioResampler::currentChannels() const
 {
     return d->fChannels;
 }
 
-
-int
-Aulib::AudioResampler::currentChunkSize() const
+int Aulib::AudioResampler::currentChunkSize() const
 {
     return d->fChunkSize;
 }
 
-
-int
-Aulib::AudioResampler::resample(float dst[], int dstLen)
+int Aulib::AudioResampler::resample(float dst[], int dstLen)
 {
     int totalSamples = 0;
     bool decEOF = false;
@@ -246,8 +223,7 @@ Aulib::AudioResampler::resample(float dst[], int dstLen)
         if (d->fInBufferEnd < d->fInBuffer.size()) {
             bool callAgain = false;
             int decSamples = d->fDecoder->decode(d->fInBuffer.get() + d->fInBufferEnd,
-                                                 d->fInBuffer.size() - d->fInBufferEnd,
-                                                 callAgain);
+                                                 d->fInBuffer.size() - d->fInBufferEnd, callAgain);
             // If the decoder indicated a spec change, process any data that is
             // still in our buffers using the current spec.
             if (callAgain) {
@@ -276,7 +252,6 @@ Aulib::AudioResampler::resample(float dst[], int dstLen)
     }
     return totalSamples;
 }
-
 
 /*
 

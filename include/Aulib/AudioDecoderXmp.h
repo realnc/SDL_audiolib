@@ -8,7 +8,8 @@ namespace Aulib {
 /*!
  * \brief XMP decoder.
  */
-class AULIB_EXPORT AudioDecoderXmp final: public AudioDecoder {
+class AULIB_EXPORT AudioDecoderXmp final: public AudioDecoder
+{
 public:
     AudioDecoderXmp();
     ~AudioDecoderXmp() override;
@@ -28,7 +29,6 @@ private:
 };
 
 } // namespace Aulib
-
 
 /*
 

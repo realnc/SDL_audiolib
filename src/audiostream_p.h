@@ -3,14 +3,15 @@
 
 #include "Buffer.h"
 #include "aulib.h"
+#include <SDL_audio.h>
 #include <memory>
 #include <vector>
-#include <SDL_audio.h>
 
 namespace Aulib {
 
 /// \private
-struct AudioStream_priv final {
+struct AudioStream_priv final
+{
     const class AudioStream* const q;
 
     explicit AudioStream_priv(class AudioStream* pub, std::unique_ptr<class AudioDecoder> decoder,
@@ -57,7 +58,6 @@ struct AudioStream_priv final {
 };
 
 } // namespace Aulib
-
 
 /*
 

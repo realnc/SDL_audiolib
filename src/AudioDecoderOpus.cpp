@@ -2,22 +2,18 @@
 #include "Aulib/AudioDecoderOpus.h"
 
 #include "aulib_debug.h"
-#include <cstring>
 #include <SDL_rwops.h>
+#include <cstring>
 #include <opusfile.h>
-
 
 extern "C" {
 
-static int
-opusReadCb(void* rwops, unsigned char* ptr, int nbytes)
+static int opusReadCb(void* rwops, unsigned char* ptr, int nbytes)
 {
     return SDL_RWread(static_cast<SDL_RWops*>(rwops), ptr, 1, nbytes);
 }
 
-
-static int
-opusSeekCb(void* rwops, opus_int64 offset, int whence)
+static int opusSeekCb(void* rwops, opus_int64 offset, int whence)
 {
     if (SDL_RWseek(static_cast<SDL_RWops*>(rwops), offset, whence) < 0) {
         return -1;
@@ -25,20 +21,18 @@ opusSeekCb(void* rwops, opus_int64 offset, int whence)
     return 0;
 }
 
-
-static opus_int64
-opusTellCb(void* rwops)
+static opus_int64 opusTellCb(void* rwops)
 {
     return SDL_RWtell(static_cast<SDL_RWops*>(rwops));
 }
 
 } // extern "C"
 
-
 namespace Aulib {
 
 /// \private
-struct AudioDecoderOpus_priv final {
+struct AudioDecoderOpus_priv final
+{
     std::unique_ptr<OggOpusFile, decltype(&op_free)> fOpusHandle{nullptr, &op_free};
     OpusFileCallbacks fCbs{opusReadCb, opusSeekCb, opusTellCb, nullptr};
     bool fEOF = false;
@@ -47,17 +41,13 @@ struct AudioDecoderOpus_priv final {
 
 } // namespace Aulib
 
-
 Aulib::AudioDecoderOpus::AudioDecoderOpus()
     : d(std::make_unique<AudioDecoderOpus_priv>())
-{ }
-
+{}
 
 Aulib::AudioDecoderOpus::~AudioDecoderOpus() = default;
 
-
-bool
-Aulib::AudioDecoderOpus::open(SDL_RWops* rwops)
+bool Aulib::AudioDecoderOpus::open(SDL_RWops* rwops)
 {
     if (isOpen()) {
         return true;
@@ -78,23 +68,17 @@ Aulib::AudioDecoderOpus::open(SDL_RWops* rwops)
     return true;
 }
 
-
-int
-Aulib::AudioDecoderOpus::getChannels() const
+int Aulib::AudioDecoderOpus::getChannels() const
 {
     return 2;
 }
 
-
-int
-Aulib::AudioDecoderOpus::getRate() const
+int Aulib::AudioDecoderOpus::getRate() const
 {
     return 48000;
 }
 
-
-int
-Aulib::AudioDecoderOpus::doDecoding(float buf[], int len, bool& callAgain)
+int Aulib::AudioDecoderOpus::doDecoding(float buf[], int len, bool& callAgain)
 {
     callAgain = false;
 
@@ -113,10 +97,17 @@ Aulib::AudioDecoderOpus::doDecoding(float buf[], int len, bool& callAgain)
         if (ret < 0) {
             AM_debugPrint("libopusfile stream error: ");
             switch (ret) {
-                case OP_HOLE: AM_debugPrintLn("OP_HOLE"); break;
-                case OP_EBADLINK: AM_debugPrintLn("OP_EBADLINK"); break;
-                case OP_EINVAL: AM_debugPrintLn("OP_EINVAL"); break;
-                default: AM_debugPrintLn("unknown error: " << ret);
+            case OP_HOLE:
+                AM_debugPrintLn("OP_HOLE");
+                break;
+            case OP_EBADLINK:
+                AM_debugPrintLn("OP_EBADLINK");
+                break;
+            case OP_EINVAL:
+                AM_debugPrintLn("OP_EINVAL");
+                break;
+            default:
+                AM_debugPrintLn("unknown error: " << ret);
             }
             break;
         }
@@ -125,30 +116,23 @@ Aulib::AudioDecoderOpus::doDecoding(float buf[], int len, bool& callAgain)
     return decSamples;
 }
 
-
-bool
-Aulib::AudioDecoderOpus::rewind()
+bool Aulib::AudioDecoderOpus::rewind()
 {
     int ret = op_raw_seek(d->fOpusHandle.get(), 0);
     d->fEOF = false;
     return ret == 0;
 }
 
-
-float
-Aulib::AudioDecoderOpus::duration() const
+float Aulib::AudioDecoderOpus::duration() const
 {
     return d->fDuration;
 }
 
-
-bool
-Aulib::AudioDecoderOpus::seekToTime(float seconds)
+bool Aulib::AudioDecoderOpus::seekToTime(float seconds)
 {
     ogg_int64_t offset = seconds * 48000.f;
     return op_pcm_seek(d->fOpusHandle.get(), offset) == 0;
 }
-
 
 /*
 

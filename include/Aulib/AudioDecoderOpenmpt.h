@@ -8,7 +8,8 @@ namespace Aulib {
 /*!
  * \brief OpenMPT decoder.
  */
-class AULIB_EXPORT AudioDecoderOpenmpt final: public AudioDecoder {
+class AULIB_EXPORT AudioDecoderOpenmpt final: public AudioDecoder
+{
 public:
     AudioDecoderOpenmpt();
     ~AudioDecoderOpenmpt() override;
@@ -28,7 +29,6 @@ private:
 };
 
 } // namespace Aulib
-
 
 /*
 

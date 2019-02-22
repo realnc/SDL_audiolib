@@ -5,14 +5,14 @@
 #include <cstring>
 #include <soxr.h>
 
-
 namespace Aulib {
 
 /// \private
-struct AudioResamplerSox_priv final {
+struct AudioResamplerSox_priv final
+{
     explicit AudioResamplerSox_priv(AudioResamplerSox::Quality q)
         : fQuality(q)
-    { }
+    {}
 
     std::unique_ptr<soxr, decltype(&soxr_delete)> fResampler{nullptr, &soxr_delete};
     AudioResamplerSox::Quality fQuality;
@@ -20,24 +20,19 @@ struct AudioResamplerSox_priv final {
 
 } // namespace Aulib
 
-
 Aulib::AudioResamplerSox::AudioResamplerSox(Quality quality)
     : d(std::make_unique<AudioResamplerSox_priv>(quality))
-{ }
-
+{}
 
 Aulib::AudioResamplerSox::~AudioResamplerSox() = default;
 
-
-Aulib::AudioResamplerSox::Quality
-Aulib::AudioResamplerSox::quality() const noexcept
+Aulib::AudioResamplerSox::Quality Aulib::AudioResamplerSox::quality() const noexcept
 {
     return d->fQuality;
 }
 
-
-void
-Aulib::AudioResamplerSox::doResampling(float dst[], const float src[], int& dstLen, int& srcLen)
+void Aulib::AudioResamplerSox::doResampling(float dst[], const float src[], int& dstLen,
+                                            int& srcLen)
 {
     if (not d->fResampler) {
         dstLen = srcLen = 0;
@@ -46,8 +41,8 @@ Aulib::AudioResamplerSox::doResampling(float dst[], const float src[], int& dstL
     size_t dstDone, srcDone;
     int channels = currentChannels();
     soxr_error_t error;
-    error = soxr_process(d->fResampler.get(), src, static_cast<size_t>(srcLen / channels),
-                         &srcDone, dst, static_cast<size_t>(dstLen / channels), &dstDone);
+    error = soxr_process(d->fResampler.get(), src, static_cast<size_t>(srcLen / channels), &srcDone,
+                         dst, static_cast<size_t>(dstLen / channels), &dstDone);
     if (error != nullptr) {
         // FIXME: What do we do?
         AM_warnLn("soxr_process() error: " << error);
@@ -58,9 +53,7 @@ Aulib::AudioResamplerSox::doResampling(float dst[], const float src[], int& dstL
     srcLen = static_cast<int>(srcDone) * channels;
 }
 
-
-int
-Aulib::AudioResamplerSox::adjustForOutputSpec(int dstRate, int srcRate, int channels)
+int Aulib::AudioResamplerSox::adjustForOutputSpec(int dstRate, int srcRate, int channels)
 {
     soxr_io_spec_t io_spec{};
     io_spec.itype = io_spec.otype = SOXR_FLOAT32_I;
@@ -68,11 +61,21 @@ Aulib::AudioResamplerSox::adjustForOutputSpec(int dstRate, int srcRate, int chan
 
     int sox_q;
     switch (d->fQuality) {
-    case Quality::Quick:    sox_q = SOXR_QQ; break;
-    case Quality::Low:      sox_q = SOXR_LQ; break;
-    case Quality::Medium:   sox_q = SOXR_MQ; break;
-    case Quality::High:     sox_q = SOXR_HQ; break;
-    case Quality::VeryHigh: sox_q = SOXR_VHQ; break;
+    case Quality::Quick:
+        sox_q = SOXR_QQ;
+        break;
+    case Quality::Low:
+        sox_q = SOXR_LQ;
+        break;
+    case Quality::Medium:
+        sox_q = SOXR_MQ;
+        break;
+    case Quality::High:
+        sox_q = SOXR_HQ;
+        break;
+    case Quality::VeryHigh:
+        sox_q = SOXR_VHQ;
+        break;
     }
     auto q_spec = soxr_quality_spec(sox_q, 0);
 
@@ -85,7 +88,6 @@ Aulib::AudioResamplerSox::adjustForOutputSpec(int dstRate, int srcRate, int chan
     }
     return 0;
 }
-
 
 /*
 

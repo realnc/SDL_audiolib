@@ -8,7 +8,8 @@ namespace Aulib {
 /*!
  * \brief libmpcdec decoder.
  */
-class AULIB_EXPORT AudioDecoderMusepack final: public AudioDecoder {
+class AULIB_EXPORT AudioDecoderMusepack final: public AudioDecoder
+{
 public:
     AudioDecoderMusepack();
     ~AudioDecoderMusepack() override;
@@ -28,7 +29,6 @@ private:
 };
 
 } // namespace Aulib
-
 
 /*
 

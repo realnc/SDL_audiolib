@@ -2,8 +2,8 @@
 #pragma once
 
 #include "aulib_global.h"
-#include <memory>
 #include <cstddef>
+#include <memory>
 
 namespace Aulib {
 
@@ -13,7 +13,8 @@ namespace Aulib {
  * This class receives audio from an AudioDecoder and resamples it to the requested sample
  * rate.
  */
-class AULIB_EXPORT AudioResampler {
+class AULIB_EXPORT AudioResampler
+{
 public:
     /*!
      * \brief Constructs an audio resampler.
@@ -23,7 +24,7 @@ public:
     virtual ~AudioResampler();
 
     AudioResampler(const AudioResampler&) = delete;
-    AudioResampler& operator =(const AudioResampler&) = delete;
+    AudioResampler& operator=(const AudioResampler&) = delete;
 
     /*! \brief Sets the decoder that is to be used as source.
      *
@@ -113,7 +114,6 @@ private:
 };
 
 } // namespace Aulib
-
 
 /*
 

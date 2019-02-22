@@ -8,7 +8,8 @@ namespace Aulib {
 /*!
  * \brief Speex resampler.
  */
-class AULIB_EXPORT AudioResamplerSpeex final: public AudioResampler {
+class AULIB_EXPORT AudioResamplerSpeex final: public AudioResampler
+{
 public:
     /*!
      * \param quality
@@ -31,7 +32,6 @@ private:
 };
 
 } // namespace Aulib
-
 
 /*
 

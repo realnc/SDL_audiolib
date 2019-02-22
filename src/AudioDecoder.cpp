@@ -15,31 +15,28 @@
 #include "Buffer.h"
 #include "aulib.h"
 #include "aulib_config.h"
-#include <array>
 #include <SDL_audio.h>
 #include <SDL_rwops.h>
+#include <array>
 
 namespace Aulib {
 
 /// \private
-struct AudioDecoder_priv final {
+struct AudioDecoder_priv final
+{
     Buffer<float> stereoBuf{0};
     bool isOpen = false;
 };
 
 } // namespace Aulib
 
-
 Aulib::AudioDecoder::AudioDecoder()
     : d(std::make_unique<Aulib::AudioDecoder_priv>())
-{ }
-
+{}
 
 Aulib::AudioDecoder::~AudioDecoder() = default;
 
-
-std::unique_ptr<Aulib::AudioDecoder>
-Aulib::AudioDecoder::decoderFor(const std::string& filename)
+std::unique_ptr<Aulib::AudioDecoder> Aulib::AudioDecoder::decoderFor(const std::string& filename)
 {
     const auto rwopsClose = [](SDL_RWops* rwops) { SDL_RWclose(rwops); };
     std::unique_ptr<SDL_RWops, decltype(rwopsClose)> rwops(SDL_RWFromFile(filename.c_str(), "rb"),
@@ -47,9 +44,7 @@ Aulib::AudioDecoder::decoderFor(const std::string& filename)
     return AudioDecoder::decoderFor(rwops.get());
 }
 
-
-std::unique_ptr<Aulib::AudioDecoder>
-Aulib::AudioDecoder::decoderFor(SDL_RWops* rwops)
+std::unique_ptr<Aulib::AudioDecoder> Aulib::AudioDecoder::decoderFor(SDL_RWops* rwops)
 {
     std::unique_ptr<AudioDecoder> decoder;
     auto rwPos = SDL_RWtell(rwops);
@@ -83,22 +78,22 @@ Aulib::AudioDecoder::decoderFor(SDL_RWops* rwops)
         std::array<char, 5> head{};
         if (SDL_RWread(rwops, head.data(), 1, 4) == 4 and head == decltype(head){"MThd"}) {
             SDL_RWseek(rwops, rwPos, RW_SEEK_SET);
-#   if USE_DEC_FLUIDSYNTH
+#    if USE_DEC_FLUIDSYNTH
             decoder = std::make_unique<AudioDecoderFluidSynth>();
             if (decoder->open(rwops)) {
                 return std::make_unique<Aulib::AudioDecoderFluidSynth>();
             }
-#   elif USE_DEC_BASSMIDI
+#    elif USE_DEC_BASSMIDI
             decoder = std::make_unique<AudioDecoderBassmidi>();
             if (decoder->open(rwops)) {
                 return std::make_unique<Aulib::AudioDecoderBassmidi>();
             }
-#   elif USE_DEC_WILDMIDI
+#    elif USE_DEC_WILDMIDI
             decoder = std::make_unique<AudioDecoderWildmidi>();
             if (decoder->open(rwops)) {
                 return std::make_unique<Aulib::AudioDecoderWildmidi>();
             }
-#   endif
+#    endif
         }
     }
     SDL_RWseek(rwops, rwPos, RW_SEEK_SET);
@@ -145,17 +140,13 @@ Aulib::AudioDecoder::decoderFor(SDL_RWops* rwops)
     return nullptr;
 }
 
-
-bool
-Aulib::AudioDecoder::isOpen() const
+bool Aulib::AudioDecoder::isOpen() const
 {
     return d->isOpen;
 }
 
-
 // Conversion happens in-place.
-static constexpr void
-monoToStereo(float buf[], int len)
+static constexpr void monoToStereo(float buf[], int len)
 {
     if (len < 1 or buf == nullptr) {
         return;
@@ -166,9 +157,7 @@ monoToStereo(float buf[], int len)
     }
 }
 
-
-static constexpr void
-stereoToMono(float dst[], const float src[], int srcLen)
+static constexpr void stereoToMono(float dst[], const float src[], int srcLen)
 {
     if (srcLen < 1 or dst == nullptr or src == nullptr) {
         return;
@@ -179,9 +168,7 @@ stereoToMono(float dst[], const float src[], int srcLen)
     }
 }
 
-
-int
-Aulib::AudioDecoder::decode(float buf[], int len, bool& callAgain)
+int Aulib::AudioDecoder::decode(float buf[], int len, bool& callAgain)
 {
     const SDL_AudioSpec& spec = Aulib::spec();
 
@@ -202,13 +189,10 @@ Aulib::AudioDecoder::decode(float buf[], int len, bool& callAgain)
     return this->doDecoding(buf, len, callAgain);
 }
 
-
-void
-Aulib::AudioDecoder::setIsOpen(bool f)
+void Aulib::AudioDecoder::setIsOpen(bool f)
 {
     d->isOpen = f;
 }
-
 
 /*
 

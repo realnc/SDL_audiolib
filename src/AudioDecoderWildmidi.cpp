@@ -2,15 +2,15 @@
 #include "Aulib/AudioDecoderWildmidi.h"
 
 #include "Buffer.h"
-#include <algorithm>
 #include <SDL_rwops.h>
+#include <algorithm>
 #include <wildmidi_lib.h>
-
 
 namespace Aulib {
 
 /// \private
-struct AudioDecoderWildmidi_priv final {
+struct AudioDecoderWildmidi_priv final
+{
     std::unique_ptr<midi, decltype(&WildMidi_Close)> midiHandle{nullptr, &WildMidi_Close};
     Buffer<unsigned char> midiData{0};
     Buffer<Sint16> sampBuf{0};
@@ -25,18 +25,14 @@ int AudioDecoderWildmidi_priv::rate = 0;
 
 } // namespace Aulib
 
-
 Aulib::AudioDecoderWildmidi::AudioDecoderWildmidi()
     : d(std::make_unique<Aulib::AudioDecoderWildmidi_priv>())
-{ }
-
+{}
 
 Aulib::AudioDecoderWildmidi::~AudioDecoderWildmidi() = default;
 
-
-bool
-Aulib::AudioDecoderWildmidi::init(const std::string& configFile, int rate,
-                                  bool hqResampling, bool reverb)
+bool Aulib::AudioDecoderWildmidi::init(const std::string& configFile, int rate, bool hqResampling,
+                                       bool reverb)
 {
     if (AudioDecoderWildmidi_priv::initialized) {
         return true;
@@ -57,16 +53,12 @@ Aulib::AudioDecoderWildmidi::init(const std::string& configFile, int rate,
     return true;
 }
 
-
-void
-Aulib::AudioDecoderWildmidi::quit()
+void Aulib::AudioDecoderWildmidi::quit()
 {
     WildMidi_Shutdown();
 }
 
-
-bool
-Aulib::AudioDecoderWildmidi::open(SDL_RWops* rwops)
+bool Aulib::AudioDecoderWildmidi::open(SDL_RWops* rwops)
 {
     if (isOpen()) {
         return true;
@@ -75,7 +67,7 @@ Aulib::AudioDecoderWildmidi::open(SDL_RWops* rwops)
         return false;
     }
 
-    //FIXME: error reporting
+    // FIXME: error reporting
     Sint64 newMidiDataLen = SDL_RWsize(rwops);
     if (newMidiDataLen <= 0) {
         return false;
@@ -94,23 +86,17 @@ Aulib::AudioDecoderWildmidi::open(SDL_RWops* rwops)
     return true;
 }
 
-
-int
-Aulib::AudioDecoderWildmidi::getChannels() const
+int Aulib::AudioDecoderWildmidi::getChannels() const
 {
     return 2;
 }
 
-
-int
-Aulib::AudioDecoderWildmidi::getRate() const
+int Aulib::AudioDecoderWildmidi::getRate() const
 {
     return AudioDecoderWildmidi_priv::rate;
 }
 
-
-int
-Aulib::AudioDecoderWildmidi::doDecoding(float buf[], int len, bool& callAgain)
+int Aulib::AudioDecoderWildmidi::doDecoding(float buf[], int len, bool& callAgain)
 {
     callAgain = false;
     if (not d->midiHandle or d->eof) {
@@ -135,9 +121,7 @@ Aulib::AudioDecoderWildmidi::doDecoding(float buf[], int len, bool& callAgain)
     return res / 2;
 }
 
-
-bool
-Aulib::AudioDecoderWildmidi::rewind()
+bool Aulib::AudioDecoderWildmidi::rewind()
 {
     if (not d->midiHandle) {
         return false;
@@ -145,9 +129,7 @@ Aulib::AudioDecoderWildmidi::rewind()
     return this->seekToTime(0);
 }
 
-
-float
-Aulib::AudioDecoderWildmidi::duration() const
+float Aulib::AudioDecoderWildmidi::duration() const
 {
     _WM_Info* info;
     if (not d->midiHandle or (info = WildMidi_GetInfo(d->midiHandle.get())) == nullptr) {
@@ -156,14 +138,11 @@ Aulib::AudioDecoderWildmidi::duration() const
     return static_cast<float>(info->approx_total_samples) / AudioDecoderWildmidi_priv::rate;
 }
 
-
-bool
-Aulib::AudioDecoderWildmidi::seekToTime(float seconds)
+bool Aulib::AudioDecoderWildmidi::seekToTime(float seconds)
 {
     unsigned long samplePos = seconds * AudioDecoderWildmidi_priv::rate;
     return (WildMidi_FastSeek(d->midiHandle.get(), &samplePos) == 0);
 }
-
 
 /*
 

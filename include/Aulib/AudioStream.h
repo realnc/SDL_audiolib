@@ -1,8 +1,8 @@
 // This is copyrighted software. More information is at the end of this file.
 #pragma once
 
-#include <aulib.h>
 #include <Aulib/Stream.h>
+#include <aulib.h>
 #include <memory>
 
 struct SDL_RWops;
@@ -15,7 +15,8 @@ namespace Aulib {
  *
  * This class handles playback for sample-based, digital audio streams produced by an AudioDecoder.
  */
-class AULIB_EXPORT AudioStream: public Stream {
+class AULIB_EXPORT AudioStream: public Stream
+{
 public:
     /*!
      * \brief Constructs an audio stream from the given file name, decoder and resampler.
@@ -55,7 +56,7 @@ public:
     ~AudioStream() override;
 
     AudioStream(const AudioStream&) = delete;
-    AudioStream& operator =(const AudioStream&) = delete;
+    AudioStream& operator=(const AudioStream&) = delete;
 
     bool open() override;
     bool play(int iterations = 1, float fadeTime = 0.f) override;
@@ -81,7 +82,6 @@ private:
 };
 
 } // namespace Aulib
-
 
 /*
 

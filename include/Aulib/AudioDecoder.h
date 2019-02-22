@@ -12,13 +12,14 @@ namespace Aulib {
 /*!
  * \brief Abstract base class for audio decoders.
  */
-class AULIB_EXPORT AudioDecoder {
+class AULIB_EXPORT AudioDecoder
+{
 public:
     AudioDecoder();
     virtual ~AudioDecoder();
 
     AudioDecoder(const AudioDecoder&) = delete;
-    AudioDecoder& operator =(const AudioDecoder&) = delete;
+    AudioDecoder& operator=(const AudioDecoder&) = delete;
 
     static std::unique_ptr<AudioDecoder> decoderFor(const std::string& filename);
     static std::unique_ptr<AudioDecoder> decoderFor(SDL_RWops* rwops);
@@ -42,7 +43,6 @@ private:
 };
 
 } // namespace Aulib
-
 
 /*
 

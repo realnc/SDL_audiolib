@@ -8,7 +8,8 @@ namespace Aulib {
 /*!
  * \brief libvorbisfile decoder.
  */
-class AULIB_EXPORT AudioDecoderVorbis final: public AudioDecoder {
+class AULIB_EXPORT AudioDecoderVorbis final: public AudioDecoder
+{
 public:
     AudioDecoderVorbis();
     ~AudioDecoderVorbis() override;
@@ -28,7 +29,6 @@ private:
 };
 
 } // namespace Aulib
-
 
 /*
 

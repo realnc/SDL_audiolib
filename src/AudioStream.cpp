@@ -15,8 +15,7 @@
 /* This is implemented here in order to avoid having the dtor call stop(),
  * which is a virtual.
  */
-static void
-stop_impl(Aulib::AudioStream_priv* d, float fadeTime)
+static void stop_impl(Aulib::AudioStream_priv* d, float fadeTime)
 {
     if (not d->fIsOpen or not d->fIsPlaying) {
         return;
@@ -33,28 +32,24 @@ stop_impl(Aulib::AudioStream_priv* d, float fadeTime)
     }
 }
 
-
 Aulib::AudioStream::AudioStream(const std::string& filename, std::unique_ptr<AudioDecoder> decoder,
                                 std::unique_ptr<AudioResampler> resampler)
-    : AudioStream(SDL_RWFromFile(filename.c_str(), "rb"), std::move(decoder), std::move(resampler), true)
-{ }
-
+    : AudioStream(SDL_RWFromFile(filename.c_str(), "rb"), std::move(decoder), std::move(resampler),
+                  true)
+{}
 
 Aulib::AudioStream::AudioStream(SDL_RWops* rwops, std::unique_ptr<AudioDecoder> decoder,
                                 std::unique_ptr<AudioResampler> resampler, bool closeRw)
     : d(std::make_unique<AudioStream_priv>(this, std::move(decoder), std::move(resampler), rwops,
                                            closeRw))
-{ }
-
+{}
 
 Aulib::AudioStream::~AudioStream()
 {
     stop_impl(d.get(), 0.f);
 }
 
-
-bool
-Aulib::AudioStream::open()
+bool Aulib::AudioStream::open()
 {
     if (d->fIsOpen) {
         return true;
@@ -72,9 +67,7 @@ Aulib::AudioStream::open()
     return true;
 }
 
-
-bool
-Aulib::AudioStream::play(int iterations, float fadeTime)
+bool Aulib::AudioStream::play(int iterations, float fadeTime)
 {
     if (not open()) {
         return false;
@@ -101,16 +94,12 @@ Aulib::AudioStream::play(int iterations, float fadeTime)
     return true;
 }
 
-
-void
-Aulib::AudioStream::stop(float fadeTime)
+void Aulib::AudioStream::stop(float fadeTime)
 {
     stop_impl(d.get(), fadeTime);
 }
 
-
-void
-Aulib::AudioStream::pause(float fadeTime)
+void Aulib::AudioStream::pause(float fadeTime)
 {
     if (not open() or d->fIsPaused) {
         return;
@@ -127,9 +116,7 @@ Aulib::AudioStream::pause(float fadeTime)
     }
 }
 
-
-void
-Aulib::AudioStream::resume(float fadeTime)
+void Aulib::AudioStream::resume(float fadeTime)
 {
     if (not d->fIsPaused) {
         return;
@@ -147,9 +134,7 @@ Aulib::AudioStream::resume(float fadeTime)
     d->fIsPaused = false;
 }
 
-
-bool
-Aulib::AudioStream::rewind()
+bool Aulib::AudioStream::rewind()
 {
     if (not open()) {
         return false;
@@ -158,9 +143,7 @@ Aulib::AudioStream::rewind()
     return d->fDecoder->rewind();
 }
 
-
-void
-Aulib::AudioStream::setVolume(float volume)
+void Aulib::AudioStream::setVolume(float volume)
 {
     if (volume < 0.f) {
         volume = 0.f;
@@ -169,64 +152,47 @@ Aulib::AudioStream::setVolume(float volume)
     d->fVolume = volume;
 }
 
-
-float
-Aulib::AudioStream::volume() const
+float Aulib::AudioStream::volume() const
 {
     return d->fVolume;
 }
 
-
-void
-Aulib::AudioStream::mute()
+void Aulib::AudioStream::mute()
 {
     SdlAudioLocker locker;
     d->fIsMuted = true;
 }
 
-
-void
-Aulib::AudioStream::unmute()
+void Aulib::AudioStream::unmute()
 {
     SdlAudioLocker locker;
     d->fIsMuted = false;
 }
 
-
-bool
-Aulib::AudioStream::isMuted() const
+bool Aulib::AudioStream::isMuted() const
 {
     return d->fIsMuted;
 }
 
-
-bool
-Aulib::AudioStream::isPlaying() const
+bool Aulib::AudioStream::isPlaying() const
 {
     return d->fIsPlaying;
 }
 
-
-bool
-Aulib::AudioStream::isPaused() const
+bool Aulib::AudioStream::isPaused() const
 {
     return d->fIsPaused;
 }
 
-
-float
-Aulib::AudioStream::duration() const
+float Aulib::AudioStream::duration() const
 {
     return d->fDecoder->duration();
 }
 
-
-bool
-Aulib::AudioStream::seekToTime(float seconds)
+bool Aulib::AudioStream::seekToTime(float seconds)
 {
     return d->fDecoder->seekToTime(seconds);
 }
-
 
 /*
 

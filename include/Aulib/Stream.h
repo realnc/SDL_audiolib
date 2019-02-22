@@ -2,18 +2,19 @@
 #pragma once
 
 #include "aulib_global.h"
-#include <memory>
-#include <functional>
 #include <SDL_stdinc.h>
+#include <functional>
+#include <memory>
 
 namespace Aulib {
 
 /*!
  * \brief Abstract base class for playback streams.
  */
-class AULIB_EXPORT Stream {
+class AULIB_EXPORT Stream
+{
 public:
-    using Callback = std::function<void (Stream&)>;
+    using Callback = std::function<void(Stream&)>;
 
     Stream();
     virtual ~Stream();
@@ -227,7 +228,6 @@ private:
 };
 
 } // namespace Aulib
-
 
 /*
 

@@ -7,67 +7,53 @@
 namespace Aulib {
 
 /// \private
-struct Stream_priv final {
+struct Stream_priv final
+{
     Stream::Callback fFinishCallback;
     Stream::Callback fLoopCallback;
 };
 
 } // namespace Aulib
 
-
 Aulib::Stream::Stream()
     : d(std::make_unique<Stream_priv>())
-{ }
-
+{}
 
 Aulib::Stream::~Stream() = default;
 
-
-void
-Aulib::Stream::setFinishCallback(Callback func)
+void Aulib::Stream::setFinishCallback(Callback func)
 {
     d->fFinishCallback = std::move(func);
 }
 
-
-void
-Aulib::Stream::unsetFinishCallback()
+void Aulib::Stream::unsetFinishCallback()
 {
     d->fFinishCallback = nullptr;
 }
 
-
-void
-Aulib::Stream::setLoopCallback(Callback func)
+void Aulib::Stream::setLoopCallback(Callback func)
 {
     d->fLoopCallback = std::move(func);
 }
 
-
-void
-Aulib::Stream::unsetLoopCallback()
+void Aulib::Stream::unsetLoopCallback()
 {
     d->fLoopCallback = nullptr;
 }
 
-
-void
-Aulib::Stream::invokeFinishCallback()
+void Aulib::Stream::invokeFinishCallback()
 {
     if (d->fFinishCallback) {
         d->fFinishCallback(*this);
     }
 }
 
-
-void
-Aulib::Stream::invokeLoopCallback()
+void Aulib::Stream::invokeLoopCallback()
 {
     if (d->fLoopCallback) {
         d->fLoopCallback(*this);
     }
 }
-
 
 /*
 

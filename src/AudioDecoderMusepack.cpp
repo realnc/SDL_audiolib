@@ -1,62 +1,52 @@
 // This is copyrighted software. More information is at the end of this file.
 #include "Aulib/AudioDecoderMusepack.h"
 
-#include "aulib_debug.h"
-#include "aulib_config.h"
 #include "Buffer.h"
-#include <cstring>
+#include "aulib_config.h"
+#include "aulib_debug.h"
 #include <SDL_rwops.h>
+#include <cstring>
 #include <mpc/mpcdec.h>
 #include <mpc/reader.h>
 
 #ifdef MPC_FIXED_POINT
-#error Fixed point decoder versions of libmpcdec are not supported!
+#    error Fixed point decoder versions of libmpcdec are not supported!
 #endif
-
 
 extern "C" {
 
-static mpc_int32_t
-mpcReadCb(mpc_reader* reader, void* ptr, mpc_int32_t size)
+static mpc_int32_t mpcReadCb(mpc_reader* reader, void* ptr, mpc_int32_t size)
 {
     return SDL_RWread(static_cast<SDL_RWops*>(reader->data), ptr, 1, size);
 }
 
-
-static mpc_bool_t
-mpcSeekCb(mpc_reader* reader, mpc_int32_t offset)
+static mpc_bool_t mpcSeekCb(mpc_reader* reader, mpc_int32_t offset)
 {
     return SDL_RWseek(static_cast<SDL_RWops*>(reader->data), offset, RW_SEEK_SET) >= 0;
 }
 
-
-static mpc_int32_t
-mpcTellCb(mpc_reader* reader)
+static mpc_int32_t mpcTellCb(mpc_reader* reader)
 {
     return SDL_RWtell(static_cast<SDL_RWops*>(reader->data));
 }
 
-
-static mpc_int32_t
-mpcGetSizeCb(mpc_reader* reader)
+static mpc_int32_t mpcGetSizeCb(mpc_reader* reader)
 {
     return SDL_RWsize(static_cast<SDL_RWops*>(reader->data));
 }
 
-
-static mpc_bool_t
-mpcCanseekCb(mpc_reader* reader)
+static mpc_bool_t mpcCanseekCb(mpc_reader* reader)
 {
     return SDL_RWseek(static_cast<SDL_RWops*>(reader->data), 0, RW_SEEK_CUR) > -1;
 }
 
 } // extern "C"
 
-
 namespace Aulib {
 
 /// \private
-struct AudioDecoderMusepack_priv final {
+struct AudioDecoderMusepack_priv final
+{
     mpc_reader reader{mpcReadCb, mpcSeekCb, mpcTellCb, mpcGetSizeCb, mpcCanseekCb, nullptr};
     std::unique_ptr<mpc_demux, decltype(&mpc_demux_exit)> demuxer{nullptr, &mpc_demux_exit};
     Buffer<float> curFrameBuffer{MPC_DECODER_BUFFER_LENGTH};
@@ -69,17 +59,13 @@ struct AudioDecoderMusepack_priv final {
 
 } // namespace Aulib
 
-
 Aulib::AudioDecoderMusepack::AudioDecoderMusepack()
     : d(std::make_unique<AudioDecoderMusepack_priv>())
-{ }
-
+{}
 
 Aulib::AudioDecoderMusepack::~AudioDecoderMusepack() = default;
 
-
-bool
-Aulib::AudioDecoderMusepack::open(SDL_RWops* rwops)
+bool Aulib::AudioDecoderMusepack::open(SDL_RWops* rwops)
 {
     if (isOpen()) {
         return true;
@@ -95,23 +81,17 @@ Aulib::AudioDecoderMusepack::open(SDL_RWops* rwops)
     return true;
 }
 
-
-int
-Aulib::AudioDecoderMusepack::getChannels() const
+int Aulib::AudioDecoderMusepack::getChannels() const
 {
     return d->demuxer ? d->strmInfo.channels : 0;
 }
 
-
-int
-Aulib::AudioDecoderMusepack::getRate() const
+int Aulib::AudioDecoderMusepack::getRate() const
 {
     return d->demuxer ? d->strmInfo.sample_freq : 0;
 }
 
-
-int
-Aulib::AudioDecoderMusepack::doDecoding(float buf[], int len, bool& callAgain)
+int Aulib::AudioDecoderMusepack::doDecoding(float buf[], int len, bool& callAgain)
 {
     callAgain = false;
     int totalSamples = 0;
@@ -159,23 +139,17 @@ Aulib::AudioDecoderMusepack::doDecoding(float buf[], int len, bool& callAgain)
     return totalSamples;
 }
 
-
-bool
-Aulib::AudioDecoderMusepack::rewind()
+bool Aulib::AudioDecoderMusepack::rewind()
 {
     return seekToTime(0);
 }
 
-
-float
-Aulib::AudioDecoderMusepack::duration() const
+float Aulib::AudioDecoderMusepack::duration() const
 {
     return d->demuxer ? mpc_streaminfo_get_length(&d->strmInfo) : 0;
 }
 
-
-bool
-Aulib::AudioDecoderMusepack::seekToTime(float seconds)
+bool Aulib::AudioDecoderMusepack::seekToTime(float seconds)
 {
     if (not d->demuxer) {
         return false;
@@ -186,7 +160,6 @@ Aulib::AudioDecoderMusepack::seekToTime(float seconds)
     }
     return status == MPC_STATUS_OK;
 }
-
 
 /*
 

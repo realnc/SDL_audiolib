@@ -12,7 +12,8 @@ namespace Aulib {
  * \note Before creating any instances of this class, you need to initialize the WildMIDI library
  * by calling the AudioDecoderWildmidi::init() function once.
  */
-class AULIB_EXPORT AudioDecoderWildmidi final: public AudioDecoder {
+class AULIB_EXPORT AudioDecoderWildmidi final: public AudioDecoder
+{
 public:
     AudioDecoderWildmidi();
     ~AudioDecoderWildmidi() override;
@@ -42,8 +43,7 @@ public:
      *  \retval true WildMIDI was initialized sucessfully.
      *  \retval false WildMIDI could not be initialized.
      */
-    static bool init(const std::string& configFile, int rate, bool hqResampling,
-                     bool reverb);
+    static bool init(const std::string& configFile, int rate, bool hqResampling, bool reverb);
 
     /*!
      * \brief Shut down the WildMIDI library.
@@ -70,7 +70,6 @@ private:
 };
 
 } // namespace Aulib
-
 
 /*
 

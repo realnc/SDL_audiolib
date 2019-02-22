@@ -5,19 +5,18 @@
 #include <iostream>
 
 #ifdef AULIB_DEBUG
-    #include <cassert>
-    #define AM_debugAssert assert
-    #define AM_debugPrint(x) std::cerr << x
-    #define AM_debugPrintLn(x) AM_debugPrint(x) << '\n'
+#    include <cassert>
+#    define AM_debugAssert assert
+#    define AM_debugPrint(x) std::cerr << x
+#    define AM_debugPrintLn(x) AM_debugPrint(x) << '\n'
 #else
-    #define AM_debugAssert(x)
-    #define AM_debugPrintLn(x)
-    #define AM_debugPrint(x)
+#    define AM_debugAssert(x)
+#    define AM_debugPrintLn(x)
+#    define AM_debugPrint(x)
 #endif
 
 #define AM_warn(x) std::cerr << x
 #define AM_warnLn(x) std::cerr << x << '\n'
-
 
 /*
 

@@ -5,17 +5,15 @@
 #include "Aulib/AudioResampler.h"
 #include "Aulib/AudioStream.h"
 #include "aulib_debug.h"
+#include <SDL_timer.h>
 #include <algorithm>
 #include <cmath>
-#include <SDL_timer.h>
-
 
 void (*Aulib::AudioStream_priv::fSampleConverter)(Uint8[], const Buffer<float>& src) = nullptr;
 SDL_AudioSpec Aulib::AudioStream_priv::fAudioSpec;
 std::vector<Aulib::AudioStream*> Aulib::AudioStream_priv::fStreamList;
 Buffer<float> Aulib::AudioStream_priv::fFinalMixBuf{0};
 Buffer<float> Aulib::AudioStream_priv::fStrmBuf{0};
-
 
 Aulib::AudioStream_priv::AudioStream_priv(AudioStream* pub, std::unique_ptr<AudioDecoder> decoder,
                                           std::unique_ptr<AudioResampler> resampler,
@@ -31,7 +29,6 @@ Aulib::AudioStream_priv::AudioStream_priv(AudioStream* pub, std::unique_ptr<Audi
     }
 }
 
-
 Aulib::AudioStream_priv::~AudioStream_priv()
 {
     if (fCloseRw and fRWops != nullptr) {
@@ -39,9 +36,7 @@ Aulib::AudioStream_priv::~AudioStream_priv()
     }
 }
 
-
-void
-Aulib::AudioStream_priv::fProcessFade()
+void Aulib::AudioStream_priv::fProcessFade()
 {
     if (fFadingIn) {
         Sint64 now = SDL_GetTicks();
@@ -51,8 +46,8 @@ Aulib::AudioStream_priv::fProcessFade()
             fFadingIn = false;
             return;
         }
-        fInternalVolume = std::pow(static_cast<float>(now - fFadeInStartTick) / fFadeInTickDuration,
-                                   3.f);
+        fInternalVolume =
+            std::pow(static_cast<float>(now - fFadeInStartTick) / fFadeInTickDuration, 3.f);
     } else if (fFadingOut) {
         Sint64 now = SDL_GetTicks();
         Sint64 curPos = now - fFadeOutStartTick;
@@ -67,14 +62,12 @@ Aulib::AudioStream_priv::fProcessFade()
             }
             return;
         }
-        fInternalVolume = std::pow(-static_cast<float>(now - fFadeOutStartTick)
-                                   / fFadeOutTickDuration + 1.f, 3.f);
+        fInternalVolume = std::pow(
+            -static_cast<float>(now - fFadeOutStartTick) / fFadeOutTickDuration + 1.f, 3.f);
     }
 }
 
-
-void
-Aulib::AudioStream_priv::fStop()
+void Aulib::AudioStream_priv::fStop()
 {
     fStreamList.erase(std::remove(fStreamList.begin(), fStreamList.end(), this->q),
                       fStreamList.end());
@@ -82,9 +75,7 @@ Aulib::AudioStream_priv::fStop()
     fIsPlaying = false;
 }
 
-
-void
-Aulib::AudioStream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int outLen)
+void Aulib::AudioStream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int outLen)
 {
     AM_debugAssert(AudioStream_priv::fSampleConverter != nullptr);
 
@@ -104,8 +95,7 @@ Aulib::AudioStream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int out
 
     for (const auto stream : streamList) {
         if (stream->d->fWantedIterations != 0
-            and stream->d->fCurrentIteration >= stream->d->fWantedIterations)
-        {
+            and stream->d->fCurrentIteration >= stream->d->fWantedIterations) {
             continue;
         }
         if (stream->d->fIsPaused) {
@@ -130,8 +120,8 @@ Aulib::AudioStream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int out
                     if (stream->d->fCurrentIteration >= stream->d->fWantedIterations) {
                         stream->d->fIsPlaying = false;
                         fStreamList.erase(
-                                    std::remove(fStreamList.begin(), fStreamList.end(), stream),
-                                    fStreamList.end());
+                            std::remove(fStreamList.begin(), fStreamList.end(), stream),
+                            fStreamList.end());
                         stream->invokeFinishCallback();
                         break;
                     }
@@ -159,7 +149,6 @@ Aulib::AudioStream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int out
     }
     AudioStream_priv::fSampleConverter(out, fFinalMixBuf);
 }
-
 
 /*
 

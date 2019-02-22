@@ -48,7 +48,6 @@ AULIB_EXPORT const SDL_AudioSpec& spec();
 
 } // namespace Aulib
 
-
 /*
 
 Copyright (C) 2014, 2015, 2016, 2017, 2018 Nikos Chantziaras.

@@ -6,12 +6,9 @@
 #include <SDL_rwops.h>
 #include <mpg123.h>
 
-
 static bool initialized = false;
 
-
-static int
-initLibMpg()
+static int initLibMpg()
 {
     if (mpg123_init() != MPG123_OK) {
         return -1;
@@ -20,9 +17,7 @@ initLibMpg()
     return 0;
 }
 
-
-static int
-initMpgFormats(mpg123_handle* handle)
+static int initMpgFormats(mpg123_handle* handle)
 {
     const long* list;
     size_t len;
@@ -30,47 +25,42 @@ initMpgFormats(mpg123_handle* handle)
     mpg123_format_none(handle);
     for (size_t i = 0; i < len; ++i) {
         if (mpg123_format(handle, list[i], MPG123_STEREO | MPG123_MONO, MPG123_ENC_FLOAT_32)
-            != MPG123_OK)
-        {
+            != MPG123_OK) {
             return -1;
         }
     }
     return 0;
 }
 
-
 extern "C" {
 
-static ssize_t
-mpgReadCallback(void* rwops, void* buf, size_t len)
+static ssize_t mpgReadCallback(void* rwops, void* buf, size_t len)
 {
     return static_cast<ssize_t>(SDL_RWread(static_cast<SDL_RWops*>(rwops), buf, 1, len));
 }
 
-
-static off_t
-mpgSeekCallback(void* rwops, off_t pos, int whence)
+static off_t mpgSeekCallback(void* rwops, off_t pos, int whence)
 {
     switch (whence) {
-        case SEEK_SET:
-            whence = RW_SEEK_SET;
-            break;
-        case SEEK_CUR:
-            whence = RW_SEEK_CUR;
-            break;
-        default:
-            whence = RW_SEEK_END;
+    case SEEK_SET:
+        whence = RW_SEEK_SET;
+        break;
+    case SEEK_CUR:
+        whence = RW_SEEK_CUR;
+        break;
+    default:
+        whence = RW_SEEK_END;
     }
     return SDL_RWseek(static_cast<SDL_RWops*>(rwops), pos, whence);
 }
 
 } // extern "C"
 
-
 namespace Aulib {
 
 /// \private
-struct AudioDecoderMpg123_priv final {
+struct AudioDecoderMpg123_priv final
+{
     AudioDecoderMpg123_priv();
 
     std::unique_ptr<mpg123_handle, decltype(&mpg123_delete)> fMpgHandle{nullptr, &mpg123_delete};
@@ -82,7 +72,6 @@ struct AudioDecoderMpg123_priv final {
 
 } // namespace Aulib
 
-
 Aulib::AudioDecoderMpg123_priv::AudioDecoderMpg123_priv()
 {
     if (not initialized) {
@@ -90,17 +79,13 @@ Aulib::AudioDecoderMpg123_priv::AudioDecoderMpg123_priv()
     }
 }
 
-
 Aulib::AudioDecoderMpg123::AudioDecoderMpg123()
     : d(std::make_unique<AudioDecoderMpg123_priv>())
-{ }
-
+{}
 
 Aulib::AudioDecoderMpg123::~AudioDecoderMpg123() = default;
 
-
-bool
-Aulib::AudioDecoderMpg123::open(SDL_RWops* rwops)
+bool Aulib::AudioDecoderMpg123::open(SDL_RWops* rwops)
 {
     if (isOpen()) {
         return true;
@@ -131,23 +116,17 @@ Aulib::AudioDecoderMpg123::open(SDL_RWops* rwops)
     return true;
 }
 
-
-int
-Aulib::AudioDecoderMpg123::getChannels() const
+int Aulib::AudioDecoderMpg123::getChannels() const
 {
     return d->fChannels;
 }
 
-
-int
-Aulib::AudioDecoderMpg123::getRate() const
+int Aulib::AudioDecoderMpg123::getRate() const
 {
     return d->fRate;
 }
 
-
-int
-Aulib::AudioDecoderMpg123::doDecoding(float buf[], int len, bool& callAgain)
+int Aulib::AudioDecoderMpg123::doDecoding(float buf[], int len, bool& callAgain)
 {
     callAgain = false;
     if (d->fEOF) {
@@ -177,9 +156,7 @@ Aulib::AudioDecoderMpg123::doDecoding(float buf[], int len, bool& callAgain)
     return totalBytes / static_cast<int>(sizeof(*buf));
 }
 
-
-bool
-Aulib::AudioDecoderMpg123::rewind()
+bool Aulib::AudioDecoderMpg123::rewind()
 {
     if (mpg123_seek(d->fMpgHandle.get(), 0, SEEK_SET) < 0) {
         return false;
@@ -188,21 +165,16 @@ Aulib::AudioDecoderMpg123::rewind()
     return true;
 }
 
-
-float
-Aulib::AudioDecoderMpg123::duration() const
+float Aulib::AudioDecoderMpg123::duration() const
 {
     return d->fDuration;
 }
 
-
-bool
-Aulib::AudioDecoderMpg123::seekToTime(float seconds)
+bool Aulib::AudioDecoderMpg123::seekToTime(float seconds)
 {
     off_t targetFrame = mpg123_timeframe(d->fMpgHandle.get(), seconds);
     return targetFrame >= 0 and mpg123_seek_frame(d->fMpgHandle.get(), targetFrame, SEEK_SET) >= 0;
 }
-
 
 /*
 

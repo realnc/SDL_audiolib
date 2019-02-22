@@ -8,7 +8,8 @@ namespace Aulib {
 /*!
  * \brief Sox resampler.
  */
-class AULIB_EXPORT AudioResamplerSox final: public AudioResampler {
+class AULIB_EXPORT AudioResamplerSox final: public AudioResampler
+{
 public:
     /*!
      * \brief SoX resampler quality levels.
@@ -17,8 +18,13 @@ public:
      * "Quick" is the fastest but lowest quality, and "VeryHigh" is the slowest
      * but highest quality.
      */
-    enum class Quality {
-        Quick, Low, Medium, High, VeryHigh
+    enum class Quality
+    {
+        Quick,
+        Low,
+        Medium,
+        High,
+        VeryHigh
     };
 
     /*!
@@ -40,7 +46,6 @@ private:
 };
 
 } // namespace Aulib
-
 
 /*
 

@@ -8,7 +8,8 @@ namespace Aulib {
 /*!
  * \brief SRC (libsamplerate) resampler.
  */
-class AULIB_EXPORT AudioResamplerSRC final: public AudioResampler {
+class AULIB_EXPORT AudioResamplerSRC final: public AudioResampler
+{
 public:
     /*!
      * \brief SRC resampler quality.
@@ -45,8 +46,13 @@ public:
      *   A linear converter. Again the quality is poor, but the conversion
      *   speed is blindingly fast.
      */
-    enum class Quality {
-        Linear, ZeroOrderHold, SincFastest, SincMedium, SincBest
+    enum class Quality
+    {
+        Linear,
+        ZeroOrderHold,
+        SincFastest,
+        SincMedium,
+        SincBest
     };
 
     /*!
@@ -68,7 +74,6 @@ private:
 };
 
 } // namespace Aulib
-
 
 /*
 

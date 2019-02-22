@@ -11,7 +11,8 @@
  * Simple RAII wrapper for buffers/arrays. More restrictive than std::vector.
  */
 template <typename T>
-class Buffer final {
+class Buffer final
+{
 public:
     explicit Buffer(const int size)
         : fData(std::make_unique<T[]>(size))
@@ -56,13 +57,13 @@ public:
     }
 
     // unique_ptr::operator[] is not noexcept, but in reality, it can't throw.
-    const T& operator [](const int pos) const noexcept
+    const T& operator[](const int pos) const noexcept
     {
         AM_debugAssert(pos >= 0 and pos < fSize);
         return fData[pos];
     }
 
-    T& operator [](const int pos) noexcept
+    T& operator[](const int pos) noexcept
     {
         AM_debugAssert(pos >= 0 and pos < fSize);
         return fData[pos];
@@ -102,7 +103,6 @@ private:
     std::unique_ptr<T[]> fData;
     int fSize;
 };
-
 
 /*
 

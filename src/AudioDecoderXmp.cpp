@@ -3,40 +3,37 @@
 
 #include "Buffer.h"
 #include "aulib.h"
+#include <SDL_rwops.h>
 #include <limits>
 #include <type_traits>
-#include <SDL_rwops.h>
 #include <xmp.h>
 
 namespace Aulib {
 
 /// \private
-struct AudioDecoderXmp_priv final {
-    std::unique_ptr<std::remove_pointer_t<xmp_context>, decltype(&xmp_free_context)>
-        fContext{nullptr, xmp_free_context};
+struct AudioDecoderXmp_priv final
+{
+    std::unique_ptr<std::remove_pointer_t<xmp_context>, decltype(&xmp_free_context)> fContext{
+        nullptr, xmp_free_context};
     int fRate = 0;
     bool fEof = false;
 };
 
 } // namespace Aulib
 
-
 Aulib::AudioDecoderXmp::AudioDecoderXmp()
     : d(std::make_unique<AudioDecoderXmp_priv>())
-{ }
-
+{}
 
 Aulib::AudioDecoderXmp::~AudioDecoderXmp() = default;
 
-
-bool
-Aulib::AudioDecoderXmp::open(SDL_RWops* rwops)
+bool Aulib::AudioDecoderXmp::open(SDL_RWops* rwops)
 {
     if (isOpen()) {
         return true;
     }
 
-    //FIXME: error reporting
+    // FIXME: error reporting
     d->fContext.reset(xmp_create_context());
     if (not d->fContext) {
         return false;
@@ -62,45 +59,33 @@ Aulib::AudioDecoderXmp::open(SDL_RWops* rwops)
     return true;
 }
 
-
-int
-Aulib::AudioDecoderXmp::getChannels() const
+int Aulib::AudioDecoderXmp::getChannels() const
 {
     return 2;
 }
 
-
-int
-Aulib::AudioDecoderXmp::getRate() const
+int Aulib::AudioDecoderXmp::getRate() const
 {
     return d->fRate;
 }
 
-
-bool
-Aulib::AudioDecoderXmp::rewind()
+bool Aulib::AudioDecoderXmp::rewind()
 {
     xmp_restart_module(d->fContext.get());
     return true;
 }
 
-
-float
-Aulib::AudioDecoderXmp::duration() const
+float Aulib::AudioDecoderXmp::duration() const
 {
     return -1.f; // TODO
 }
 
-
-bool
-Aulib::AudioDecoderXmp::seekToTime(float seconds)
+bool Aulib::AudioDecoderXmp::seekToTime(float seconds)
 {
     return xmp_seek_time(d->fContext.get(), seconds * 1000) >= 0;
 }
 
-
-int
-Aulib::AudioDecoderXmp::doDecoding(float buf[], int len, bool& callAgain)
+int Aulib::AudioDecoderXmp::doDecoding(float buf[], int len, bool& callAgain)
 {
     callAgain = false;
     if (d->fEof) {
@@ -120,7 +105,6 @@ Aulib::AudioDecoderXmp::doDecoding(float buf[], int len, bool& callAgain)
     }
     return len;
 }
-
 
 /*
 

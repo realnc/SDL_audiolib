@@ -1,17 +1,18 @@
 // This is copyrighted software. More information is at the end of this file.
 #include "Aulib/AudioResamplerSrc.h"
 
+#include "aulib_debug.h"
 #include <cstring>
 #include <samplerate.h>
-#include "aulib_debug.h"
 
 namespace Aulib {
 
 /// \private
-struct AudioResamplerSRC_priv final {
+struct AudioResamplerSRC_priv final
+{
     explicit AudioResamplerSRC_priv(AudioResamplerSRC::Quality quality)
         : fQuality(quality)
-    { }
+    {}
 
     std::unique_ptr<SRC_STATE, decltype(&src_delete)> fResampler{nullptr, &src_delete};
     SRC_DATA fData{};
@@ -20,24 +21,19 @@ struct AudioResamplerSRC_priv final {
 
 } // namespace Aulib
 
-
 Aulib::AudioResamplerSRC::AudioResamplerSRC(Quality quality)
     : d(std::make_unique<AudioResamplerSRC_priv>(quality))
-{ }
-
+{}
 
 Aulib::AudioResamplerSRC::~AudioResamplerSRC() = default;
 
-
-Aulib::AudioResamplerSRC::Quality
-Aulib::AudioResamplerSRC::quality() const noexcept
+Aulib::AudioResamplerSRC::Quality Aulib::AudioResamplerSRC::quality() const noexcept
 {
     return d->fQuality;
 }
 
-
-void
-Aulib::AudioResamplerSRC::doResampling(float dst[], const float src[], int& dstLen, int& srcLen)
+void Aulib::AudioResamplerSRC::doResampling(float dst[], const float src[], int& dstLen,
+                                            int& srcLen)
 {
     if (not d->fResampler) {
         dstLen = srcLen = 0;
@@ -57,20 +53,28 @@ Aulib::AudioResamplerSRC::doResampling(float dst[], const float src[], int& dstL
     srcLen = d->fData.input_frames_used * channels;
 }
 
-
-int
-Aulib::AudioResamplerSRC::adjustForOutputSpec(int dstRate, int srcRate, int channels)
+int Aulib::AudioResamplerSRC::adjustForOutputSpec(int dstRate, int srcRate, int channels)
 {
     int err;
     d->fData.src_ratio = static_cast<double>(dstRate) / srcRate;
 
     int src_q;
     switch (d->fQuality) {
-    case Quality::Linear:        src_q = SRC_LINEAR; break;
-    case Quality::ZeroOrderHold: src_q = SRC_ZERO_ORDER_HOLD; break;
-    case Quality::SincFastest:   src_q = SRC_SINC_FASTEST; break;
-    case Quality::SincMedium:    src_q = SRC_SINC_MEDIUM_QUALITY; break;
-    case Quality::SincBest:      src_q = SRC_SINC_BEST_QUALITY; break;
+    case Quality::Linear:
+        src_q = SRC_LINEAR;
+        break;
+    case Quality::ZeroOrderHold:
+        src_q = SRC_ZERO_ORDER_HOLD;
+        break;
+    case Quality::SincFastest:
+        src_q = SRC_SINC_FASTEST;
+        break;
+    case Quality::SincMedium:
+        src_q = SRC_SINC_MEDIUM_QUALITY;
+        break;
+    case Quality::SincBest:
+        src_q = SRC_SINC_BEST_QUALITY;
+        break;
     }
 
     d->fResampler.reset(src_new(src_q, channels, &err));
@@ -79,7 +83,6 @@ Aulib::AudioResamplerSRC::adjustForOutputSpec(int dstRate, int srcRate, int chan
     }
     return 0;
 }
-
 
 /*
 

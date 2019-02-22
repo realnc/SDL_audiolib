@@ -8,7 +8,8 @@ namespace Aulib {
 /*!
  * \brief FluidSynth decoder.
  */
-class AULIB_EXPORT AudioDecoderFluidSynth final: public AudioDecoder {
+class AULIB_EXPORT AudioDecoderFluidSynth final: public AudioDecoder
+{
 public:
     AudioDecoderFluidSynth();
     ~AudioDecoderFluidSynth() override;
@@ -57,7 +58,6 @@ private:
 };
 
 } // namespace Aulib
-
 
 /*
 

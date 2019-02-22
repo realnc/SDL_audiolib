@@ -6,7 +6,8 @@
 /*! \private
  * RAII wrapper for SDL_LockAudio().
  */
-class SdlAudioLocker final {
+class SdlAudioLocker final
+{
 public:
     SdlAudioLocker()
     {
@@ -33,7 +34,6 @@ public:
 private:
     bool fIsLocked;
 };
-
 
 /*
 

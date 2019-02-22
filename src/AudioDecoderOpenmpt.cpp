@@ -3,15 +3,16 @@
 
 #include "Buffer.h"
 #include "aulib.h"
-#include <limits>
-#include <memory>
 #include <SDL_rwops.h>
 #include <libopenmpt/libopenmpt.hpp>
+#include <limits>
+#include <memory>
 
 namespace Aulib {
 
 /// \private
-struct AudioDecoderOpenmpt_priv final {
+struct AudioDecoderOpenmpt_priv final
+{
     std::unique_ptr<openmpt::module> fModule = nullptr;
     bool atEOF = false;
     float fDuration = -1.f;
@@ -19,22 +20,18 @@ struct AudioDecoderOpenmpt_priv final {
 
 } // namespace Aulib
 
-
 Aulib::AudioDecoderOpenmpt::AudioDecoderOpenmpt()
     : d(std::make_unique<AudioDecoderOpenmpt_priv>())
-{ }
-
+{}
 
 Aulib::AudioDecoderOpenmpt::~AudioDecoderOpenmpt() = default;
 
-
-bool
-Aulib::AudioDecoderOpenmpt::open(SDL_RWops* rwops)
+bool Aulib::AudioDecoderOpenmpt::open(SDL_RWops* rwops)
 {
     if (isOpen()) {
         return true;
     }
-    //FIXME: error reporting
+    // FIXME: error reporting
     Sint64 dataSize = SDL_RWsize(rwops);
     if (dataSize <= 0 or dataSize > std::numeric_limits<int>::max()) {
         return false;
@@ -47,7 +44,8 @@ Aulib::AudioDecoderOpenmpt::open(SDL_RWops* rwops)
     std::unique_ptr<openmpt::module> module(nullptr);
     try {
         module = std::make_unique<openmpt::module>(data.get(), data.size());
-    } catch (const openmpt::exception& e) {
+    }
+    catch (const openmpt::exception& e) {
         AM_warnLn("libopenmpt failed to load mod: " << e.what());
         return false;
     }
@@ -58,47 +56,35 @@ Aulib::AudioDecoderOpenmpt::open(SDL_RWops* rwops)
     return true;
 }
 
-
-int
-Aulib::AudioDecoderOpenmpt::getChannels() const
+int Aulib::AudioDecoderOpenmpt::getChannels() const
 {
     return Aulib::spec().channels;
 }
 
-
-int
-Aulib::AudioDecoderOpenmpt::getRate() const
+int Aulib::AudioDecoderOpenmpt::getRate() const
 {
     return Aulib::spec().freq;
 }
 
-
-bool
-Aulib::AudioDecoderOpenmpt::rewind()
+bool Aulib::AudioDecoderOpenmpt::rewind()
 {
     d->fModule->set_position_seconds(0.0);
     d->atEOF = false;
     return true;
 }
 
-
-float
-Aulib::AudioDecoderOpenmpt::duration() const
+float Aulib::AudioDecoderOpenmpt::duration() const
 {
     return d->fDuration;
 }
 
-
-bool
-Aulib::AudioDecoderOpenmpt::seekToTime(float seconds)
+bool Aulib::AudioDecoderOpenmpt::seekToTime(float seconds)
 {
     d->fModule->set_position_seconds(seconds);
     return true;
 }
 
-
-int
-Aulib::AudioDecoderOpenmpt::doDecoding(float buf[], int len, bool& callAgain)
+int Aulib::AudioDecoderOpenmpt::doDecoding(float buf[], int len, bool& callAgain)
 {
     callAgain = false;
     if (d->atEOF) {
@@ -107,7 +93,8 @@ Aulib::AudioDecoderOpenmpt::doDecoding(float buf[], int len, bool& callAgain)
     int ret;
     if (Aulib::spec().channels == 2) {
         ret = d->fModule->read_interleaved_stereo(Aulib::spec().freq, static_cast<size_t>(len / 2),
-                                                  buf) * 2;
+                                                  buf)
+              * 2;
     } else {
         AM_debugAssert(Aulib::spec().channels == 1);
         ret = d->fModule->read(Aulib::spec().freq, static_cast<size_t>(len), buf);
@@ -117,7 +104,6 @@ Aulib::AudioDecoderOpenmpt::doDecoding(float buf[], int len, bool& callAgain)
     }
     return ret;
 }
-
 
 /*
 

@@ -1,12 +1,12 @@
-#include "Aulib/AudioStream.h"
-#include "Aulib/AudioResamplerSpeex.h"
-#include "Aulib/AudioDecoderSndfile.h"
-#include "Aulib/AudioDecoderFluidsynth.h"
-#include "Aulib/AudioDecoderWildmidi.h"
 #include "Aulib/AudioDecoderBassmidi.h"
-#include <memory>
+#include "Aulib/AudioDecoderFluidsynth.h"
+#include "Aulib/AudioDecoderSndfile.h"
+#include "Aulib/AudioDecoderWildmidi.h"
+#include "Aulib/AudioResamplerSpeex.h"
+#include "Aulib/AudioStream.h"
 #include <SDL.h>
 #include <iostream>
+#include <memory>
 //#include "filedetector.h"
 
 using namespace Aulib;
@@ -24,9 +24,8 @@ int main(int /*argc*/, char* argv[])
         return 1;
     }
 
-
     auto fsynth = dynamic_cast<AudioDecoderFluidSynth*>(decoder.get());
-    //auto bassmidi = dynamic_cast<AudioDecoderBassmidi*>(decoder.get());
+    // auto bassmidi = dynamic_cast<AudioDecoderBassmidi*>(decoder.get());
     if (fsynth != nullptr) {
         fsynth->loadSoundfont("/usr/local/share/soundfonts/gs.sf2");
     }

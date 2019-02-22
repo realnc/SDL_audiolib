@@ -2,46 +2,40 @@
 #include "Aulib/AudioResamplerSpeex.h"
 
 #include "Aulib/AudioDecoder.h"
-#include "aulib_global.h"
 #include "SdlAudioLocker.h"
+#include "aulib_global.h"
 #include "speex_resampler.h"
 
 #include <algorithm>
 
-
 namespace Aulib {
 
 /// \private
-struct AudioResamplerSpeex_priv final {
+struct AudioResamplerSpeex_priv final
+{
     explicit AudioResamplerSpeex_priv(int quality)
         : fQuality(quality)
-    { }
+    {}
 
-    std::unique_ptr<SpeexResamplerState, decltype(&speex_resampler_destroy)>
-        fResampler{nullptr, &speex_resampler_destroy};
+    std::unique_ptr<SpeexResamplerState, decltype(&speex_resampler_destroy)> fResampler{
+        nullptr, &speex_resampler_destroy};
     int fQuality;
 };
 
 } // namespace Aulib
 
-
 Aulib::AudioResamplerSpeex::AudioResamplerSpeex(int quality)
     : d(std::make_unique<AudioResamplerSpeex_priv>(std::min(std::max(0, quality), 10)))
-{ }
-
+{}
 
 Aulib::AudioResamplerSpeex::~AudioResamplerSpeex() = default;
 
-
-int
-Aulib::AudioResamplerSpeex::quality() const noexcept
+int Aulib::AudioResamplerSpeex::quality() const noexcept
 {
     return d->fQuality;
 }
 
-
-void
-Aulib::AudioResamplerSpeex::setQuality(int quality)
+void Aulib::AudioResamplerSpeex::setQuality(int quality)
 {
     auto newQ = std::min(std::max(0, quality), 10);
     SdlAudioLocker lock;
@@ -50,10 +44,8 @@ Aulib::AudioResamplerSpeex::setQuality(int quality)
     }
 }
 
-
-void
-Aulib::AudioResamplerSpeex::doResampling(float dst[], const float src[], int& dstLen,
-                                         int& srcLen)
+void Aulib::AudioResamplerSpeex::doResampling(float dst[], const float src[], int& dstLen,
+                                              int& srcLen)
 {
     if (not d->fResampler) {
         dstLen = srcLen = 0;
@@ -72,23 +64,18 @@ Aulib::AudioResamplerSpeex::doResampling(float dst[], const float src[], int& ds
     srcLen = static_cast<int>(spxInLen) * channels;
 }
 
-
-int
-Aulib::AudioResamplerSpeex::adjustForOutputSpec(int dstRate, int srcRate,
-                                                int channels)
+int Aulib::AudioResamplerSpeex::adjustForOutputSpec(int dstRate, int srcRate, int channels)
 {
     int err;
-    d->fResampler.reset(speex_resampler_init(static_cast<spx_uint32_t>(channels),
-                                             static_cast<spx_uint32_t>(srcRate),
-                                             static_cast<spx_uint32_t>(dstRate),
-                                             d->fQuality, &err));
+    d->fResampler.reset(speex_resampler_init(
+        static_cast<spx_uint32_t>(channels), static_cast<spx_uint32_t>(srcRate),
+        static_cast<spx_uint32_t>(dstRate), d->fQuality, &err));
     if (err != 0) {
         d->fResampler = nullptr;
         return -1;
     }
     return 0;
 }
-
 
 /*
 

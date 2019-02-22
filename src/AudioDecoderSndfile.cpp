@@ -6,11 +6,9 @@
 #include <SDL_version.h>
 #include <sndfile.h>
 
-
 extern "C" {
 
-static sf_count_t
-sfLenCb(void* rwops)
+static sf_count_t sfLenCb(void* rwops)
 {
     Sint64 size = SDL_RWsize(static_cast<SDL_RWops*>(rwops));
     if (size < 0) {
@@ -19,46 +17,40 @@ sfLenCb(void* rwops)
     return size;
 }
 
-
-static sf_count_t
-sfSeekCb(sf_count_t offset, int whence, void* rwops)
+static sf_count_t sfSeekCb(sf_count_t offset, int whence, void* rwops)
 {
     switch (whence) {
-        case SEEK_SET:
-            whence = RW_SEEK_SET;
-            break;
-        case SEEK_CUR:
-            whence = RW_SEEK_CUR;
-            break;
-        default:
-            whence = RW_SEEK_END;
+    case SEEK_SET:
+        whence = RW_SEEK_SET;
+        break;
+    case SEEK_CUR:
+        whence = RW_SEEK_CUR;
+        break;
+    default:
+        whence = RW_SEEK_END;
     }
     int pos = SDL_RWseek(static_cast<SDL_RWops*>(rwops), offset, whence);
     return pos;
 }
 
-
-static sf_count_t
-sfReadCb(void* dst, sf_count_t count, void* rwops)
+static sf_count_t sfReadCb(void* dst, sf_count_t count, void* rwops)
 {
     int ret = SDL_RWread(static_cast<SDL_RWops*>(rwops), dst, 1, count);
     return ret;
 }
 
-
-static sf_count_t
-sfTellCb(void* rwops)
+static sf_count_t sfTellCb(void* rwops)
 {
     return SDL_RWtell(static_cast<SDL_RWops*>(rwops));
 }
 
 } // extern "C"
 
-
 namespace Aulib {
 
 /// \private
-struct AudioDecoderSndfile_priv final {
+struct AudioDecoderSndfile_priv final
+{
     std::unique_ptr<SNDFILE, decltype(&sf_close)> fSndfile{nullptr, &sf_close};
     SF_INFO fInfo{};
     bool fEOF = false;
@@ -67,17 +59,13 @@ struct AudioDecoderSndfile_priv final {
 
 } // namespace Aulib
 
-
 Aulib::AudioDecoderSndfile::AudioDecoderSndfile()
     : d(std::make_unique<AudioDecoderSndfile_priv>())
-{ }
-
+{}
 
 Aulib::AudioDecoderSndfile::~AudioDecoderSndfile() = default;
 
-
-bool
-Aulib::AudioDecoderSndfile::open(SDL_RWops* rwops)
+bool Aulib::AudioDecoderSndfile::open(SDL_RWops* rwops)
 {
     if (isOpen()) {
         return true;
@@ -98,23 +86,17 @@ Aulib::AudioDecoderSndfile::open(SDL_RWops* rwops)
     return true;
 }
 
-
-int
-Aulib::AudioDecoderSndfile::getChannels() const
+int Aulib::AudioDecoderSndfile::getChannels() const
 {
     return d->fInfo.channels;
 }
 
-
-int
-Aulib::AudioDecoderSndfile::getRate() const
+int Aulib::AudioDecoderSndfile::getRate() const
 {
     return d->fInfo.samplerate;
 }
 
-
-int
-Aulib::AudioDecoderSndfile::doDecoding(float buf[], int len, bool& callAgain)
+int Aulib::AudioDecoderSndfile::doDecoding(float buf[], int len, bool& callAgain)
 {
     callAgain = false;
     if (d->fEOF) {
@@ -127,27 +109,20 @@ Aulib::AudioDecoderSndfile::doDecoding(float buf[], int len, bool& callAgain)
     return ret;
 }
 
-
-bool
-Aulib::AudioDecoderSndfile::rewind()
+bool Aulib::AudioDecoderSndfile::rewind()
 {
     return sf_seek(d->fSndfile.get(), 0, SEEK_SET) == 0;
 }
 
-
-float
-Aulib::AudioDecoderSndfile::duration() const
+float Aulib::AudioDecoderSndfile::duration() const
 {
     return d->fDuration;
 }
 
-
-bool
-Aulib::AudioDecoderSndfile::seekToTime(float seconds)
+bool Aulib::AudioDecoderSndfile::seekToTime(float seconds)
 {
     return sf_seek(d->fSndfile.get(), seconds * d->fInfo.samplerate, SEEK_SET) != -1;
 }
-
 
 /*
 
