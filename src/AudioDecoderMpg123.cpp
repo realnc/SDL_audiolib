@@ -112,6 +112,7 @@ Aulib::AudioDecoderMpg123::open(SDL_RWops* rwops)
     if (not d->fMpgHandle) {
         return false;
     }
+    mpg123_param(d->fMpgHandle.get(), MPG123_FLAGS, MPG123_QUIET, 0);
     if (initMpgFormats(d->fMpgHandle.get()) < 0) {
         return false;
     }

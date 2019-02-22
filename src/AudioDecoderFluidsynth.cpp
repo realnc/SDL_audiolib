@@ -96,6 +96,9 @@ initFluidSynth()
         return -1;
     }
     fluid_settings_setnum(settings, "synth.sample-rate", Aulib::spec().freq);
+    for (const auto i : {FLUID_PANIC, FLUID_ERR, FLUID_WARN, FLUID_INFO, FLUID_DBG}) {
+        fluid_set_log_function(i, nullptr, nullptr);
+    }
     return 0;
 }
 
