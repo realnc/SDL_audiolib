@@ -131,7 +131,11 @@ float Aulib::AudioDecoderOpus::duration() const
 bool Aulib::AudioDecoderOpus::seekToTime(float seconds)
 {
     ogg_int64_t offset = seconds * 48000.f;
-    return op_pcm_seek(d->fOpusHandle.get(), offset) == 0;
+    if (op_pcm_seek(d->fOpusHandle.get(), offset) != 0) {
+        return false;
+    }
+    d->fEOF = false;
+    return true;
 }
 
 /*

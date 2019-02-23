@@ -81,6 +81,7 @@ float Aulib::AudioDecoderOpenmpt::duration() const
 bool Aulib::AudioDecoderOpenmpt::seekToTime(float seconds)
 {
     d->fModule->set_position_seconds(seconds);
+    d->atEOF = false;
     return true;
 }
 

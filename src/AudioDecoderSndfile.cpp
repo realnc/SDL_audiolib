@@ -111,7 +111,7 @@ int Aulib::AudioDecoderSndfile::doDecoding(float buf[], int len, bool& callAgain
 
 bool Aulib::AudioDecoderSndfile::rewind()
 {
-    return sf_seek(d->fSndfile.get(), 0, SEEK_SET) == 0;
+    return seekToTime(0);
 }
 
 float Aulib::AudioDecoderSndfile::duration() const
@@ -121,7 +121,11 @@ float Aulib::AudioDecoderSndfile::duration() const
 
 bool Aulib::AudioDecoderSndfile::seekToTime(float seconds)
 {
-    return sf_seek(d->fSndfile.get(), seconds * d->fInfo.samplerate, SEEK_SET) != -1;
+    if (sf_seek(d->fSndfile.get(), seconds * d->fInfo.samplerate, SEEK_SET) == -1) {
+        return false;
+    }
+    d->fEOF = false;
+    return true;
 }
 
 /*

@@ -227,6 +227,7 @@ bool Aulib::AudioDecoderBassmidi::seekToTime(float seconds)
         return false;
     }
     if (BASS_ChannelSetPosition(d->hstream.get(), bytePos, BASS_POS_BYTE) != 0) {
+        d->eof = false;
         return true;
     }
     AM_debugPrintLn("AudioDecoderBassmidi: got BASS error " << BASS_ErrorGetCode()

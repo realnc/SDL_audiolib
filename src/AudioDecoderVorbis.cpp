@@ -151,7 +151,11 @@ float Aulib::AudioDecoderVorbis::duration() const
 
 bool Aulib::AudioDecoderVorbis::seekToTime(float seconds)
 {
-    return ov_time_seek_lap(d->fVFHandle.get(), seconds) == 0;
+    if (ov_time_seek_lap(d->fVFHandle.get(), seconds) != 0) {
+        return false;
+    }
+    d->fEOF = false;
+    return true;
 }
 
 /*

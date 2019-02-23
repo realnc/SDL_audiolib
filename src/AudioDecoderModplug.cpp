@@ -119,6 +119,7 @@ float Aulib::AudioDecoderModPlug::duration() const
 bool Aulib::AudioDecoderModPlug::seekToTime(float seconds)
 {
     ModPlug_Seek(d->mpHandle.get(), seconds * 1000);
+    d->atEOF = false;
     return true;
 }
 

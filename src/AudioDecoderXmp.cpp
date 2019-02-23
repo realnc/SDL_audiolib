@@ -72,6 +72,7 @@ int Aulib::AudioDecoderXmp::getRate() const
 bool Aulib::AudioDecoderXmp::rewind()
 {
     xmp_restart_module(d->fContext.get());
+    d->fEof = false;
     return true;
 }
 
@@ -82,7 +83,11 @@ float Aulib::AudioDecoderXmp::duration() const
 
 bool Aulib::AudioDecoderXmp::seekToTime(float seconds)
 {
-    return xmp_seek_time(d->fContext.get(), seconds * 1000) >= 0;
+    if (xmp_seek_time(d->fContext.get(), seconds * 1000) < 0) {
+        return false;
+    }
+    d->fEof = false;
+    return true;
 }
 
 int Aulib::AudioDecoderXmp::doDecoding(float buf[], int len, bool& callAgain)

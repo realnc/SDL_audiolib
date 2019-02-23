@@ -141,7 +141,11 @@ float Aulib::AudioDecoderWildmidi::duration() const
 bool Aulib::AudioDecoderWildmidi::seekToTime(float seconds)
 {
     unsigned long samplePos = seconds * AudioDecoderWildmidi_priv::rate;
-    return (WildMidi_FastSeek(d->midiHandle.get(), &samplePos) == 0);
+    if (WildMidi_FastSeek(d->midiHandle.get(), &samplePos) != 0) {
+        return false;
+    }
+    d->eof = false;
+    return true;
 }
 
 /*

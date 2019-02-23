@@ -173,7 +173,11 @@ float Aulib::AudioDecoderMpg123::duration() const
 bool Aulib::AudioDecoderMpg123::seekToTime(float seconds)
 {
     off_t targetFrame = mpg123_timeframe(d->fMpgHandle.get(), seconds);
-    return targetFrame >= 0 and mpg123_seek_frame(d->fMpgHandle.get(), targetFrame, SEEK_SET) >= 0;
+    if (targetFrame < 0 or mpg123_seek_frame(d->fMpgHandle.get(), targetFrame, SEEK_SET) < 0) {
+        return false;
+    }
+    d->fEOF = false;
+    return true;
 }
 
 /*
