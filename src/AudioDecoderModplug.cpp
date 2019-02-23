@@ -106,9 +106,7 @@ int Aulib::AudioDecoderModPlug::doDecoding(float buf[], int len, bool& callAgain
 
 bool Aulib::AudioDecoderModPlug::rewind()
 {
-    ModPlug_Seek(d->mpHandle.get(), 0);
-    d->atEOF = false;
-    return true;
+    return seekToTime(0);
 }
 
 float Aulib::AudioDecoderModPlug::duration() const

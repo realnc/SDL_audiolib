@@ -123,9 +123,6 @@ int Aulib::AudioDecoderWildmidi::doDecoding(float buf[], int len, bool& callAgai
 
 bool Aulib::AudioDecoderWildmidi::rewind()
 {
-    if (not d->midiHandle) {
-        return false;
-    }
     return this->seekToTime(0);
 }
 
@@ -140,6 +137,10 @@ float Aulib::AudioDecoderWildmidi::duration() const
 
 bool Aulib::AudioDecoderWildmidi::seekToTime(float seconds)
 {
+    if (not d->midiHandle) {
+        return false;
+    }
+
     unsigned long samplePos = seconds * AudioDecoderWildmidi_priv::rate;
     if (WildMidi_FastSeek(d->midiHandle.get(), &samplePos) != 0) {
         return false;

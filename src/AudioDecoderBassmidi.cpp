@@ -179,17 +179,7 @@ int Aulib::AudioDecoderBassmidi::doDecoding(float buf[], int len, bool& /*callAg
 
 bool Aulib::AudioDecoderBassmidi::rewind()
 {
-    if (not d->hstream) {
-        return false;
-    }
-
-    if (BASS_ChannelSetPosition(d->hstream.get(), 0, BASS_POS_BYTE) != 0) {
-        d->eof = false;
-        return true;
-    }
-    SDL_SetError("AudioDecoderBassmidi: got BASS error %d during rewinding.\n",
-                 BASS_ErrorGetCode());
-    return false;
+    return seekToTime(0);
 }
 
 float Aulib::AudioDecoderBassmidi::duration() const
@@ -222,17 +212,18 @@ bool Aulib::AudioDecoderBassmidi::seekToTime(float seconds)
 
     QWORD bytePos = BASS_ChannelSeconds2Bytes(d->hstream.get(), seconds);
     if (bytePos == static_cast<QWORD>(-1)) {
-        AM_debugPrintLn("AudioDecoderBassmidi: got BASS error "
-                        << BASS_ErrorGetCode() << " while translating seek time to bytes.");
+        SDL_SetError(
+            "AudioDecoderBassmidi: got BASS error %d while translating seek time to bytes.",
+            BASS_ErrorGetCode());
         return false;
     }
-    if (BASS_ChannelSetPosition(d->hstream.get(), bytePos, BASS_POS_BYTE) != 0) {
-        d->eof = false;
-        return true;
+    if (BASS_ChannelSetPosition(d->hstream.get(), bytePos, BASS_POS_BYTE) == 0) {
+        SDL_SetError("AudioDecoderBassmidi: got BASS error %d during rewinding.\n",
+                     BASS_ErrorGetCode());
+        return false;
     }
-    AM_debugPrintLn("AudioDecoderBassmidi: got BASS error " << BASS_ErrorGetCode()
-                                                            << " while trying to seek.");
-    return false;
+    d->eof = false;
+    return true;
 }
 
 /*

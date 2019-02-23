@@ -68,9 +68,7 @@ int Aulib::AudioDecoderOpenmpt::getRate() const
 
 bool Aulib::AudioDecoderOpenmpt::rewind()
 {
-    d->fModule->set_position_seconds(0.0);
-    d->atEOF = false;
-    return true;
+    return seekToTime(0);
 }
 
 float Aulib::AudioDecoderOpenmpt::duration() const

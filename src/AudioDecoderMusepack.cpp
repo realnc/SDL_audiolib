@@ -151,14 +151,11 @@ float Aulib::AudioDecoderMusepack::duration() const
 
 bool Aulib::AudioDecoderMusepack::seekToTime(float seconds)
 {
-    if (not d->demuxer) {
+    if (not d->demuxer or mpc_demux_seek_second(d->demuxer.get(), seconds) != MPC_STATUS_OK) {
         return false;
     }
-    mpc_status status = mpc_demux_seek_second(d->demuxer.get(), seconds);
-    if (status == MPC_STATUS_OK) {
-        d->eof = false;
-    }
-    return status == MPC_STATUS_OK;
+    d->eof = false;
+    return true;
 }
 
 /*

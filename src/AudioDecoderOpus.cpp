@@ -118,9 +118,11 @@ int Aulib::AudioDecoderOpus::doDecoding(float buf[], int len, bool& callAgain)
 
 bool Aulib::AudioDecoderOpus::rewind()
 {
-    int ret = op_raw_seek(d->fOpusHandle.get(), 0);
+    if (op_raw_seek(d->fOpusHandle.get(), 0) != 0) {
+        return false;
+    }
     d->fEOF = false;
-    return ret == 0;
+    return true;
 }
 
 float Aulib::AudioDecoderOpus::duration() const
