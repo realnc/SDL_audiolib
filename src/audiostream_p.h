@@ -4,6 +4,7 @@
 #include "Buffer.h"
 #include "aulib.h"
 #include <SDL_audio.h>
+#include <chrono>
 #include <memory>
 #include <vector>
 
@@ -37,8 +38,8 @@ struct AudioStream_priv final
     bool fFadingIn = false;
     bool fFadingOut = false;
     bool fStopAfterFade = false;
-    int fFadeInTickDuration = 0;
-    int fFadeOutTickDuration = 0;
+    std::chrono::milliseconds fFadeInDuration{};
+    std::chrono::milliseconds fFadeOutDuration{};
     bool fIsMuted = false;
 
     static ::SDL_AudioSpec fAudioSpec;

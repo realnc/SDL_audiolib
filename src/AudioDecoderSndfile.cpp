@@ -6,6 +6,8 @@
 #include <SDL_version.h>
 #include <sndfile.h>
 
+namespace chrono = std::chrono;
+
 extern "C" {
 
 static sf_count_t sfLenCb(void* rwops)
@@ -54,7 +56,7 @@ struct AudioDecoderSndfile_priv final
     std::unique_ptr<SNDFILE, decltype(&sf_close)> fSndfile{nullptr, &sf_close};
     SF_INFO fInfo{};
     bool fEOF = false;
-    float fDuration = -1.f;
+    chrono::microseconds fDuration{};
 };
 
 } // namespace Aulib
@@ -81,7 +83,8 @@ bool Aulib::AudioDecoderSndfile::open(SDL_RWops* rwops)
     if (not d->fSndfile) {
         return false;
     }
-    d->fDuration = static_cast<float>(d->fInfo.frames) / d->fInfo.samplerate;
+    d->fDuration = chrono::duration_cast<chrono::microseconds>(
+        chrono::duration<double>(static_cast<double>(d->fInfo.frames) / d->fInfo.samplerate));
     setIsOpen(true);
     return true;
 }
@@ -111,17 +114,18 @@ int Aulib::AudioDecoderSndfile::doDecoding(float buf[], int len, bool& callAgain
 
 bool Aulib::AudioDecoderSndfile::rewind()
 {
-    return seekToTime(0);
+    return seekToTime(chrono::microseconds::zero());
 }
 
-float Aulib::AudioDecoderSndfile::duration() const
+std::chrono::microseconds Aulib::AudioDecoderSndfile::duration() const
 {
     return d->fDuration;
 }
 
-bool Aulib::AudioDecoderSndfile::seekToTime(float seconds)
+bool Aulib::AudioDecoderSndfile::seekToTime(std::chrono::microseconds pos)
 {
-    if (sf_seek(d->fSndfile.get(), seconds * d->fInfo.samplerate, SEEK_SET) == -1) {
+    using chrono::duration;
+    if (sf_seek(d->fSndfile.get(), duration<double>(pos).count() * getRate(), SEEK_SET) == -1) {
         return false;
     }
     d->fEOF = false;

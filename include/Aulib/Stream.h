@@ -3,6 +3,7 @@
 
 #include "aulib_global.h"
 #include <SDL_stdinc.h>
+#include <chrono>
 #include <functional>
 #include <memory>
 
@@ -38,14 +39,13 @@ public:
      *  The amount of times the stream should be played. If zero, the stream will loop forever.
      *
      * \param fadeTime
-     *  Fade-in over the specified amount of seconds. A value of 0 means that no fade-in should
-     *  be performed.
+     *  Fade-in over the specified amount of time.
      *
      * \return
      *  \retval true Playback was started successfully, or it was already started.
      *  \retval false Playback could not be started.
      */
-    virtual bool play(int iterations = 1, float fadeTime = 0.f) = 0;
+    virtual bool play(int iterations = 1, std::chrono::microseconds fadeTime = {}) = 0;
 
     /*!
      * \brief Stop playback.
@@ -53,28 +53,25 @@ public:
      * When calling this, the stream is reset to the beginning again.
      *
      * \param fadeTime
-     *  Fade-out over the specified amount of seconds. A value of 0 means that no fade-out should
-     *  be performed.
+     *  Fade-out over the specified amount of time.
      */
-    virtual void stop(float fadeTime = 0.f) = 0;
+    virtual void stop(std::chrono::microseconds fadeTime = {}) = 0;
 
     /*!
      * \brief Pause playback.
      *
      * \param fadeTime
-     *  Fade-out over the specified amount of seconds. A value of 0 means that no fade-out should
-     *  be performed.
+     *  Fade-out over the specified amount of time.
      */
-    virtual void pause(float fadeTime = 0.f) = 0;
+    virtual void pause(std::chrono::microseconds fadeTime = {}) = 0;
 
     /*!
      * \brief Resume playback.
      *
      * \param fadeTime
-     *  Fade-in over the specified amount of seconds. A value of 0 means that no fade-in should
-     *  be performed.
+     *  Fade-in over the specified amount of time.
      */
-    virtual void resume(float fadeTime = 0.f) = 0;
+    virtual void resume(std::chrono::microseconds fadeTime = {}) = 0;
 
     /*!
      * \brief Rewind stream to the beginning.
@@ -144,36 +141,35 @@ public:
     virtual bool isPaused() const = 0;
 
     /*!
-     * \brief Get stream duration in seconds.
+     * \brief Get stream duration.
      *
      * It is possible that for some streams (for example MOD files and some MP3 files), the reported
      * duration can be wrong. For some streams, it might not even be possible to get a duration at
      * all (MIDI files, for example.)
      *
      * \return
-     *  \retval >=0 Total stream duration in seconds.
-     *  \retval <0 It is not possible to get the duration for this stream.
+     * Stream duration. If the stream does not provide duration information, a zero duration is
+     * returned.
      */
-    virtual float duration() const = 0;
+    virtual std::chrono::microseconds duration() const = 0;
 
     /*!
-     * \brief Seek to a position in the stream.
+     * \brief Seek to a time position in the stream.
      *
-     * This will change the current playback position in the stream to the specified time, in
-     * seconds.
+     * This will change the current playback position in the stream to the specified time.
      *
      * Note that for some streams (for example MOD files and some MP3 files), it might not be
      * possible to do an accurate seek, in which case the position that is set might be off by
      * some margin. In some streams, seeking is not possible at all (MIDI files, for example.)
      *
-     * \param seconds
+     * \param pos
      *  Position to seek to.
      *
      * \return
      *  \retval true The playback position was changed successfully.
      *  \retval false This stream does not support seeking.
      */
-    virtual bool seekToTime(float seconds) = 0;
+    virtual bool seekToTime(std::chrono::microseconds pos) = 0;
 
     /*!
      * \brief Set a callback for when the stream finishes playback.

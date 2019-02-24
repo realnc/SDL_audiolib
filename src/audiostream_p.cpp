@@ -8,6 +8,7 @@
 #include <SDL_timer.h>
 #include <algorithm>
 #include <cmath>
+#include <type_traits>
 
 void (*Aulib::AudioStream_priv::fSampleConverter)(Uint8[], const Buffer<float>& src) = nullptr;
 SDL_AudioSpec Aulib::AudioStream_priv::fAudioSpec;
@@ -38,20 +39,23 @@ Aulib::AudioStream_priv::~AudioStream_priv()
 
 void Aulib::AudioStream_priv::fProcessFade()
 {
+    static_assert(std::is_same<decltype(fFadeInDuration), std::chrono::milliseconds>::value, "");
+    static_assert(std::is_same<decltype(fFadeOutDuration), std::chrono::milliseconds>::value, "");
+
     if (fFadingIn) {
         Sint64 now = SDL_GetTicks();
         Sint64 curPos = now - fFadeInStartTick;
-        if (curPos >= fFadeInTickDuration) {
+        if (curPos >= fFadeInDuration.count()) {
             fInternalVolume = 1.f;
             fFadingIn = false;
             return;
         }
         fInternalVolume =
-            std::pow(static_cast<float>(now - fFadeInStartTick) / fFadeInTickDuration, 3.f);
+            std::pow(static_cast<float>(now - fFadeInStartTick) / fFadeInDuration.count(), 3.f);
     } else if (fFadingOut) {
         Sint64 now = SDL_GetTicks();
         Sint64 curPos = now - fFadeOutStartTick;
-        if (curPos >= fFadeOutTickDuration) {
+        if (curPos >= fFadeOutDuration.count()) {
             fInternalVolume = 0.f;
             fFadingIn = false;
             if (fStopAfterFade) {
@@ -63,7 +67,7 @@ void Aulib::AudioStream_priv::fProcessFade()
             return;
         }
         fInternalVolume = std::pow(
-            -static_cast<float>(now - fFadeOutStartTick) / fFadeOutTickDuration + 1.f, 3.f);
+            -static_cast<float>(now - fFadeOutStartTick) / fFadeOutDuration.count() + 1.f, 3.f);
     }
 }
 

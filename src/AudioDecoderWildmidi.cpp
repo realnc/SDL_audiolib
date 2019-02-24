@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <wildmidi_lib.h>
 
+namespace chrono = std::chrono;
+
 namespace Aulib {
 
 /// \private
@@ -123,25 +125,26 @@ int Aulib::AudioDecoderWildmidi::doDecoding(float buf[], int len, bool& callAgai
 
 bool Aulib::AudioDecoderWildmidi::rewind()
 {
-    return this->seekToTime(0);
+    return seekToTime(chrono::microseconds::zero());
 }
 
-float Aulib::AudioDecoderWildmidi::duration() const
+chrono::microseconds Aulib::AudioDecoderWildmidi::duration() const
 {
     _WM_Info* info;
     if (not d->midiHandle or (info = WildMidi_GetInfo(d->midiHandle.get())) == nullptr) {
-        return -1.f;
+        return {};
     }
-    return static_cast<float>(info->approx_total_samples) / AudioDecoderWildmidi_priv::rate;
+    auto sec = static_cast<double>(info->approx_total_samples) / getRate();
+    return chrono::duration_cast<chrono::microseconds>(chrono::duration<double>(sec));
 }
 
-bool Aulib::AudioDecoderWildmidi::seekToTime(float seconds)
+bool Aulib::AudioDecoderWildmidi::seekToTime(chrono::microseconds pos)
 {
     if (not d->midiHandle) {
         return false;
     }
 
-    unsigned long samplePos = seconds * AudioDecoderWildmidi_priv::rate;
+    unsigned long samplePos = chrono::duration<double>(pos).count() * getRate();
     if (WildMidi_FastSeek(d->midiHandle.get(), &samplePos) != 0) {
         return false;
     }

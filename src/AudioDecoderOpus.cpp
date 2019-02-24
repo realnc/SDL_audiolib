@@ -6,6 +6,8 @@
 #include <cstring>
 #include <opusfile.h>
 
+namespace chrono = std::chrono;
+
 extern "C" {
 
 static int opusReadCb(void* rwops, unsigned char* ptr, int nbytes)
@@ -36,7 +38,7 @@ struct AudioDecoderOpus_priv final
     std::unique_ptr<OggOpusFile, decltype(&op_free)> fOpusHandle{nullptr, &op_free};
     OpusFileCallbacks fCbs{opusReadCb, opusSeekCb, opusTellCb, nullptr};
     bool fEOF = false;
-    float fDuration = -1.f;
+    chrono::microseconds fDuration{};
 };
 
 } // namespace Aulib
@@ -62,8 +64,13 @@ bool Aulib::AudioDecoderOpus::open(SDL_RWops* rwops)
         return false;
     }
     ogg_int64_t len = op_pcm_total(d->fOpusHandle.get(), -1);
-    // Opus is always 48kHz.
-    d->fDuration = len == OP_EINVAL ? -1 : len / 48000.f;
+    if (len == OP_EINVAL) {
+        d->fDuration = chrono::microseconds::zero();
+    } else {
+        // Opus is always 48kHz.
+        d->fDuration =
+            chrono::duration_cast<chrono::microseconds>(chrono::duration<double>(len / 48000.));
+    }
     setIsOpen(true);
     return true;
 }
@@ -125,15 +132,14 @@ bool Aulib::AudioDecoderOpus::rewind()
     return true;
 }
 
-float Aulib::AudioDecoderOpus::duration() const
+chrono::microseconds Aulib::AudioDecoderOpus::duration() const
 {
     return d->fDuration;
 }
 
-bool Aulib::AudioDecoderOpus::seekToTime(float seconds)
+bool Aulib::AudioDecoderOpus::seekToTime(chrono::microseconds pos)
 {
-    ogg_int64_t offset = seconds * 48000.f;
-    if (op_pcm_seek(d->fOpusHandle.get(), offset) != 0) {
+    if (op_pcm_seek(d->fOpusHandle.get(), chrono::duration<double>(pos).count() * 48000) != 0) {
         return false;
     }
     d->fEOF = false;

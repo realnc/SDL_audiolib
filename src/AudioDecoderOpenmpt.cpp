@@ -8,6 +8,8 @@
 #include <limits>
 #include <memory>
 
+namespace chrono = std::chrono;
+
 namespace Aulib {
 
 /// \private
@@ -15,7 +17,7 @@ struct AudioDecoderOpenmpt_priv final
 {
     std::unique_ptr<openmpt::module> fModule = nullptr;
     bool atEOF = false;
-    float fDuration = -1.f;
+    chrono::microseconds fDuration{};
 };
 
 } // namespace Aulib
@@ -50,7 +52,8 @@ bool Aulib::AudioDecoderOpenmpt::open(SDL_RWops* rwops)
         return false;
     }
 
-    d->fDuration = module->get_duration_seconds();
+    d->fDuration = chrono::duration_cast<chrono::microseconds>(
+        chrono::duration<double>(module->get_duration_seconds()));
     d->fModule.swap(module);
     setIsOpen(true);
     return true;
@@ -68,17 +71,17 @@ int Aulib::AudioDecoderOpenmpt::getRate() const
 
 bool Aulib::AudioDecoderOpenmpt::rewind()
 {
-    return seekToTime(0);
+    return seekToTime(chrono::microseconds::zero());
 }
 
-float Aulib::AudioDecoderOpenmpt::duration() const
+chrono::microseconds Aulib::AudioDecoderOpenmpt::duration() const
 {
     return d->fDuration;
 }
 
-bool Aulib::AudioDecoderOpenmpt::seekToTime(float seconds)
+bool Aulib::AudioDecoderOpenmpt::seekToTime(chrono::microseconds pos)
 {
-    d->fModule->set_position_seconds(seconds);
+    d->fModule->set_position_seconds(chrono::duration<double>(pos).count());
     d->atEOF = false;
     return true;
 }

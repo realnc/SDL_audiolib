@@ -13,6 +13,8 @@
 #    error Fixed point decoder versions of libmpcdec are not supported!
 #endif
 
+namespace chrono = std::chrono;
+
 extern "C" {
 
 static mpc_int32_t mpcReadCb(mpc_reader* reader, void* ptr, mpc_int32_t size)
@@ -54,7 +56,7 @@ struct AudioDecoderMusepack_priv final
     mpc_streaminfo strmInfo{};
     int frameBufPos = 0;
     bool eof = false;
-    float duration = -1.f;
+    chrono::microseconds duration{};
 };
 
 } // namespace Aulib
@@ -141,17 +143,26 @@ int Aulib::AudioDecoderMusepack::doDecoding(float buf[], int len, bool& callAgai
 
 bool Aulib::AudioDecoderMusepack::rewind()
 {
-    return seekToTime(0);
+    return seekToTime(chrono::microseconds::zero());
 }
 
-float Aulib::AudioDecoderMusepack::duration() const
+chrono::microseconds Aulib::AudioDecoderMusepack::duration() const
 {
-    return d->demuxer ? mpc_streaminfo_get_length(&d->strmInfo) : 0;
+    if (d->demuxer == nullptr) {
+        return chrono::microseconds::zero();
+    }
+    using namespace std::chrono;
+    using std::chrono::duration;
+    return duration_cast<microseconds>(duration<double>(mpc_streaminfo_get_length(&d->strmInfo)));
 }
 
-bool Aulib::AudioDecoderMusepack::seekToTime(float seconds)
+bool Aulib::AudioDecoderMusepack::seekToTime(chrono::microseconds pos)
 {
-    if (not d->demuxer or mpc_demux_seek_second(d->demuxer.get(), seconds) != MPC_STATUS_OK) {
+    using namespace std::chrono;
+    using std::chrono::duration;
+    if (d->demuxer == nullptr
+        or mpc_demux_seek_second(d->demuxer.get(), duration<double>(pos).count())
+               != MPC_STATUS_OK) {
         return false;
     }
     d->eof = false;

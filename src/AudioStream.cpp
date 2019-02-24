@@ -15,16 +15,16 @@
 /* This is implemented here in order to avoid having the dtor call stop(),
  * which is a virtual.
  */
-static void stop_impl(Aulib::AudioStream_priv* d, float fadeTime)
+static void stop_impl(Aulib::AudioStream_priv* d, std::chrono::microseconds fadeTime)
 {
     if (not d->fIsOpen or not d->fIsPlaying) {
         return;
     }
     SdlAudioLocker locker;
-    if (fadeTime > 0.f) {
+    if (fadeTime.count() > 0) {
         d->fFadingIn = false;
         d->fFadingOut = true;
-        d->fFadeOutTickDuration = fadeTime * 1000.f;
+        d->fFadeOutDuration = std::chrono::duration_cast<std::chrono::milliseconds>(fadeTime);
         d->fFadeOutStartTick = SDL_GetTicks();
         d->fStopAfterFade = true;
     } else {
@@ -46,7 +46,7 @@ Aulib::AudioStream::AudioStream(SDL_RWops* rwops, std::unique_ptr<AudioDecoder> 
 
 Aulib::AudioStream::~AudioStream()
 {
-    stop_impl(d.get(), 0.f);
+    stop_impl(d.get(), std::chrono::microseconds::zero());
 }
 
 bool Aulib::AudioStream::open()
@@ -67,7 +67,7 @@ bool Aulib::AudioStream::open()
     return true;
 }
 
-bool Aulib::AudioStream::play(int iterations, float fadeTime)
+bool Aulib::AudioStream::play(int iterations, std::chrono::microseconds fadeTime)
 {
     if (not open()) {
         return false;
@@ -78,11 +78,11 @@ bool Aulib::AudioStream::play(int iterations, float fadeTime)
     d->fCurrentIteration = 0;
     d->fWantedIterations = iterations;
     d->fPlaybackStartTick = SDL_GetTicks();
-    if (fadeTime > 0.f) {
+    if (fadeTime.count() > 0) {
         d->fInternalVolume = 0.f;
         d->fFadingIn = true;
         d->fFadingOut = false;
-        d->fFadeInTickDuration = fadeTime * 1000.f;
+        d->fFadeInDuration = std::chrono::duration_cast<std::chrono::milliseconds>(fadeTime);
         d->fFadeInStartTick = d->fPlaybackStartTick;
     } else {
         d->fInternalVolume = 1.f;
@@ -94,21 +94,21 @@ bool Aulib::AudioStream::play(int iterations, float fadeTime)
     return true;
 }
 
-void Aulib::AudioStream::stop(float fadeTime)
+void Aulib::AudioStream::stop(std::chrono::microseconds fadeTime)
 {
     stop_impl(d.get(), fadeTime);
 }
 
-void Aulib::AudioStream::pause(float fadeTime)
+void Aulib::AudioStream::pause(std::chrono::microseconds fadeTime)
 {
     if (not open() or d->fIsPaused) {
         return;
     }
     SdlAudioLocker locker;
-    if (fadeTime > 0.f) {
+    if (fadeTime.count() > 0) {
         d->fFadingIn = false;
         d->fFadingOut = true;
-        d->fFadeOutTickDuration = fadeTime * 1000.f;
+        d->fFadeOutDuration = std::chrono::duration_cast<std::chrono::milliseconds>(fadeTime);
         d->fFadeOutStartTick = SDL_GetTicks();
         d->fStopAfterFade = false;
     } else {
@@ -116,17 +116,17 @@ void Aulib::AudioStream::pause(float fadeTime)
     }
 }
 
-void Aulib::AudioStream::resume(float fadeTime)
+void Aulib::AudioStream::resume(std::chrono::microseconds fadeTime)
 {
     if (not d->fIsPaused) {
         return;
     }
     SdlAudioLocker locker;
-    if (fadeTime > 0.f) {
+    if (fadeTime.count() > 0) {
         d->fInternalVolume = 0.f;
         d->fFadingIn = true;
         d->fFadingOut = false;
-        d->fFadeInTickDuration = fadeTime * 1000.f;
+        d->fFadeInDuration = std::chrono::duration_cast<std::chrono::milliseconds>(fadeTime);
         d->fFadeInStartTick = SDL_GetTicks();
     } else {
         d->fInternalVolume = 1.f;
@@ -184,14 +184,14 @@ bool Aulib::AudioStream::isPaused() const
     return d->fIsPaused;
 }
 
-float Aulib::AudioStream::duration() const
+std::chrono::microseconds Aulib::AudioStream::duration() const
 {
     return d->fDecoder->duration();
 }
 
-bool Aulib::AudioStream::seekToTime(float seconds)
+bool Aulib::AudioStream::seekToTime(std::chrono::microseconds pos)
 {
-    return d->fDecoder->seekToTime(seconds);
+    return d->fDecoder->seekToTime(pos);
 }
 
 /*

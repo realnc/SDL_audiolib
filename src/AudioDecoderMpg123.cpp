@@ -6,6 +6,8 @@
 #include <SDL_rwops.h>
 #include <mpg123.h>
 
+namespace chrono = std::chrono;
+
 static bool initialized = false;
 
 static int initLibMpg()
@@ -67,7 +69,7 @@ struct AudioDecoderMpg123_priv final
     int fChannels = 0;
     int fRate = 0;
     bool fEOF = false;
-    float fDuration = -1.f;
+    chrono::microseconds fDuration{};
 };
 
 } // namespace Aulib
@@ -111,7 +113,14 @@ bool Aulib::AudioDecoderMpg123::open(SDL_RWops* rwops)
     d->fChannels = channels;
     d->fRate = rate;
     off_t len = mpg123_length(d->fMpgHandle.get());
-    d->fDuration = (len == MPG123_ERR) ? -1 : (static_cast<float>(len) / rate);
+    if (len == MPG123_ERR) {
+        d->fDuration = chrono::microseconds::zero();
+    } else {
+        using namespace std::chrono;
+        using std::chrono::duration;
+        d->fDuration =
+            duration_cast<microseconds>(duration<double>(static_cast<double>(len) / rate));
+    }
     setIsOpen(true);
     return true;
 }
@@ -165,14 +174,15 @@ bool Aulib::AudioDecoderMpg123::rewind()
     return true;
 }
 
-float Aulib::AudioDecoderMpg123::duration() const
+chrono::microseconds Aulib::AudioDecoderMpg123::duration() const
 {
     return d->fDuration;
 }
 
-bool Aulib::AudioDecoderMpg123::seekToTime(float seconds)
+bool Aulib::AudioDecoderMpg123::seekToTime(chrono::microseconds pos)
 {
-    off_t targetFrame = mpg123_timeframe(d->fMpgHandle.get(), seconds);
+    using std::chrono::duration;
+    off_t targetFrame = mpg123_timeframe(d->fMpgHandle.get(), duration<double>(pos).count());
     if (targetFrame < 0 or mpg123_seek_frame(d->fMpgHandle.get(), targetFrame, SEEK_SET) < 0) {
         return false;
     }

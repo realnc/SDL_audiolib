@@ -59,10 +59,10 @@ public:
     AudioStream& operator=(const AudioStream&) = delete;
 
     bool open() override;
-    bool play(int iterations = 1, float fadeTime = 0.f) override;
-    void stop(float fadeTime = 0.f) override;
-    void pause(float fadeTime = 0.f) override;
-    void resume(float fadeTime = 0.f) override;
+    bool play(int iterations = 1, std::chrono::microseconds fadeTime = {}) override;
+    void stop(std::chrono::microseconds fadeTime = {}) override;
+    void pause(std::chrono::microseconds fadeTime = {}) override;
+    void resume(std::chrono::microseconds fadeTime = {}) override;
     bool rewind() override;
     void setVolume(float volume) override;
     float volume() const override;
@@ -71,8 +71,8 @@ public:
     bool isMuted() const override;
     bool isPlaying() const override;
     bool isPaused() const override;
-    float duration() const override;
-    bool seekToTime(float seconds) override;
+    std::chrono::microseconds duration() const override;
+    bool seekToTime(std::chrono::microseconds pos) override;
 
 private:
     friend struct AudioStream_priv;

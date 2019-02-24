@@ -7,6 +7,8 @@
 #include <libmodplug/modplug.h>
 #include <limits>
 
+namespace chrono = std::chrono;
+
 static ModPlug_Settings modplugSettings;
 static bool initialized = false;
 
@@ -34,7 +36,7 @@ struct AudioDecoderModPlug_priv final
 
     std::unique_ptr<ModPlugFile, decltype(&ModPlug_Unload)> mpHandle{nullptr, &ModPlug_Unload};
     bool atEOF = false;
-    float fDuration = -1.f;
+    chrono::microseconds fDuration{};
 };
 
 } // namespace Aulib
@@ -71,7 +73,7 @@ bool Aulib::AudioDecoderModPlug::open(SDL_RWops* rwops)
         return false;
     }
     ModPlug_SetMasterVolume(d->mpHandle.get(), 192);
-    d->fDuration = ModPlug_GetLength(d->mpHandle.get()) / 1000.f;
+    d->fDuration = chrono::milliseconds(ModPlug_GetLength(d->mpHandle.get()));
     setIsOpen(true);
     return true;
 }
@@ -106,17 +108,17 @@ int Aulib::AudioDecoderModPlug::doDecoding(float buf[], int len, bool& callAgain
 
 bool Aulib::AudioDecoderModPlug::rewind()
 {
-    return seekToTime(0);
+    return seekToTime(chrono::microseconds::zero());
 }
 
-float Aulib::AudioDecoderModPlug::duration() const
+chrono::microseconds Aulib::AudioDecoderModPlug::duration() const
 {
     return d->fDuration;
 }
 
-bool Aulib::AudioDecoderModPlug::seekToTime(float seconds)
+bool Aulib::AudioDecoderModPlug::seekToTime(chrono::microseconds pos)
 {
-    ModPlug_Seek(d->mpHandle.get(), seconds * 1000);
+    ModPlug_Seek(d->mpHandle.get(), chrono::duration_cast<chrono::milliseconds>(pos).count());
     d->atEOF = false;
     return true;
 }

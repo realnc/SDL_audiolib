@@ -3,6 +3,7 @@
 
 #include "aulib_export.h"
 #include <SDL_stdinc.h>
+#include <chrono>
 #include <memory>
 
 struct SDL_RWops;
@@ -31,8 +32,8 @@ public:
     virtual int getChannels() const = 0;
     virtual int getRate() const = 0;
     virtual bool rewind() = 0;
-    virtual float duration() const = 0;
-    virtual bool seekToTime(float seconds) = 0;
+    virtual std::chrono::microseconds duration() const = 0;
+    virtual bool seekToTime(std::chrono::microseconds pos) = 0;
 
 protected:
     void setIsOpen(bool f);

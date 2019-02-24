@@ -8,6 +8,8 @@
 #include <type_traits>
 #include <xmp.h>
 
+namespace chrono = std::chrono;
+
 namespace Aulib {
 
 /// \private
@@ -76,14 +78,15 @@ bool Aulib::AudioDecoderXmp::rewind()
     return true;
 }
 
-float Aulib::AudioDecoderXmp::duration() const
+chrono::microseconds Aulib::AudioDecoderXmp::duration() const
 {
-    return -1.f; // TODO
+    return {}; // TODO
 }
 
-bool Aulib::AudioDecoderXmp::seekToTime(float seconds)
+bool Aulib::AudioDecoderXmp::seekToTime(chrono::microseconds pos)
 {
-    if (xmp_seek_time(d->fContext.get(), seconds * 1000) < 0) {
+    auto pos_ms = chrono::duration_cast<chrono::milliseconds>(pos).count();
+    if (xmp_seek_time(d->fContext.get(), pos_ms) < 0) {
         return false;
     }
     d->fEof = false;

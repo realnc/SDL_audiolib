@@ -5,6 +5,8 @@
 #include <SDL_rwops.h>
 #include <vorbis/vorbisfile.h>
 
+namespace chrono = std::chrono;
+
 extern "C" {
 
 static size_t vorbisReadCb(void* ptr, size_t size, size_t nmemb, void* rwops)
@@ -36,7 +38,7 @@ struct AudioDecoderVorbis_priv final
     int fCurrentSection = 0;
     vorbis_info* fCurrentInfo = nullptr;
     bool fEOF = false;
-    float fDuration = -1.f;
+    chrono::microseconds fDuration{};
 };
 
 } // namespace Aulib
@@ -63,7 +65,11 @@ bool Aulib::AudioDecoderVorbis::open(SDL_RWops* rwops)
     }
     d->fCurrentInfo = ov_info(newHandle.get(), -1);
     auto len = ov_time_total(newHandle.get(), -1);
-    d->fDuration = len == OV_EINVAL ? -1 : len;
+    if (len == OV_EINVAL) {
+        d->fDuration = chrono::microseconds::zero();
+    } else {
+        d->fDuration = chrono::duration_cast<chrono::microseconds>(chrono::duration<double>(len));
+    }
     d->fVFHandle.swap(newHandle);
     setIsOpen(true);
     return true;
@@ -144,14 +150,14 @@ bool Aulib::AudioDecoderVorbis::rewind()
     return ret == 0;
 }
 
-float Aulib::AudioDecoderVorbis::duration() const
+chrono::microseconds Aulib::AudioDecoderVorbis::duration() const
 {
     return d->fDuration;
 }
 
-bool Aulib::AudioDecoderVorbis::seekToTime(float seconds)
+bool Aulib::AudioDecoderVorbis::seekToTime(chrono::microseconds pos)
 {
-    if (ov_time_seek_lap(d->fVFHandle.get(), seconds) != 0) {
+    if (ov_time_seek_lap(d->fVFHandle.get(), chrono::duration<double>(pos).count()) != 0) {
         return false;
     }
     d->fEOF = false;

@@ -11,6 +11,8 @@
 #include <cstdio>
 #include <fluidsynth.h>
 
+namespace chrono = std::chrono;
+
 static fluid_settings_t* settings = nullptr;
 
 /* Huge kludge. Fluidsynth doesn't have a nice API for custom soundfont loading, so we hijack the
@@ -254,13 +256,13 @@ bool Aulib::AudioDecoderFluidSynth::rewind()
     return true;
 }
 
-float Aulib::AudioDecoderFluidSynth::duration() const
+chrono::microseconds Aulib::AudioDecoderFluidSynth::duration() const
 {
     // We can't tell how long a MIDI file is.
-    return -1.f;
+    return {};
 }
 
-bool Aulib::AudioDecoderFluidSynth::seekToTime(float /*seconds*/)
+bool Aulib::AudioDecoderFluidSynth::seekToTime(chrono::microseconds /*pos*/)
 {
     // We don't support seeking.
     return false;

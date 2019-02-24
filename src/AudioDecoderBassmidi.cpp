@@ -9,6 +9,8 @@
 #include <bass.h>
 #include <bassmidi.h>
 
+namespace chrono = std::chrono;
+
 static bool bassIsInitialized = false;
 
 class HstreamWrapper final
@@ -179,38 +181,39 @@ int Aulib::AudioDecoderBassmidi::doDecoding(float buf[], int len, bool& /*callAg
 
 bool Aulib::AudioDecoderBassmidi::rewind()
 {
-    return seekToTime(0);
+    return seekToTime(chrono::microseconds::zero());
 }
 
-float Aulib::AudioDecoderBassmidi::duration() const
+chrono::microseconds Aulib::AudioDecoderBassmidi::duration() const
 {
     if (not d->hstream) {
-        return -1;
+        return {};
     }
 
     QWORD pos = BASS_ChannelGetLength(d->hstream.get(), BASS_POS_BYTE);
     if (pos == static_cast<QWORD>(-1)) {
         AM_debugPrintLn("AudioDecoderBassmidi: got BASS error "
                         << BASS_ErrorGetCode() << " while getting channel length.");
-        return -1;
+        return {};
     }
     double sec = BASS_ChannelBytes2Seconds(d->hstream.get(), pos);
     if (sec < 0) {
         AM_debugPrintLn("AudioDecoderBassmidi: got BASS error "
                         << BASS_ErrorGetCode()
                         << " while translating duration from bytes to seconds.");
-        return -1;
+        return {};
     }
-    return sec;
+    return chrono::duration_cast<chrono::microseconds>(chrono::duration<double>(sec));
 }
 
-bool Aulib::AudioDecoderBassmidi::seekToTime(float seconds)
+bool Aulib::AudioDecoderBassmidi::seekToTime(chrono::microseconds pos)
 {
     if (not d->hstream) {
         return false;
     }
 
-    QWORD bytePos = BASS_ChannelSeconds2Bytes(d->hstream.get(), seconds);
+    QWORD bytePos =
+        BASS_ChannelSeconds2Bytes(d->hstream.get(), chrono::duration<double>(pos).count());
     if (bytePos == static_cast<QWORD>(-1)) {
         SDL_SetError(
             "AudioDecoderBassmidi: got BASS error %d while translating seek time to bytes.",
