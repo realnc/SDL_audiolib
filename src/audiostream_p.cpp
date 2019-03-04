@@ -106,7 +106,10 @@ void Aulib::AudioStream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], in
             continue;
         }
 
+        bool has_finished = false;
+        bool has_looped = false;
         int len = 0;
+
         while (len < wantedSamples) {
             if (stream->d->fResampler) {
                 len += stream->d->fResampler->resample(fStrmBuf.get() + len, wantedSamples - len);
@@ -126,10 +129,10 @@ void Aulib::AudioStream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], in
                         fStreamList.erase(
                             std::remove(fStreamList.begin(), fStreamList.end(), stream),
                             fStreamList.end());
-                        stream->invokeFinishCallback();
+                        has_finished = true;
                         break;
                     }
-                    stream->invokeLoopCallback();
+                    has_looped = true;
                 }
             }
         }
@@ -149,6 +152,12 @@ void Aulib::AudioStream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], in
                     fFinalMixBuf[i] += fStrmBuf[i];
                 }
             }
+        }
+
+        if (has_finished) {
+            stream->invokeFinishCallback();
+        } else if (has_looped) {
+            stream->invokeLoopCallback();
         }
     }
     AudioStream_priv::fSampleConverter(out, fFinalMixBuf);
