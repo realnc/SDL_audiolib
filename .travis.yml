@@ -1,0 +1,127 @@
+dist: xenial
+language: cpp
+compiler: gcc
+
+addons:
+    apt:
+        packages:
+            libsdl2-dev
+            libsoxr-dev
+            libxmp-dev
+            libmodplug-dev
+            libmpg123-dev
+            libsndfile1-dev
+            libvorbis-dev
+            libopusfile-dev
+            libmpcdec-dev
+            libwildmidi-dev
+
+before_install:
+    - echo "CPU cores = $(grep -c '^processor' /proc/cpuinfo)"
+    - sudo ln -s /usr/local/lib /usr/local/lib64
+
+    #
+    # Install libsamplerate
+    #
+    - cd "$HOME"
+    - wget 'http://www.mega-nerd.com/SRC/libsamplerate-0.1.9.tar.gz'
+    - tar xf libsamplerate-0.1.9.tar.gz
+    - mkdir samplerate-build
+    - cd samplerate-build
+    - ../libsamplerate-0.1.9/configure
+        --disable-dependency-tracking
+        --enable-shared
+        --disable-static
+        --disable-gcc-opt
+        --disable-sndfile
+    - make -j$(grep -c '^processor' /proc/cpuinfo)
+    - sudo make install
+
+    #
+    # Install libopenmpt
+    #
+    - cd "$HOME"
+    - wget 'https://lib.openmpt.org/files/libopenmpt/src/libopenmpt-0.4.3+release.autotools.tar.gz'
+    - tar xf 'libopenmpt-0.4.3+release.autotools.tar.gz'
+    - mkdir openmpt-build
+    - cd openmpt-build
+    - ../libopenmpt-0.4.3+release.autotools/configure
+        --enable-silent-rules
+        --disable-dependency-tracking
+        --enable-shared
+        --disable-static
+        --disable-openmpt123
+        --disable-examples
+        --disable-tests
+        --disable-doxygen-doc
+        --without-zlib
+        --without-mpg123
+        --without-ogg
+        --without-vorbis
+        --without-vorbisfile
+        --without-pulseaudio
+        --without-portaudio
+        --without-portaudiocpp
+        --without-sdl2
+        --without-sdl
+        --without-sndfile
+        --without-flac
+    - make -j$(grep -c '^processor' /proc/cpuinfo)
+    - sudo make install
+
+    #
+    # Install fluidsynth
+    #
+    - cd "$HOME"
+    - wget 'https://github.com/FluidSynth/fluidsynth/archive/v2.0.4.tar.gz'
+    - tar xf 'v2.0.4.tar.gz'
+    - cd fluidsynth-2.0.4
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make -j$(grep -c '^processor' /proc/cpuinfo)
+    - sudo make install
+
+    #
+    # Install bassmidi
+    #
+    - cd "$HOME"
+    - wget 'http://uk.un4seen.com/files/bass24-linux.zip'
+    - mkdir bass
+    - cd bass
+    - unzip ../bass24-linux.zip
+    - sudo cp bass.h /usr/local/include/
+    - sudo cp x64/libbass.so /usr/local/lib/
+    - cd ..
+    - wget 'http://uk.un4seen.com/files/bassmidi24-linux.zip'
+    - mkdir bassmidi
+    - cd bassmidi
+    - unzip ../bassmidi24-linux.zip
+    - sudo cp bassmidi.h /usr/local/include/
+    - sudo cp x64/libbassmidi.so /usr/local/lib/
+
+before_script:
+    - cd "$TRAVIS_BUILD_DIR"
+    - mkdir build
+    - cd build
+    - cmake
+        -DUSE_RESAMP_SRC=ON
+        -DUSE_RESAMP_SOXR=ON
+        -DUSE_DEC_OPENMPT=ON
+        -DUSE_DEC_XMP=ON
+        -DUSE_DEC_MODPLUG=ON
+        -DUSE_DEC_MPG123=ON
+        -DUSE_DEC_SNDFILE=ON
+        -DUSE_DEC_LIBVORBIS=ON
+        -DUSE_DEC_LIBOPUSFILE=ON
+        -DUSE_DEC_MUSEPACK=ON
+        -DUSE_DEC_FLUIDSYNTH=ON
+        -DUSE_DEC_BASSMIDI=ON
+        -DUSE_DEC_WILDMIDI=ON
+        -DENABLE_SDLMIXER_EMU=OFF
+        -DBUILD_EXAMPLE=ON
+        ..
+
+script:
+    - make -j$(grep -c '^processor' /proc/cpuinfo)
+    - sudo make install
