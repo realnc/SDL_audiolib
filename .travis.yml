@@ -1,41 +1,71 @@
 dist: xenial
+sudo: required
 language: cpp
-compiler: gcc
 
 addons:
     apt:
+        sources:
+            - ubuntu-toolchain-r-test
         packages:
-            libsdl2-dev
-            libsoxr-dev
-            libxmp-dev
-            libmodplug-dev
-            libmpg123-dev
-            libsndfile1-dev
-            libvorbis-dev
-            libopusfile-dev
-            libmpcdec-dev
-            libwildmidi-dev
+            - g++-8
+            - libmodplug-dev
+            - libmpcdec-dev
+            - libmpg123-dev
+            - libopusfile-dev
+            - libsdl2-dev
+            - libsndfile1-dev
+            - libsoxr-dev
+            - libvorbis-dev
+            - libwildmidi-dev
+            - libxmp-dev
+
+    homebrew:
+        packages:
+            - glib
+            - libmodplug
+            - libsamplerate
+            - libsndfile
+            - libsoxr
+            - libvorbis
+            - libxmp
+            - mpg123
+            - musepack
+            - opusfile
+            - sdl2
+
+matrix:
+    include:
+        - os: linux
+          compiler: gcc
+          env:
+            - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+
+        - os: osx
+          compiler: clang
 
 before_install:
-    - echo "CPU cores = $(grep -c '^processor' /proc/cpuinfo)"
+    - eval "${MATRIX_EVAL}"
     - sudo ln -s /usr/local/lib /usr/local/lib64
 
     #
     # Install libsamplerate
     #
-    - cd "$HOME"
-    - wget 'http://www.mega-nerd.com/SRC/libsamplerate-0.1.9.tar.gz'
-    - tar xf libsamplerate-0.1.9.tar.gz
-    - mkdir samplerate-build
-    - cd samplerate-build
-    - ../libsamplerate-0.1.9/configure
-        --disable-dependency-tracking
-        --enable-shared
-        --disable-static
-        --disable-gcc-opt
-        --disable-sndfile
-    - make -j$(grep -c '^processor' /proc/cpuinfo)
-    - sudo make install
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+        cd "$HOME";
+        wget 'http://www.mega-nerd.com/SRC/libsamplerate-0.1.9.tar.gz';
+        tar xf libsamplerate-0.1.9.tar.gz;
+        mkdir samplerate-build;
+        cd samplerate-build;
+        ../libsamplerate-0.1.9/configure
+            --disable-dependency-tracking
+            --enable-shared
+            --disable-static
+            --disable-gcc-opt
+            --disable-sndfile
+            ;
+        make -j2;
+        sudo make install;
+      fi
 
     #
     # Install libopenmpt
@@ -66,7 +96,7 @@ before_install:
         --without-sdl
         --without-sndfile
         --without-flac
-    - make -j$(grep -c '^processor' /proc/cpuinfo)
+    - make -j2
     - sudo make install
 
     #
@@ -78,27 +108,57 @@ before_install:
     - cd fluidsynth-2.0.4
     - mkdir build
     - cd build
-    - cmake ..
-    - make -j$(grep -c '^processor' /proc/cpuinfo)
+    - cmake -Denable-framework=off ..
+    - make -j2
     - sudo make install
 
     #
     # Install bassmidi
     #
-    - cd "$HOME"
-    - wget 'http://uk.un4seen.com/files/bass24-linux.zip'
-    - mkdir bass
-    - cd bass
-    - unzip ../bass24-linux.zip
-    - sudo cp bass.h /usr/local/include/
-    - sudo cp x64/libbass.so /usr/local/lib/
-    - cd ..
-    - wget 'http://uk.un4seen.com/files/bassmidi24-linux.zip'
-    - mkdir bassmidi
-    - cd bassmidi
-    - unzip ../bassmidi24-linux.zip
-    - sudo cp bassmidi.h /usr/local/include/
-    - sudo cp x64/libbassmidi.so /usr/local/lib/
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+        cd "$HOME";
+        wget 'http://uk.un4seen.com/files/bass24-linux.zip';
+        mkdir bass;
+        cd bass;
+        unzip ../bass24-linux.zip;
+        sudo cp bass.h /usr/local/include/;
+        sudo cp x64/libbass.so /usr/local/lib/;
+        cd ..;
+        wget 'http://uk.un4seen.com/files/bassmidi24-linux.zip';
+        mkdir bassmidi;
+        cd bassmidi;
+        unzip ../bassmidi24-linux.zip;
+        sudo cp bassmidi.h /usr/local/include/;
+        sudo cp x64/libbassmidi.so /usr/local/lib/;
+      fi
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+        cd "$HOME";
+        wget 'http://uk.un4seen.com/files/bass24-osx.zip';
+        mkdir bass;
+        cd bass;
+        unzip ../bass24-osx.zip;
+        sudo cp bass.h /usr/local/include/;
+        sudo cp libbass.dylib /usr/local/lib/;
+        cd ..;
+        wget 'http://uk.un4seen.com/files/bassmidi24-osx.zip';
+        mkdir bassmidi;
+        cd bassmidi;
+        unzip ../bassmidi24-osx.zip;
+        sudo cp bassmidi.h /usr/local/include/;
+        sudo cp libbassmidi.dylib /usr/local/lib/;
+      fi
+
+    #
+    # Install wildmidi
+    #
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+        cd "$HOME";
+        wget 'https://github.com/Mindwerks/wildmidi/releases/download/wildmidi-0.3.15/wildmidi-0.3.15-macosx.tar.gz';
+        tar xf wildmidi-0.3.15-macosx.tar.gz;
+        cd wildmidi-0.3.15-macosx;
+        sudo cp -a *.dylib /usr/local/lib/;
+        sudo cp wildmidi_lib.h /usr/local/include/;
+      fi
 
 before_script:
     - cd "$TRAVIS_BUILD_DIR"
@@ -123,5 +183,5 @@ before_script:
         ..
 
 script:
-    - make -j$(grep -c '^processor' /proc/cpuinfo)
+    - make -j2
     - sudo make install
