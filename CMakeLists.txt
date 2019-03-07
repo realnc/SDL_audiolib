@@ -85,6 +85,12 @@ option(
 )
 
 option(
+    USE_DEC_ADLMIDI
+    "Enable libADLMIDI decoder."
+    ON
+)
+
+option(
     ENABLE_SDLMIXER_EMU
     "Build the SDL_mixer emulation library (doesn't really work yet.)"
     OFF
@@ -260,6 +266,13 @@ if (USE_DEC_WILDMIDI)
     set(PKGCONF_LIBS_PRIV "${PKGCONF_LIBS_PRIV} -lWildMidi")
     set(EXTRA_LIBRARIES ${EXTRA_LIBRARIES} WildMidi)
 endif(USE_DEC_WILDMIDI)
+
+if (USE_DEC_ADLMIDI)
+    set(AULIB_SOURCES ${AULIB_SOURCES} src/AudioDecoderAdlmidi.cpp)
+    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/AudioDecoderAdlmidi.h)
+    set(PKGCONF_LIBS_PRIV "${PKGCONF_LIBS_PRIV} -lADLMIDI")
+    set(EXTRA_LIBRARIES ${EXTRA_LIBRARIES} ADLMIDI)
+endif(USE_DEC_ADLMIDI)
 
 link_directories(
     ${LIBRARY_DIRS}

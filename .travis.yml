@@ -160,6 +160,24 @@ before_install:
         sudo cp wildmidi_lib.h /usr/local/include/;
       fi
 
+    #
+    # Install libADLMIDI
+    #
+    - cd "$HOME"
+    - wget 'https://github.com/Wohlstand/libADLMIDI/archive/c19bf11f4b12004051fc76651733e17f3e98143a.tar.gz'
+        -O adlmidi.tar.gz
+    - tar xf adlmidi.tar.gz
+    - cd libADLMIDI-c19bf11f4b12004051fc76651733e17f3e98143a
+    - mkdir build
+    - cd build
+    - cmake
+        -DlibADLMIDI_SHARED=on
+        -DlibADLMIDI_STATIC=off
+        -DEXAMPLE_SDL2_AUDIO=off
+        ..
+    - make -j2
+    - sudo make install
+
 before_script:
     - cd "$TRAVIS_BUILD_DIR"
     - mkdir build
@@ -178,6 +196,7 @@ before_script:
         -DUSE_DEC_FLUIDSYNTH=ON
         -DUSE_DEC_BASSMIDI=ON
         -DUSE_DEC_WILDMIDI=ON
+        -DUSE_DEC_ADLMIDI=ON
         -DENABLE_SDLMIXER_EMU=OFF
         -DBUILD_EXAMPLE=ON
         ..

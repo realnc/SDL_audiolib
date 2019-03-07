@@ -24,7 +24,7 @@ Most popular audio formats are supported:
   * Musepack
   * WAV (and related formats through libsndfile)
   * FLAC (through libsndfile)
-  * MIDI (FluidSynth, BASSMIDI, WildMIDI)
+  * MIDI (FluidSynth, BASSMIDI, WildMIDI, libADLMIDI)
   * MOD-based music formats (libopenmpt, libxmp, libmodplug)
 
 You can also write your own decoders and resamplers by subclassing
