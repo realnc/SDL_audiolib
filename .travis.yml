@@ -153,9 +153,9 @@ before_install:
     #
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
         cd "$HOME";
-        wget 'https://github.com/Mindwerks/wildmidi/releases/download/wildmidi-0.3.15/wildmidi-0.3.15-macosx.tar.gz';
-        tar xf wildmidi-0.3.15-macosx.tar.gz;
-        cd wildmidi-0.3.15-macosx;
+        wget 'https://github.com/Mindwerks/wildmidi/releases/download/wildmidi-0.4.3/wildmidi-0.4.3-macosx.tar.gz';
+        tar xf wildmidi-0.4.3-macosx.tar.gz;
+        cd wildmidi-0.4.3-macosx;
         sudo cp -a *.dylib /usr/local/lib/;
         sudo cp wildmidi_lib.h /usr/local/include/;
       fi
