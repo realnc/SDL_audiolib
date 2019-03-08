@@ -77,6 +77,7 @@ bool Aulib::AudioDecoderAdlmidi::rewind()
         return false;
     }
     adl_positionRewind(d->adl_player.get());
+    d->eof = false;
     return true;
 }
 
@@ -91,6 +92,7 @@ bool Aulib::AudioDecoderAdlmidi::seekToTime(chrono::microseconds pos)
         return false;
     }
     adl_positionSeek(d->adl_player.get(), chrono::duration<double>(pos).count());
+    d->eof = false;
     return true;
 }
 
