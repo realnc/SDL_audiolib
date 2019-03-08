@@ -14,7 +14,7 @@
 #cmakedefine USE_DEC_FLUIDSYNTH 1
 #cmakedefine USE_DEC_BASSMIDI 1
 #cmakedefine USE_DEC_WILDMIDI 1
-
+#cmakedefine USE_DEC_ADLMIDI 1
 
 /*
 
