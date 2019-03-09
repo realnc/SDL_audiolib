@@ -8,6 +8,8 @@
 
 namespace chrono = std::chrono;
 
+static constexpr int SAMPLE_RATE = 49716;
+
 namespace Aulib {
 
 /// \private
@@ -42,7 +44,7 @@ bool Aulib::AudioDecoderAdlmidi::open(SDL_RWops* rwops)
         SDL_SetError("Failed to read MIDI data.");
         return false;
     }
-    d->adl_player.reset(adl_init(Aulib::spec().freq));
+    d->adl_player.reset(adl_init(SAMPLE_RATE));
     if (d->adl_player == nullptr) {
         SDL_SetError("Failed to initialize libADLMIDI: %s", adl_errorString());
         return false;
@@ -68,7 +70,7 @@ int Aulib::AudioDecoderAdlmidi::getChannels() const
 
 int Aulib::AudioDecoderAdlmidi::getRate() const
 {
-    return Aulib::spec().freq;
+    return SAMPLE_RATE;
 }
 
 bool Aulib::AudioDecoderAdlmidi::rewind()
