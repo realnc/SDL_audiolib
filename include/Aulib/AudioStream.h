@@ -10,6 +10,8 @@ struct SDL_AudioSpec;
 
 namespace Aulib {
 
+class Processor;
+
 /*!
  * \brief Sample-based audio playback stream.
  *
@@ -57,6 +59,31 @@ public:
 
     AudioStream(const AudioStream&) = delete;
     AudioStream& operator=(const AudioStream&) = delete;
+
+    /*!
+     * \brief Add an audio processor to the bottom of the processor list.
+     *
+     * You can add multiple processors. They will be run in the order they were added, each one
+     * using the previous processor's output as input. If the processor instance already exists in
+     * the processor list, the function does nothing.
+     *
+     * \param processor The processor to add.
+     */
+    void addProcessor(std::shared_ptr<Processor> processor);
+
+    /*!
+     * \brief Remove a processor from the stream.
+     *
+     * If the processor instance is not found, the function does nothing.
+     *
+     * \param processor Processor to remove.
+     */
+    void removeProcessor(Processor* processor);
+
+    /*!
+     * \brief Remove all processors from the stream.
+     */
+    void clearProcessors();
 
     bool open() override;
     bool play(int iterations = 1, std::chrono::microseconds fadeTime = {}) override;

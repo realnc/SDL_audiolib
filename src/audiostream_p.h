@@ -1,6 +1,7 @@
 // This is copyrighted software. More information is at the end of this file.
 #pragma once
 
+#include "Aulib/Processor.h"
 #include "Buffer.h"
 #include "aulib.h"
 #include <SDL_audio.h>
@@ -40,6 +41,7 @@ struct AudioStream_priv final
     bool fStopAfterFade = false;
     std::chrono::milliseconds fFadeInDuration{};
     std::chrono::milliseconds fFadeOutDuration{};
+    std::vector<std::shared_ptr<Processor>> processors;
     bool fIsMuted = false;
 
     static ::SDL_AudioSpec fAudioSpec;
@@ -51,6 +53,7 @@ struct AudioStream_priv final
     // Sample buffers we use during decoding and mixing.
     static Buffer<float> fFinalMixBuf;
     static Buffer<float> fStrmBuf;
+    static Buffer<float> fProcessorBuf;
 
     void fProcessFade();
     void fStop();

@@ -160,6 +160,7 @@ set(
     include/Aulib/AudioResampler.h
     include/Aulib/Stream.h
     include/Aulib/AudioStream.h
+    include/Aulib/Processor.h
 )
 
 pkg_check_modules(SDL REQUIRED sdl2)
@@ -298,6 +299,7 @@ add_library(
     src/Stream.cpp
     src/SdlAudioLocker.h
     src/Buffer.h
+    src/Processor.cpp
     resampler/arch.h
     resampler/resample_sse.h
     resampler/speex_resampler.h
