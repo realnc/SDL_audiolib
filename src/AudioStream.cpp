@@ -53,10 +53,11 @@ Aulib::AudioStream::~AudioStream()
 
 void Aulib::AudioStream::addProcessor(std::shared_ptr<Processor> processor)
 {
-    if (std::find_if(
-            d->processors.begin(), d->processors.end(),
-            [&processor](std::shared_ptr<Processor>& p) { return p.get() == processor.get(); })
-        != d->processors.end()) {
+    if (processor == nullptr
+        or std::find_if(
+               d->processors.begin(), d->processors.end(),
+               [&processor](std::shared_ptr<Processor>& p) { return p.get() == processor.get(); })
+               != d->processors.end()) {
         return;
     }
     SdlAudioLocker locker;

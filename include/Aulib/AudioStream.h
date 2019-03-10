@@ -65,7 +65,7 @@ public:
      *
      * You can add multiple processors. They will be run in the order they were added, each one
      * using the previous processor's output as input. If the processor instance already exists in
-     * the processor list, the function does nothing.
+     * the processor list, or is a nullptr, the function does nothing.
      *
      * \param processor The processor to add.
      */
