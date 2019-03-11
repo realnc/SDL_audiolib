@@ -1,6 +1,7 @@
 // This is copyrighted software. More information is at the end of this file.
 #include "Aulib/AudioDecoder.h"
 
+#include "Aulib/AudioDecoderAdlmidi.h"
 #include "Aulib/AudioDecoderBassmidi.h"
 #include "Aulib/AudioDecoderFluidsynth.h"
 #include "Aulib/AudioDecoderModplug.h"
@@ -73,7 +74,7 @@ std::unique_ptr<Aulib::AudioDecoder> Aulib::AudioDecoder::decoderFor(SDL_RWops* 
     SDL_RWseek(rwops, rwPos, RW_SEEK_SET);
 #endif
 
-#if USE_DEC_FLUIDSYNTH or USE_DEC_BASSMIDI or USE_DEC_WILDMIDI
+#if USE_DEC_FLUIDSYNTH or USE_DEC_BASSMIDI or USE_DEC_WILDMIDI or USE_DEC_ADLMIDI
     {
         std::array<char, 5> head{};
         if (SDL_RWread(rwops, head.data(), 1, 4) == 4 and head == decltype(head){"MThd"}) {
@@ -92,6 +93,11 @@ std::unique_ptr<Aulib::AudioDecoder> Aulib::AudioDecoder::decoderFor(SDL_RWops* 
             decoder = std::make_unique<AudioDecoderWildmidi>();
             if (decoder->open(rwops)) {
                 return std::make_unique<Aulib::AudioDecoderWildmidi>();
+            }
+#    elif USE_DEC_ADLMIDI
+            decoder = std::make_unique<AudioDecoderAdlmidi>();
+            if (decoder->open(rwops)) {
+                return std::make_unique<Aulib::AudioDecoderAdlmidi>();
             }
 #    endif
         }
