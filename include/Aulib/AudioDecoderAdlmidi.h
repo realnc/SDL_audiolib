@@ -1,7 +1,9 @@
 // This is copyrighted software. More information is at the end of this file.
 #pragma once
-
 #include <Aulib/AudioDecoder.h>
+
+#include <string>
+#include <vector>
 
 namespace Aulib {
 
@@ -14,8 +16,87 @@ namespace Aulib {
 class AULIB_EXPORT AudioDecoderAdlmidi final: public AudioDecoder
 {
 public:
+    enum class Emulator
+    {
+        Nuked,
+        Nuked_174,
+        Dosbox,
+        Opal,
+        Java,
+    };
+
     AudioDecoderAdlmidi();
     ~AudioDecoderAdlmidi() override;
+
+    /*!
+     * \brief Set OPL emulator.
+     *
+     * If you don't call this function, libADLMIDI will use whatever emulator it uses by default.
+     * Which one that is, is not specified. Note that libADLMIDI might have been built without all
+     * of the emulators. Trying to set an emulator that is missing will fail.
+     *
+     * The emulator will be set immediately if the decoder is open. Otherwise, it will be set when
+     * \ref open() is called.
+     *
+     * \return \c true on success, \c false otherwise.
+     */
+    bool setEmulator(Emulator emulator);
+
+    /*!
+     * \brief Set amount of emulated OPL chips.
+     *
+     * By default, 6 chips will be emulated, which should provide a high enough polyphony without
+     * note dropouts with most FM banks. However, the needed chip amount might be higher with some
+     * FM banks, in which case you can use a higher amount of chips.
+     *
+     * The chip amount will be changed immediately if the decoder is open. Otherwise, it will be
+     * changed when \ref open() is called.
+     *
+     * \return \c true on success, \c false otherwise.
+     */
+    bool setChipAmount(int chip_amount);
+
+    /*!
+     * \brief Load and set an FM patch bank.
+     *
+     * The data must be in a format that libADLMIDI understands. At the time of this writing, this
+     * means WOPL3. If there's an already loaded bank, it will be replaced by the new one. Ownership
+     * of the \p rwops is transfered to the decoder.
+     *
+     * The bank will be set immediately if the decoder is open. Otherwise, it will be set when
+     * \ref open() is called.
+     *
+     * \return \c true on success, \c false otherwise.
+     */
+    bool loadBank(SDL_RWops* rwops);
+
+    //! \overload
+    bool loadBank(const std::string& filename);
+
+    /*!
+     * \brief Load and set one of the FM patch banks embedded in libADLMIDI.
+     *
+     * By default, libADLMIDI comes with a set of embedded FM patch banks. These can be disabled
+     * when building libADLMIDI, in which case this function will always fail. Use
+     * \ref getEmbeddedBanks() to get a list of all embedded banks. If there's an already loaded
+     * bank, it will be replaced by the new one.
+     *
+     * The bank will be set immediately if the decoder is open. Otherwise, it will be set when
+     * \ref open() is called.
+     *
+     * \return \c true on success, \c false otherwise.
+     */
+    bool loadEmbeddedBank(int bank_number);
+
+    /*!
+     * \brief Get a list of all libADLMIDI embedded FM patch banks.
+     *
+     * If libADLMIDI was built without embedded banks, the list will be empty. To use one of these
+     * banks, pass its index to \ref loadEmbeddedBank().
+     *
+     * \return List of embedded banks.
+     */
+    static const std::vector<std::string>& getEmbeddedBanks();
 
     bool open(SDL_RWops* rwops) override;
     int getChannels() const override;

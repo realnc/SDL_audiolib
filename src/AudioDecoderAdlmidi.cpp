@@ -7,8 +7,26 @@
 #include <adlmidi.h>
 
 namespace chrono = std::chrono;
+using BankData = std::unique_ptr<void, decltype(&SDL_free)>;
 
 static constexpr int SAMPLE_RATE = 49716;
+
+static const std::vector<std::string>& embeddedBanks()
+{
+    static std::vector<std::string> banks;
+    static int bank_count = -1;
+
+    if (bank_count >= 0) {
+        return banks;
+    }
+
+    bank_count = adl_getBanksCount();
+    auto bank_ptr = adl_getBankNames();
+    for (int i = 0; i < bank_count; ++i) {
+        banks.emplace_back(bank_ptr[i]);
+    }
+    return banks;
+}
 
 namespace Aulib {
 
@@ -19,6 +37,73 @@ struct AudioDecoderAdlmidi_priv final
     Buffer<Uint8> midi_data{0};
     bool eof = false;
     chrono::microseconds duration{};
+    AudioDecoderAdlmidi::Emulator emulator;
+    bool change_emulator = false;
+    int chip_amount = 6;
+    BankData bank_data{nullptr, SDL_free};
+    size_t bank_data_size = 0;
+    int embedded_bank = -1;
+
+    bool setEmulator()
+    {
+        using Emulator = AudioDecoderAdlmidi::Emulator;
+        ADL_Emulator adl_emu;
+
+        switch (emulator) {
+        case Emulator::Nuked:
+            adl_emu = ADLMIDI_EMU_NUKED;
+            break;
+        case Emulator::Nuked_174:
+            adl_emu = ADLMIDI_EMU_NUKED_174;
+            break;
+        case Emulator::Dosbox:
+            adl_emu = ADLMIDI_EMU_DOSBOX;
+            break;
+        case Emulator::Opal:
+            adl_emu = ADLMIDI_EMU_OPAL;
+            break;
+        case Emulator::Java:
+            adl_emu = ADLMIDI_EMU_JAVA;
+            break;
+        }
+
+        if (adl_switchEmulator(adl_player.get(), adl_emu) < 0) {
+            SDL_SetError("libADLMIDI failed to set emulator. %s", adl_errorInfo(adl_player.get()));
+            return false;
+        }
+        return true;
+    }
+
+    bool setChipAmount()
+    {
+        if (adl_setNumChips(adl_player.get(), chip_amount) < 0) {
+            SDL_SetError("libADLMIDI failed to change chip amount. %s",
+                         adl_errorInfo(adl_player.get()));
+            return false;
+        }
+        return true;
+    }
+
+    bool setAndFreeBank()
+    {
+        if (adl_openBankData(adl_player.get(), bank_data.get(), bank_data_size) < 0) {
+            SDL_SetError("libADLMIDI failed to load bank data. %s",
+                         adl_errorInfo(adl_player.get()));
+            return false;
+        }
+        bank_data.reset();
+        return true;
+    }
+
+    bool setEmbeddedBank()
+    {
+        if (adl_setBank(adl_player.get(), embedded_bank) < 0) {
+            SDL_SetError("libADLMIDI failed to set embedded bank. %s",
+                         adl_errorInfo(adl_player.get()));
+            return false;
+        }
+        return true;
+    }
 };
 
 } // namespace Aulib
@@ -28,6 +113,88 @@ Aulib::AudioDecoderAdlmidi::AudioDecoderAdlmidi()
 {}
 
 Aulib::AudioDecoderAdlmidi::~AudioDecoderAdlmidi() = default;
+
+bool Aulib::AudioDecoderAdlmidi::setEmulator(Emulator emulator)
+{
+    d->emulator = emulator;
+    d->change_emulator = true;
+    if (d->adl_player == nullptr) {
+        return true;
+    }
+    if (not d->setEmulator()) {
+        return false;
+    }
+    adl_reset(d->adl_player.get());
+    return true;
+}
+
+bool Aulib::AudioDecoderAdlmidi::setChipAmount(int chip_amount)
+{
+    d->chip_amount = chip_amount;
+    if (d->adl_player == nullptr) {
+        return true;
+    }
+    if (not d->setChipAmount()) {
+        return false;
+    }
+    adl_reset(d->adl_player.get());
+    return true;
+}
+
+bool Aulib::AudioDecoderAdlmidi::loadBank(SDL_RWops* rwops)
+{
+    if (rwops == nullptr) {
+        SDL_SetError("rwops is null.");
+        return false;
+    }
+    BankData tmp_data{SDL_LoadFile_RW(rwops, &d->bank_data_size, true), SDL_free};
+    if (tmp_data == nullptr) {
+        SDL_SetError("SDL failed to read bank data. %s", SDL_GetError());
+        return false;
+    }
+    d->embedded_bank = -1;
+    if (d->adl_player == nullptr) {
+        d->bank_data = std::move(tmp_data);
+        return true;
+    }
+    if (not d->setAndFreeBank()) {
+        return false;
+    }
+    adl_reset(d->adl_player.get());
+    return true;
+}
+
+bool Aulib::AudioDecoderAdlmidi::loadBank(const std::string& filename)
+{
+    auto* rwops = SDL_RWFromFile(filename.c_str(), "rb");
+    if (rwops == nullptr) {
+        SDL_SetError("SDL failed to create rwops from filename: %s", SDL_GetError());
+        return false;
+    }
+    return loadBank(rwops);
+}
+
+bool Aulib::AudioDecoderAdlmidi::loadEmbeddedBank(int bank_number)
+{
+    if (bank_number < 0 or bank_number >= adl_getBanksCount()) {
+        SDL_SetError("Invalid bank number.");
+        return false;
+    }
+    d->bank_data.reset();
+    d->embedded_bank = bank_number;
+    if (d->adl_player == nullptr) {
+        return true;
+    }
+    if (not d->setEmbeddedBank()) {
+        return false;
+    }
+    return true;
+}
+
+const std::vector<std::string>& Aulib::AudioDecoderAdlmidi::getEmbeddedBanks()
+{
+    return embeddedBanks();
+}
 
 bool Aulib::AudioDecoderAdlmidi::open(SDL_RWops* rwops)
 {
@@ -49,9 +216,20 @@ bool Aulib::AudioDecoderAdlmidi::open(SDL_RWops* rwops)
         SDL_SetError("Failed to initialize libADLMIDI: %s", adl_errorString());
         return false;
     }
-    // TODO: Add API for setting these?
-    adl_setBank(d->adl_player.get(), 65);
-    adl_setNumChips(d->adl_player.get(), 4);
+    if (not d->setChipAmount()) {
+        return false;
+    }
+    if (d->change_emulator and not d->setEmulator()) {
+        return false;
+    }
+    if (d->bank_data == nullptr and d->embedded_bank < 0) {
+        SDL_SetError("No FM patch bank loaded.");
+        return false;
+    }
+    if ((d->bank_data and not d->setAndFreeBank())
+        or (d->embedded_bank >= 0 and not d->setEmbeddedBank())) {
+        return false;
+    }
     if (adl_openData(d->adl_player.get(), new_midi_data.get(), new_midi_data.size()) != 0) {
         SDL_SetError("libADLMIDI failed to open MIDI data: %s", adl_errorInfo(d->adl_player.get()));
         return false;
