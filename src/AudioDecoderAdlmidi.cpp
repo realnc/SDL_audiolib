@@ -34,7 +34,6 @@ namespace Aulib {
 struct AudioDecoderAdlmidi_priv final
 {
     std::unique_ptr<ADL_MIDIPlayer, decltype(&adl_close)> adl_player{nullptr, adl_close};
-    Buffer<Uint8> midi_data{0};
     bool eof = false;
     chrono::microseconds duration{};
     AudioDecoderAdlmidi::Emulator emulator;
@@ -236,7 +235,6 @@ bool Aulib::AudioDecoderAdlmidi::open(SDL_RWops* rwops)
     }
     d->duration = chrono::duration_cast<chrono::microseconds>(
         chrono::duration<double>(adl_totalTimeLength(d->adl_player.get())));
-    d->midi_data.swap(new_midi_data);
     setIsOpen(true);
     return true;
 }
