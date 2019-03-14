@@ -10,9 +10,9 @@
 #include "aulib_debug.h"
 #include "aulib_global.h"
 #include "sampleconv.h"
-#include <algorithm>
 #include <SDL_audio.h>
 #include <SDL_timer.h>
+#include <algorithm>
 
 /* This is implemented here in order to avoid having the dtor call stop(),
  * which is a virtual.
