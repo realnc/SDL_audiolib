@@ -300,6 +300,9 @@ add_library(
     src/SdlAudioLocker.h
     src/Buffer.h
     src/Processor.cpp
+    src/missing/sdl_load_file_rw.h
+    src/missing/sdl_load_file_rw.c
+    src/missing/missing.h
     resampler/arch.h
     resampler/resample_sse.h
     resampler/speex_resampler.h
@@ -335,6 +338,7 @@ target_include_directories(
 
     PRIVATE
         ${PROJECT_SOURCE_DIR}/resampler
+        ${PROJECT_SOURCE_DIR}/src/missing
         ${SRC_INCLUDE_DIRS}
         ${SOXR_INCLUDE_DIRS}
         ${FLUIDSYNTH_INCLUDE_DIRS}
