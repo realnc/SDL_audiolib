@@ -14,16 +14,16 @@ public:
     AudioDecoderFluidSynth();
     ~AudioDecoderFluidSynth() override;
 
-    int loadSoundfont(const std::string& filename);
+    bool loadSoundfont(const std::string& filename);
     /*!
      * \brief Load a soundfont from an rwops.
      *
      * Ownership of the rwops is transfered to the decoder. The rwops is closed immediately if an
      * error occurs.
      *
-     * \return 0 on success, non-zero if an error occurred.
+     * \return \c true on success, \c false if an error occurred.
      */
-    int loadSoundfont(SDL_RWops* rwops);
+    bool loadSoundfont(SDL_RWops* rwops);
 
     /*!
      * \brief Get the current master gain.

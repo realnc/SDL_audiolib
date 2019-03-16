@@ -141,20 +141,20 @@ Aulib::AudioDecoderFluidSynth::AudioDecoderFluidSynth()
 
 Aulib::AudioDecoderFluidSynth::~AudioDecoderFluidSynth() = default;
 
-int Aulib::AudioDecoderFluidSynth::loadSoundfont(const std::string& filename)
+bool Aulib::AudioDecoderFluidSynth::loadSoundfont(const std::string& filename)
 {
     if (fluid_synth_sfload(d->fSynth.get(), filename.c_str(), 1) == FLUID_FAILED) {
         SDL_SetError("FluidSynth failed to load soundfont.");
-        return -1;
+        return false;
     }
-    return 0;
+    return true;
 }
 
-int Aulib::AudioDecoderFluidSynth::loadSoundfont(SDL_RWops* rwops)
+bool Aulib::AudioDecoderFluidSynth::loadSoundfont(SDL_RWops* rwops)
 {
     if (rwops == nullptr) {
         SDL_SetError("rwops is null.");
-        return -1;
+        return false;
     }
 
     auto closeRwops = [rwops] {
@@ -168,14 +168,14 @@ int Aulib::AudioDecoderFluidSynth::loadSoundfont(SDL_RWops* rwops)
     if (ret < 0 or ret >= static_cast<int>(bogus_fname.size())) {
         SDL_SetError("internal string representation of pointer is too long (please file a bug)");
         closeRwops();
-        return -1;
+        return false;
     }
     if (fluid_synth_sfload(d->fSynth.get(), bogus_fname.data(), 1) == FLUID_FAILED) {
         SDL_SetError("failed to load soundfont from rwops");
         closeRwops();
-        return -1;
+        return false;
     }
-    return 0;
+    return true;
 }
 
 float Aulib::AudioDecoderFluidSynth::gain() const
