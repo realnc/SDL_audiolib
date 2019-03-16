@@ -10,7 +10,6 @@ namespace chrono = std::chrono;
 
 namespace Aulib {
 
-/// \private
 struct AudioDecoderWildmidi_priv final
 {
     std::unique_ptr<midi, decltype(&WildMidi_Close)> midiHandle{nullptr, &WildMidi_Close};

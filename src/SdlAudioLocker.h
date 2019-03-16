@@ -3,7 +3,7 @@
 
 #include <SDL_audio.h>
 
-/*! \private
+/*
  * RAII wrapper for SDL_LockAudio().
  */
 class SdlAudioLocker final

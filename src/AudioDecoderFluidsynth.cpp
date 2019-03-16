@@ -98,7 +98,6 @@ static int initFluidSynth()
 
 namespace Aulib {
 
-/// \private
 struct AudioDecoderFluidSynth_priv final
 {
     AudioDecoderFluidSynth_priv();

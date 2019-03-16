@@ -31,7 +31,6 @@ static const std::vector<std::string>& embeddedBanks()
 
 namespace Aulib {
 
-/// \private
 struct AudioDecoderAdlmidi_priv final
 {
     std::unique_ptr<ADL_MIDIPlayer, decltype(&adl_close)> adl_player{nullptr, adl_close};

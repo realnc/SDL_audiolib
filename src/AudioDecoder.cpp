@@ -22,7 +22,6 @@
 
 namespace Aulib {
 
-/// \private
 struct AudioDecoder_priv final
 {
     Buffer<float> stereoBuf{0};

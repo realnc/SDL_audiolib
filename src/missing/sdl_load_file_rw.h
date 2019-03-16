@@ -10,7 +10,6 @@ extern "C" {
 typedef struct SDL_RWops SDL_RWops;
 #define SDL_LoadFile_RW SDL_LoadFile_RW_missing
 
-//! \private
 AULIB_NO_EXPORT void* SDL_LoadFile_RW_missing(SDL_RWops* src, size_t* datasize, int freesrc);
 
 #ifdef __cplusplus

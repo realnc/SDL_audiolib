@@ -10,7 +10,6 @@
 
 namespace Aulib {
 
-/// \private
 struct AudioResamplerSpeex_priv final
 {
     explicit AudioResamplerSpeex_priv(int quality)

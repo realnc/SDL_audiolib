@@ -11,7 +11,6 @@
 
 namespace Aulib {
 
-/// \private
 struct AudioStream_priv final
 {
     const class AudioStream* const q;
