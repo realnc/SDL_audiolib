@@ -141,15 +141,6 @@ Aulib::AudioDecoderFluidSynth::AudioDecoderFluidSynth()
 
 Aulib::AudioDecoderFluidSynth::~AudioDecoderFluidSynth() = default;
 
-bool Aulib::AudioDecoderFluidSynth::loadSoundfont(const std::string& filename)
-{
-    if (fluid_synth_sfload(d->fSynth.get(), filename.c_str(), 1) == FLUID_FAILED) {
-        SDL_SetError("FluidSynth failed to load soundfont.");
-        return false;
-    }
-    return true;
-}
-
 bool Aulib::AudioDecoderFluidSynth::loadSoundfont(SDL_RWops* rwops)
 {
     if (rwops == nullptr) {
@@ -173,6 +164,15 @@ bool Aulib::AudioDecoderFluidSynth::loadSoundfont(SDL_RWops* rwops)
     if (fluid_synth_sfload(d->fSynth.get(), bogus_fname.data(), 1) == FLUID_FAILED) {
         SDL_SetError("failed to load soundfont from rwops");
         closeRwops();
+        return false;
+    }
+    return true;
+}
+
+bool Aulib::AudioDecoderFluidSynth::loadSoundfont(const std::string& filename)
+{
+    if (fluid_synth_sfload(d->fSynth.get(), filename.c_str(), 1) == FLUID_FAILED) {
+        SDL_SetError("FluidSynth failed to load soundfont.");
         return false;
     }
     return true;

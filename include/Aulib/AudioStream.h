@@ -10,6 +10,8 @@ struct SDL_AudioSpec;
 
 namespace Aulib {
 
+class AudioDecoder;
+class AudioResampler;
 class Processor;
 
 /*!
@@ -33,8 +35,8 @@ public:
      *  Resampler to use for converting the sample rate of the audio we get from the decoder. If
      *  this is null, then no resampling will be performed.
      */
-    explicit AudioStream(const std::string& filename, std::unique_ptr<class AudioDecoder> decoder,
-                         std::unique_ptr<class AudioResampler> resampler);
+    explicit AudioStream(const std::string& filename, std::unique_ptr<AudioDecoder> decoder,
+                         std::unique_ptr<AudioResampler> resampler);
 
     /*!
      * \brief Constructs an audio stream from the given SDL_RWops, decoder and resampler.
