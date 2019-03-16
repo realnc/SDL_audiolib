@@ -146,10 +146,10 @@ configure_file (
 set(
     PUBLIC_HEADERS
 
-    src/aulib_global.h
     ${CMAKE_BINARY_DIR}/aulib_export.h
     ${CMAKE_BINARY_DIR}/aulib_version.h
-    src/aulib.h
+    include/aulib.h
+    include/aulib_global.h
 )
 
 # Headers in include/SDL_Audiolib/Aulib/
