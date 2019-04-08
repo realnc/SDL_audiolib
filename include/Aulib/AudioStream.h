@@ -38,6 +38,9 @@ public:
     explicit AudioStream(const std::string& filename, std::unique_ptr<AudioDecoder> decoder,
                          std::unique_ptr<AudioResampler> resampler);
 
+    //! \overload
+    explicit AudioStream(const std::string& filename, std::unique_ptr<AudioDecoder> decoder);
+
     /*!
      * \brief Constructs an audio stream from the given SDL_RWops, decoder and resampler.
      *
@@ -56,6 +59,9 @@ public:
      */
     explicit AudioStream(SDL_RWops* rwops, std::unique_ptr<AudioDecoder> decoder,
                          std::unique_ptr<AudioResampler> resampler, bool closeRw);
+
+    //! \overload
+    explicit AudioStream(SDL_RWops* rwops, std::unique_ptr<AudioDecoder> decoder, bool closeRw);
 
     ~AudioStream() override;
 

@@ -40,10 +40,19 @@ Aulib::AudioStream::AudioStream(const std::string& filename, std::unique_ptr<Aud
                   true)
 {}
 
+Aulib::AudioStream::AudioStream(const std::string& filename, std::unique_ptr<AudioDecoder> decoder)
+    : AudioStream(SDL_RWFromFile(filename.c_str(), "rb"), std::move(decoder), true)
+{}
+
 Aulib::AudioStream::AudioStream(SDL_RWops* rwops, std::unique_ptr<AudioDecoder> decoder,
                                 std::unique_ptr<AudioResampler> resampler, bool closeRw)
     : d(std::make_unique<AudioStream_priv>(this, std::move(decoder), std::move(resampler), rwops,
                                            closeRw))
+{}
+
+Aulib::AudioStream::AudioStream(SDL_RWops* rwops, std::unique_ptr<AudioDecoder> decoder,
+                                bool closeRw)
+    : d(std::make_unique<AudioStream_priv>(this, std::move(decoder), nullptr, rwops, closeRw))
 {}
 
 Aulib::AudioStream::~AudioStream()
