@@ -8,7 +8,7 @@ namespace Aulib {
 /*!
  * \brief mpg123 decoder.
  */
-class AULIB_EXPORT AudioDecoderMpg123 final: public AudioDecoder
+class AULIB_EXPORT AudioDecoderMpg123: public AudioDecoder
 {
 public:
     AudioDecoderMpg123();

@@ -8,7 +8,7 @@ namespace Aulib {
 /*!
  * \brief libopusfile decoder.
  */
-class AULIB_EXPORT AudioDecoderOpus final: public AudioDecoder
+class AULIB_EXPORT AudioDecoderOpus: public AudioDecoder
 {
 public:
     AudioDecoderOpus();

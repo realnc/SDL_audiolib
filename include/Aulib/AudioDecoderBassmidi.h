@@ -8,7 +8,7 @@ namespace Aulib {
 /*!
  * \brief BASSMIDI decoder.
  */
-class AULIB_EXPORT AudioDecoderBassmidi final: public AudioDecoder
+class AULIB_EXPORT AudioDecoderBassmidi: public AudioDecoder
 {
 public:
     AudioDecoderBassmidi();

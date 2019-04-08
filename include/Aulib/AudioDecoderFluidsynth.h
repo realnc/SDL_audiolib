@@ -8,7 +8,7 @@ namespace Aulib {
 /*!
  * \brief FluidSynth decoder.
  */
-class AULIB_EXPORT AudioDecoderFluidSynth final: public AudioDecoder
+class AULIB_EXPORT AudioDecoderFluidSynth: public AudioDecoder
 {
 public:
     AudioDecoderFluidSynth();

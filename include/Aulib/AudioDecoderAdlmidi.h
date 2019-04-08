@@ -13,7 +13,7 @@ namespace Aulib {
  * This decoder always generates samples at 49716Hz, the native rate of the OPL synths provided by
  * libADLMIDI.
  */
-class AULIB_EXPORT AudioDecoderAdlmidi final: public AudioDecoder
+class AULIB_EXPORT AudioDecoderAdlmidi: public AudioDecoder
 {
 public:
     enum class Emulator

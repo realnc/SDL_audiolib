@@ -8,7 +8,7 @@ namespace Aulib {
 /*!
  * \brief libvorbisfile decoder.
  */
-class AULIB_EXPORT AudioDecoderVorbis final: public AudioDecoder
+class AULIB_EXPORT AudioDecoderVorbis: public AudioDecoder
 {
 public:
     AudioDecoderVorbis();

@@ -8,7 +8,7 @@ namespace Aulib {
 /*!
  * \brief Libsndfile decoder.
  */
-class AULIB_EXPORT AudioDecoderSndfile final: public AudioDecoder
+class AULIB_EXPORT AudioDecoderSndfile: public AudioDecoder
 {
 public:
     AudioDecoderSndfile();

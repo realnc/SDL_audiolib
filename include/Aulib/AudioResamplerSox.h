@@ -8,7 +8,7 @@ namespace Aulib {
 /*!
  * \brief Sox resampler.
  */
-class AULIB_EXPORT AudioResamplerSox final: public AudioResampler
+class AULIB_EXPORT AudioResamplerSox: public AudioResampler
 {
 public:
     /*!

@@ -8,7 +8,7 @@ namespace Aulib {
 /*!
  * \brief ModPlug decoder.
  */
-class AULIB_EXPORT AudioDecoderModPlug final: public AudioDecoder
+class AULIB_EXPORT AudioDecoderModPlug: public AudioDecoder
 {
 public:
     AudioDecoderModPlug();

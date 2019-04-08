@@ -8,7 +8,7 @@ namespace Aulib {
 /*!
  * \brief SRC (libsamplerate) resampler.
  */
-class AULIB_EXPORT AudioResamplerSRC final: public AudioResampler
+class AULIB_EXPORT AudioResamplerSRC: public AudioResampler
 {
 public:
     /*!
