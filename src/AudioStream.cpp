@@ -96,9 +96,6 @@ bool Aulib::AudioStream::open()
     if (d->fIsOpen) {
         return true;
     }
-    if (d->fRWops == nullptr) {
-        return false;
-    }
     if (not d->fDecoder->open(d->fRWops)) {
         return false;
     }
