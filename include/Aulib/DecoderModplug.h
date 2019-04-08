@@ -8,11 +8,11 @@ namespace Aulib {
 /*!
  * \brief ModPlug decoder.
  */
-class AULIB_EXPORT DecoderModPlug: public Decoder
+class AULIB_EXPORT DecoderModplug: public Decoder
 {
 public:
-    DecoderModPlug();
-    ~DecoderModPlug() override;
+    DecoderModplug();
+    ~DecoderModplug() override;
 
     bool open(SDL_RWops* rwops) override;
     int getChannels() const override;
@@ -25,7 +25,7 @@ protected:
     int doDecoding(float buf[], int len, bool& callAgain) override;
 
 private:
-    const std::unique_ptr<struct DecoderModPlug_priv> d;
+    const std::unique_ptr<struct DecoderModplug_priv> d;
 };
 
 } // namespace Aulib

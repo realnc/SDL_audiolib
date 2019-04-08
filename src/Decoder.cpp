@@ -78,7 +78,7 @@ std::unique_ptr<Aulib::Decoder> Aulib::Decoder::decoderFor(SDL_RWops* rwops)
         if (SDL_RWread(rwops, head.data(), 1, 4) == 4 and head == decltype(head){"MThd"}) {
             using midi_dec_type =
 #    if USE_DEC_FLUIDSYNTH
-                DecoderFluidSynth;
+                DecoderFluidsynth;
 #    elif USE_DEC_BASSMIDI
                 DecoderBassmidi;
 #    elif USE_DEC_WILDMIDI

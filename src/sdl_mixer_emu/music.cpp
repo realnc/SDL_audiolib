@@ -59,11 +59,11 @@ Mix_Music* Mix_LoadMUSType_RW(SDL_RWops* rw, Mix_MusicType type, int freesrc)
 
     case MUS_MOD:
     case MUS_MODPLUG:
-        decoder = std::make_unique<Aulib::DecoderModPlug>();
+        decoder = std::make_unique<Aulib::DecoderModplug>();
         break;
 
     case MUS_MID:
-        decoder = std::make_unique<Aulib::DecoderFluidSynth>();
+        decoder = std::make_unique<Aulib::DecoderFluidsynth>();
         break;
 
     case MUS_OGG:

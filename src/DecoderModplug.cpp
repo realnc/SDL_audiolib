@@ -29,9 +29,9 @@ static void initModPlug(const SDL_AudioSpec& spec)
 
 namespace Aulib {
 
-struct DecoderModPlug_priv final
+struct DecoderModplug_priv final
 {
-    DecoderModPlug_priv();
+    DecoderModplug_priv();
 
     std::unique_ptr<ModPlugFile, decltype(&ModPlug_Unload)> mpHandle{nullptr, &ModPlug_Unload};
     bool atEOF = false;
@@ -40,20 +40,20 @@ struct DecoderModPlug_priv final
 
 } // namespace Aulib
 
-Aulib::DecoderModPlug_priv::DecoderModPlug_priv()
+Aulib::DecoderModplug_priv::DecoderModplug_priv()
 {
     if (not initialized) {
         initModPlug(Aulib::spec());
     }
 }
 
-Aulib::DecoderModPlug::DecoderModPlug()
-    : d(std::make_unique<DecoderModPlug_priv>())
+Aulib::DecoderModplug::DecoderModplug()
+    : d(std::make_unique<DecoderModplug_priv>())
 {}
 
-Aulib::DecoderModPlug::~DecoderModPlug() = default;
+Aulib::DecoderModplug::~DecoderModplug() = default;
 
-bool Aulib::DecoderModPlug::open(SDL_RWops* rwops)
+bool Aulib::DecoderModplug::open(SDL_RWops* rwops)
 {
     if (isOpen()) {
         return true;
@@ -77,17 +77,17 @@ bool Aulib::DecoderModPlug::open(SDL_RWops* rwops)
     return true;
 }
 
-int Aulib::DecoderModPlug::getChannels() const
+int Aulib::DecoderModplug::getChannels() const
 {
     return modplugSettings.mChannels;
 }
 
-int Aulib::DecoderModPlug::getRate() const
+int Aulib::DecoderModplug::getRate() const
 {
     return modplugSettings.mFrequency;
 }
 
-int Aulib::DecoderModPlug::doDecoding(float buf[], int len, bool& callAgain)
+int Aulib::DecoderModplug::doDecoding(float buf[], int len, bool& callAgain)
 {
     callAgain = false;
     if (d->atEOF) {
@@ -105,17 +105,17 @@ int Aulib::DecoderModPlug::doDecoding(float buf[], int len, bool& callAgain)
     return ret / static_cast<int>(sizeof(*buf));
 }
 
-bool Aulib::DecoderModPlug::rewind()
+bool Aulib::DecoderModplug::rewind()
 {
     return seekToTime(chrono::microseconds::zero());
 }
 
-chrono::microseconds Aulib::DecoderModPlug::duration() const
+chrono::microseconds Aulib::DecoderModplug::duration() const
 {
     return d->fDuration;
 }
 
-bool Aulib::DecoderModPlug::seekToTime(chrono::microseconds pos)
+bool Aulib::DecoderModplug::seekToTime(chrono::microseconds pos)
 {
     ModPlug_Seek(d->mpHandle.get(), chrono::duration_cast<chrono::milliseconds>(pos).count());
     d->atEOF = false;

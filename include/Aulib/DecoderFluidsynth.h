@@ -8,11 +8,11 @@ namespace Aulib {
 /*!
  * \brief FluidSynth decoder.
  */
-class AULIB_EXPORT DecoderFluidSynth: public Decoder
+class AULIB_EXPORT DecoderFluidsynth: public Decoder
 {
 public:
-    DecoderFluidSynth();
-    ~DecoderFluidSynth() override;
+    DecoderFluidsynth();
+    ~DecoderFluidsynth() override;
 
     /*!
      * \brief Load a soundfont.
@@ -55,7 +55,7 @@ protected:
     int doDecoding(float buf[], int len, bool& callAgain) override;
 
 private:
-    const std::unique_ptr<struct DecoderFluidSynth_priv> d;
+    const std::unique_ptr<struct DecoderFluidsynth_priv> d;
 };
 
 } // namespace Aulib

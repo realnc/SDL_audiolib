@@ -8,7 +8,7 @@ namespace Aulib {
 /*!
  * \brief SRC (libsamplerate) resampler.
  */
-class AULIB_EXPORT ResamplerSRC: public Resampler
+class AULIB_EXPORT ResamplerSrc: public Resampler
 {
 public:
     /*!
@@ -60,8 +60,8 @@ public:
      *      Resampling quality. Note that the quality can *not* be changed
      *      later on.
      */
-    explicit ResamplerSRC(Quality quality = Quality::SincMedium);
-    ~ResamplerSRC() override;
+    explicit ResamplerSrc(Quality quality = Quality::SincMedium);
+    ~ResamplerSrc() override;
 
     Quality quality() const noexcept;
 
@@ -70,7 +70,7 @@ protected:
     int adjustForOutputSpec(int dstRate, int srcRate, int channels) override;
 
 private:
-    const std::unique_ptr<struct ResamplerSRC_priv> d;
+    const std::unique_ptr<struct ResamplerSrc_priv> d;
 };
 
 } // namespace Aulib
