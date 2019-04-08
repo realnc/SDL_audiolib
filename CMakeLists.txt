@@ -159,7 +159,6 @@ set(
     include/Aulib/AudioResamplerSpeex.h
     include/Aulib/AudioResampler.h
     include/Aulib/Stream.h
-    include/Aulib/AudioStream.h
     include/Aulib/Processor.h
 )
 
@@ -290,13 +289,12 @@ add_library(
     src/aulib.cpp
     src/AudioDecoder.cpp
     src/AudioResampler.cpp
-    src/AudioStream.cpp
-    src/audiostream_p.h
-    src/audiostream_p.cpp
     src/AudioResamplerSpeex.cpp
     src/sampleconv.h
     src/sampleconv.cpp
     src/Stream.cpp
+    src/stream_p.h
+    src/stream_p.cpp
     src/SdlAudioLocker.h
     src/Buffer.h
     src/Processor.cpp

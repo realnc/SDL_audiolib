@@ -1,25 +1,25 @@
 // This is copyrighted software. More information is at the end of this file.
-#include "audiostream_p.h"
+#include "stream_p.h"
 
 #include "Aulib/AudioDecoder.h"
 #include "Aulib/AudioResampler.h"
-#include "Aulib/AudioStream.h"
+#include "Aulib/Stream.h"
 #include "aulib_debug.h"
 #include <SDL_timer.h>
 #include <algorithm>
 #include <cmath>
 #include <type_traits>
 
-void (*Aulib::AudioStream_priv::fSampleConverter)(Uint8[], const Buffer<float>& src) = nullptr;
-SDL_AudioSpec Aulib::AudioStream_priv::fAudioSpec;
-std::vector<Aulib::AudioStream*> Aulib::AudioStream_priv::fStreamList;
-Buffer<float> Aulib::AudioStream_priv::fFinalMixBuf{0};
-Buffer<float> Aulib::AudioStream_priv::fStrmBuf{0};
-Buffer<float> Aulib::AudioStream_priv::fProcessorBuf{0};
+void (*Aulib::Stream_priv::fSampleConverter)(Uint8[], const Buffer<float>& src) = nullptr;
+SDL_AudioSpec Aulib::Stream_priv::fAudioSpec;
+std::vector<Aulib::Stream*> Aulib::Stream_priv::fStreamList;
+Buffer<float> Aulib::Stream_priv::fFinalMixBuf{0};
+Buffer<float> Aulib::Stream_priv::fStrmBuf{0};
+Buffer<float> Aulib::Stream_priv::fProcessorBuf{0};
 
-Aulib::AudioStream_priv::AudioStream_priv(AudioStream* pub, std::unique_ptr<AudioDecoder> decoder,
-                                          std::unique_ptr<AudioResampler> resampler,
-                                          SDL_RWops* rwops, bool closeRw)
+Aulib::Stream_priv::Stream_priv(Stream* pub, std::unique_ptr<AudioDecoder> decoder,
+                                std::unique_ptr<AudioResampler> resampler, SDL_RWops* rwops,
+                                bool closeRw)
     : q(pub)
     , fRWops(rwops)
     , fCloseRw(closeRw)
@@ -31,14 +31,14 @@ Aulib::AudioStream_priv::AudioStream_priv(AudioStream* pub, std::unique_ptr<Audi
     }
 }
 
-Aulib::AudioStream_priv::~AudioStream_priv()
+Aulib::Stream_priv::~Stream_priv()
 {
     if (fCloseRw and fRWops != nullptr) {
         SDL_RWclose(fRWops);
     }
 }
 
-void Aulib::AudioStream_priv::fProcessFade()
+void Aulib::Stream_priv::fProcessFade()
 {
     static_assert(std::is_same<decltype(fFadeInDuration), std::chrono::milliseconds>::value, "");
     static_assert(std::is_same<decltype(fFadeOutDuration), std::chrono::milliseconds>::value, "");
@@ -72,7 +72,7 @@ void Aulib::AudioStream_priv::fProcessFade()
     }
 }
 
-void Aulib::AudioStream_priv::fStop()
+void Aulib::Stream_priv::fStop()
 {
     fStreamList.erase(std::remove(fStreamList.begin(), fStreamList.end(), this->q),
                       fStreamList.end());
@@ -80,9 +80,9 @@ void Aulib::AudioStream_priv::fStop()
     fIsPlaying = false;
 }
 
-void Aulib::AudioStream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int outLen)
+void Aulib::Stream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int outLen)
 {
-    AM_debugAssert(AudioStream_priv::fSampleConverter != nullptr);
+    AM_debugAssert(Stream_priv::fSampleConverter != nullptr);
 
     int wantedSamples = outLen / ((fAudioSpec.format & 0xFF) / 8);
 
@@ -97,7 +97,7 @@ void Aulib::AudioStream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], in
 
     // Iterate over a copy of the original stream list, since we might want to
     // modify the original as we go, removing streams that have stopped.
-    std::vector<AudioStream*> streamList(fStreamList);
+    std::vector<Stream*> streamList(fStreamList);
 
     for (const auto stream : streamList) {
         if (stream->d->fWantedIterations != 0
@@ -166,7 +166,7 @@ void Aulib::AudioStream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], in
             stream->invokeLoopCallback();
         }
     }
-    AudioStream_priv::fSampleConverter(out, fFinalMixBuf);
+    Stream_priv::fSampleConverter(out, fFinalMixBuf);
 }
 
 /*

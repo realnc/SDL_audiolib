@@ -3,7 +3,7 @@
 #include "Aulib/AudioDecoderSndfile.h"
 #include "Aulib/AudioDecoderWildmidi.h"
 #include "Aulib/AudioResamplerSpeex.h"
-#include "Aulib/AudioStream.h"
+#include "Aulib/Stream.h"
 #include <SDL.h>
 #include <iostream>
 #include <memory>
@@ -30,7 +30,7 @@ int main(int /*argc*/, char* argv[])
         fsynth->loadSoundfont("/usr/local/share/soundfonts/gs.sf2");
     }
 
-    AudioStream stream(argv[1], std::move(decoder), std::make_unique<AudioResamplerSpeex>());
+    Stream stream(argv[1], std::move(decoder), std::make_unique<AudioResamplerSpeex>());
     stream.play();
     while (stream.isPlaying()) {
         SDL_Delay(200);

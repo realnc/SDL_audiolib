@@ -4,7 +4,7 @@
 #include "aulib_config.h"
 #include "aulib_debug.h"
 #include "aulib_global.h"
-//#include "audiostream.h"
+//#include "stream.h"
 
 const SDL_version* Mix_Linked_Version()
 {

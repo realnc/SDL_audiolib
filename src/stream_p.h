@@ -1,6 +1,7 @@
 // This is copyrighted software. More information is at the end of this file.
 #pragma once
 
+#include "Aulib/Stream.h"
 #include "Aulib/Processor.h"
 #include "Buffer.h"
 #include "aulib.h"
@@ -11,14 +12,14 @@
 
 namespace Aulib {
 
-struct AudioStream_priv final
+struct Stream_priv final
 {
-    const class AudioStream* const q;
+    const class Stream* const q;
 
-    explicit AudioStream_priv(class AudioStream* pub, std::unique_ptr<class AudioDecoder> decoder,
-                              std::unique_ptr<class AudioResampler> resampler, SDL_RWops* rwops,
-                              bool closeRw);
-    ~AudioStream_priv();
+    explicit Stream_priv(class Stream* pub, std::unique_ptr<class AudioDecoder> decoder,
+                         std::unique_ptr<class AudioResampler> resampler, SDL_RWops* rwops,
+                         bool closeRw);
+    ~Stream_priv();
 
     bool fIsOpen = false;
     SDL_RWops* fRWops;
@@ -42,9 +43,11 @@ struct AudioStream_priv final
     std::chrono::milliseconds fFadeOutDuration{};
     std::vector<std::shared_ptr<Processor>> processors;
     bool fIsMuted = false;
+    Stream::Callback fFinishCallback;
+    Stream::Callback fLoopCallback;
 
     static ::SDL_AudioSpec fAudioSpec;
-    static std::vector<AudioStream*> fStreamList;
+    static std::vector<Stream*> fStreamList;
 
     // This points to an appropriate converter for the current audio format.
     static void (*fSampleConverter)(Uint8[], const Buffer<float>& src);
