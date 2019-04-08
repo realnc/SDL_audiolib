@@ -2,9 +2,9 @@
 #include "aulib.h"
 
 #include "Aulib/Stream.h"
-#include "stream_p.h"
 #include "aulib_debug.h"
 #include "sampleconv.h"
+#include "stream_p.h"
 #include <SDL.h>
 #include <SDL_audio.h>
 #include <SDL_version.h>

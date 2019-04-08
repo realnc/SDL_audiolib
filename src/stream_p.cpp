@@ -1,8 +1,8 @@
 // This is copyrighted software. More information is at the end of this file.
 #include "stream_p.h"
 
-#include "Aulib/AudioDecoder.h"
-#include "Aulib/AudioResampler.h"
+#include "Aulib/Decoder.h"
+#include "Aulib/Resampler.h"
 #include "Aulib/Stream.h"
 #include "aulib_debug.h"
 #include <SDL_timer.h>
@@ -17,8 +17,8 @@ Buffer<float> Aulib::Stream_priv::fFinalMixBuf{0};
 Buffer<float> Aulib::Stream_priv::fStrmBuf{0};
 Buffer<float> Aulib::Stream_priv::fProcessorBuf{0};
 
-Aulib::Stream_priv::Stream_priv(Stream* pub, std::unique_ptr<AudioDecoder> decoder,
-                                std::unique_ptr<AudioResampler> resampler, SDL_RWops* rwops,
+Aulib::Stream_priv::Stream_priv(Stream* pub, std::unique_ptr<Decoder> decoder,
+                                std::unique_ptr<Resampler> resampler, SDL_RWops* rwops,
                                 bool closeRw)
     : q(pub)
     , fRWops(rwops)

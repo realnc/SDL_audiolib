@@ -13,13 +13,12 @@ struct SDL_AudioSpec;
 
 namespace Aulib {
 
-class AudioDecoder;
-class AudioResampler;
+class Decoder;
+class Resampler;
 class Processor;
-struct Stream_priv;
 
 /*!
- * \brief A \ref Stream handles playback for audio produced by an AudioDecoder.
+ * \brief A \ref Stream handles playback for audio produced by a Decoder.
  */
 class AULIB_EXPORT Stream
 {
@@ -39,11 +38,11 @@ public:
      *  Resampler to use for converting the sample rate of the audio we get from the decoder. If
      *  this is null, then no resampling will be performed.
      */
-    explicit Stream(const std::string& filename, std::unique_ptr<AudioDecoder> decoder,
-                    std::unique_ptr<AudioResampler> resampler);
+    explicit Stream(const std::string& filename, std::unique_ptr<Decoder> decoder,
+                    std::unique_ptr<Resampler> resampler);
 
     //! \overload
-    explicit Stream(const std::string& filename, std::unique_ptr<AudioDecoder> decoder);
+    explicit Stream(const std::string& filename, std::unique_ptr<Decoder> decoder);
 
     /*!
      * \brief Constructs an audio stream from the given SDL_RWops, decoder and resampler.
@@ -61,11 +60,11 @@ public:
      * \param closeRw
      *  Specifies whether 'rwops' should be automatically closed when the stream is destroyed.
      */
-    explicit Stream(SDL_RWops* rwops, std::unique_ptr<AudioDecoder> decoder,
-                    std::unique_ptr<AudioResampler> resampler, bool closeRw);
+    explicit Stream(SDL_RWops* rwops, std::unique_ptr<Decoder> decoder,
+                    std::unique_ptr<Resampler> resampler, bool closeRw);
 
     //! \overload
-    explicit Stream(SDL_RWops* rwops, std::unique_ptr<AudioDecoder> decoder, bool closeRw);
+    explicit Stream(SDL_RWops* rwops, std::unique_ptr<Decoder> decoder, bool closeRw);
 
     virtual ~Stream();
 
@@ -297,10 +296,10 @@ protected:
     void invokeLoopCallback();
 
 private:
-    friend Stream_priv;
+    friend struct Stream_priv;
     friend int Aulib::init(int, SDL_AudioFormat, int, int);
 
-    const std::unique_ptr<Stream_priv> d;
+    const std::unique_ptr<struct Stream_priv> d;
 };
 
 } // namespace Aulib

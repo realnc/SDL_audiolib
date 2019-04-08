@@ -1,8 +1,8 @@
 // This is copyrighted software. More information is at the end of this file.
 #pragma once
 
-#include "Aulib/Stream.h"
 #include "Aulib/Processor.h"
+#include "Aulib/Stream.h"
 #include "Buffer.h"
 #include "aulib.h"
 #include <SDL_audio.h>
@@ -12,21 +12,23 @@
 
 namespace Aulib {
 
+class Decoder;
+class Resampler;
+
 struct Stream_priv final
 {
-    const class Stream* const q;
+    const Stream* const q;
 
-    explicit Stream_priv(class Stream* pub, std::unique_ptr<class AudioDecoder> decoder,
-                         std::unique_ptr<class AudioResampler> resampler, SDL_RWops* rwops,
-                         bool closeRw);
+    explicit Stream_priv(class Stream* pub, std::unique_ptr<Decoder> decoder,
+                         std::unique_ptr<Resampler> resampler, SDL_RWops* rwops, bool closeRw);
     ~Stream_priv();
 
     bool fIsOpen = false;
     SDL_RWops* fRWops;
     bool fCloseRw;
     // Resamplers hold a reference to decoders, so we store it as a shared_ptr.
-    std::shared_ptr<AudioDecoder> fDecoder;
-    std::unique_ptr<AudioResampler> fResampler;
+    std::shared_ptr<Decoder> fDecoder;
+    std::unique_ptr<Resampler> fResampler;
     bool fIsPlaying = false;
     bool fIsPaused = false;
     float fVolume = 1.f;

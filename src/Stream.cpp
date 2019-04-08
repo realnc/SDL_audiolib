@@ -1,9 +1,9 @@
 // This is copyrighted software. More information is at the end of this file.
 #include "Aulib/Stream.h"
 
-#include "Aulib/AudioDecoder.h"
-#include "Aulib/AudioResampler.h"
+#include "Aulib/Decoder.h"
 #include "Aulib/Processor.h"
+#include "Aulib/Resampler.h"
 #include "SdlAudioLocker.h"
 #include "aulib.h"
 #include "aulib_debug.h"
@@ -34,22 +34,22 @@ static void stop_impl(Aulib::Stream_priv* d, std::chrono::microseconds fadeTime)
     }
 }
 
-Aulib::Stream::Stream(const std::string& filename, std::unique_ptr<AudioDecoder> decoder,
-                      std::unique_ptr<AudioResampler> resampler)
+Aulib::Stream::Stream(const std::string& filename, std::unique_ptr<Decoder> decoder,
+                      std::unique_ptr<Resampler> resampler)
     : Stream(SDL_RWFromFile(filename.c_str(), "rb"), std::move(decoder), std::move(resampler), true)
 {}
 
-Aulib::Stream::Stream(const std::string& filename, std::unique_ptr<AudioDecoder> decoder)
+Aulib::Stream::Stream(const std::string& filename, std::unique_ptr<Decoder> decoder)
     : Stream(SDL_RWFromFile(filename.c_str(), "rb"), std::move(decoder), true)
 {}
 
-Aulib::Stream::Stream(SDL_RWops* rwops, std::unique_ptr<AudioDecoder> decoder,
-                      std::unique_ptr<AudioResampler> resampler, bool closeRw)
+Aulib::Stream::Stream(SDL_RWops* rwops, std::unique_ptr<Decoder> decoder,
+                      std::unique_ptr<Resampler> resampler, bool closeRw)
     : d(std::make_unique<Stream_priv>(this, std::move(decoder), std::move(resampler), rwops,
                                       closeRw))
 {}
 
-Aulib::Stream::Stream(SDL_RWops* rwops, std::unique_ptr<AudioDecoder> decoder, bool closeRw)
+Aulib::Stream::Stream(SDL_RWops* rwops, std::unique_ptr<Decoder> decoder, bool closeRw)
     : d(std::make_unique<Stream_priv>(this, std::move(decoder), nullptr, rwops, closeRw))
 {}
 

@@ -155,11 +155,11 @@ set(
 # Headers in include/SDL_Audiolib/Aulib/
 set(
     PUBLIC_HEADERS_AULIB_DIR
-    include/Aulib/AudioDecoder.h
-    include/Aulib/AudioResamplerSpeex.h
-    include/Aulib/AudioResampler.h
-    include/Aulib/Stream.h
+    include/Aulib/Decoder.h
     include/Aulib/Processor.h
+    include/Aulib/Resampler.h
+    include/Aulib/ResamplerSpeex.h
+    include/Aulib/Stream.h
 )
 
 pkg_check_modules(SDL REQUIRED sdl2)
@@ -167,109 +167,109 @@ set(PKGCONF_REQ_PUB "${PKGCONF_REQ_PUB} sdl2")
 set(LIBRARY_DIRS ${LIBRARY_DIRS} ${SDL_LIBRARY_DIRS})
 
 if (USE_RESAMP_SRC)
-    set(AULIB_SOURCES ${AULIB_SOURCES} src/AudioResamplerSrc.cpp)
-    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/AudioResamplerSrc.h)
+    set(AULIB_SOURCES ${AULIB_SOURCES} src/ResamplerSrc.cpp)
+    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/ResamplerSrc.h)
     pkg_check_modules(SRC REQUIRED samplerate>=0.1.9)
     set(LIBRARY_DIRS ${LIBRARY_DIRS} ${SRC_LIBRARY_DIRS})
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} samplerate")
 endif(USE_RESAMP_SRC)
 
 if (USE_RESAMP_SOXR)
-    set(AULIB_SOURCES ${AULIB_SOURCES} src/AudioResamplerSox.cpp)
-    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/AudioResamplerSox.h)
+    set(AULIB_SOURCES ${AULIB_SOURCES} src/ResamplerSox.cpp)
+    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/ResamplerSox.h)
     pkg_check_modules(SOXR REQUIRED soxr)
     set(LIBRARY_DIRS ${LIBRARY_DIRS} ${SOXR_LIBRARY_DIRS})
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} soxr")
 endif(USE_RESAMP_SOXR)
 
 if (USE_DEC_OPENMPT)
-    set(AULIB_SOURCES ${AULIB_SOURCES} src/AudioDecoderOpenmpt.cpp)
-    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/AudioDecoderOpenmpt.h)
+    set(AULIB_SOURCES ${AULIB_SOURCES} src/DecoderOpenmpt.cpp)
+    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderOpenmpt.h)
     pkg_check_modules(OPENMPT REQUIRED libopenmpt)
     set(LIBRARY_DIRS ${LIBRARY_DIRS} ${OPENMPT_LIBRARY_DIRS})
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} libopenmpt")
 endif(USE_DEC_OPENMPT)
 
 if (USE_DEC_XMP)
-    set(AULIB_SOURCES ${AULIB_SOURCES} src/AudioDecoderXmp.cpp)
-    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/AudioDecoderXmp.h)
+    set(AULIB_SOURCES ${AULIB_SOURCES} src/DecoderXmp.cpp)
+    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderXmp.h)
     pkg_check_modules(XMP REQUIRED libxmp)
     set(LIBRARY_DIRS ${LIBRARY_DIRS} ${XMP_LIBRARY_DIRS})
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} libxmp")
 endif(USE_DEC_XMP)
 
 if (USE_DEC_MODPLUG)
-    set(AULIB_SOURCES ${AULIB_SOURCES} src/AudioDecoderModplug.cpp)
-    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/AudioDecoderModplug.h)
+    set(AULIB_SOURCES ${AULIB_SOURCES} src/DecoderModplug.cpp)
+    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderModplug.h)
     pkg_check_modules(MODPLUG REQUIRED libmodplug)
     set(LIBRARY_DIRS ${LIBRARY_DIRS} ${MODPLUG_LIBRARY_DIRS})
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} libmodplug")
 endif(USE_DEC_MODPLUG)
 
 if (USE_DEC_MPG123)
-    set(AULIB_SOURCES ${AULIB_SOURCES} src/AudioDecoderMpg123.cpp)
-    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/AudioDecoderMpg123.h)
+    set(AULIB_SOURCES ${AULIB_SOURCES} src/DecoderMpg123.cpp)
+    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderMpg123.h)
     pkg_check_modules(MPG123 REQUIRED libmpg123)
     set(LIBRARY_DIRS ${LIBRARY_DIRS} ${MPG123_LIBRARY_DIRS})
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} libmpg123")
 endif(USE_DEC_MPG123)
 
 if (USE_DEC_SNDFILE)
-    set(AULIB_SOURCES ${AULIB_SOURCES} src/AudioDecoderSndfile.cpp)
-    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/AudioDecoderSndfile.h)
+    set(AULIB_SOURCES ${AULIB_SOURCES} src/DecoderSndfile.cpp)
+    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderSndfile.h)
     pkg_check_modules(SNDFILE REQUIRED sndfile)
     set(LIBRARY_DIRS ${LIBRARY_DIRS} ${SNDFILE_LIBRARY_DIRS})
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} sndfile")
 endif(USE_DEC_SNDFILE)
 
 if (USE_DEC_LIBVORBIS)
-    set(AULIB_SOURCES ${AULIB_SOURCES} src/AudioDecoderVorbis.cpp)
-    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/AudioDecoderVorbis.h)
+    set(AULIB_SOURCES ${AULIB_SOURCES} src/DecoderVorbis.cpp)
+    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderVorbis.h)
     pkg_check_modules(VORBISFILE REQUIRED vorbisfile)
     set(LIBRARY_DIRS ${LIBRARY_DIRS} ${VORBISFILE_LIBRARY_DIRS})
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} vorbisfile")
 endif(USE_DEC_LIBVORBIS)
 
 if (USE_DEC_LIBOPUSFILE)
-    set(AULIB_SOURCES ${AULIB_SOURCES} src/AudioDecoderOpus.cpp)
-    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/AudioDecoderOpus.h)
+    set(AULIB_SOURCES ${AULIB_SOURCES} src/DecoderOpus.cpp)
+    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderOpus.h)
     pkg_check_modules(OPUSFILE REQUIRED opusfile)
     set(LIBRARY_DIRS ${LIBRARY_DIRS} ${OPUSFILE_LIBRARY_DIRS})
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} opusfile")
 endif(USE_DEC_LIBOPUSFILE)
 
 if (USE_DEC_MUSEPACK)
-    set(AULIB_SOURCES ${AULIB_SOURCES} src/AudioDecoderMusepack.cpp)
-    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/AudioDecoderMusepack.h)
+    set(AULIB_SOURCES ${AULIB_SOURCES} src/DecoderMusepack.cpp)
+    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderMusepack.h)
     set(PKGCONF_LIBS_PRIV "${PKGCONF_LIBS_PRIV} -lmpcdec")
     set(EXTRA_LIBRARIES ${EXTRA_LIBRARIES} mpcdec)
 endif(USE_DEC_MUSEPACK)
 
 if (USE_DEC_FLUIDSYNTH)
-    set(AULIB_SOURCES ${AULIB_SOURCES} src/AudioDecoderFluidsynth.cpp)
-    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/AudioDecoderFluidsynth.h)
+    set(AULIB_SOURCES ${AULIB_SOURCES} src/DecoderFluidsynth.cpp)
+    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderFluidsynth.h)
     pkg_check_modules(FLUIDSYNTH REQUIRED fluidsynth>=2)
     set(LIBRARY_DIRS ${LIBRARY_DIRS} ${FLUIDSYNTH_LIBRARY_DIRS})
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} fluidsynth")
 endif(USE_DEC_FLUIDSYNTH)
 
 if (USE_DEC_BASSMIDI)
-    set(AULIB_SOURCES ${AULIB_SOURCES} src/AudioDecoderBassmidi.cpp)
-    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/AudioDecoderBassmidi.h)
+    set(AULIB_SOURCES ${AULIB_SOURCES} src/DecoderBassmidi.cpp)
+    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderBassmidi.h)
     set(PKGCONF_LIBS_PRIV "${PKGCONF_LIBS_PRIV} -lbass -lbassmidi")
     set(EXTRA_LIBRARIES ${EXTRA_LIBRARIES} bass bassmidi)
 endif(USE_DEC_BASSMIDI)
 
 if (USE_DEC_WILDMIDI)
-    set(AULIB_SOURCES ${AULIB_SOURCES} src/AudioDecoderWildmidi.cpp)
-    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/AudioDecoderWildmidi.h)
+    set(AULIB_SOURCES ${AULIB_SOURCES} src/DecoderWildmidi.cpp)
+    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderWildmidi.h)
     set(PKGCONF_LIBS_PRIV "${PKGCONF_LIBS_PRIV} -lWildMidi")
     set(EXTRA_LIBRARIES ${EXTRA_LIBRARIES} WildMidi)
 endif(USE_DEC_WILDMIDI)
 
 if (USE_DEC_ADLMIDI)
-    set(AULIB_SOURCES ${AULIB_SOURCES} src/AudioDecoderAdlmidi.cpp)
-    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/AudioDecoderAdlmidi.h)
+    set(AULIB_SOURCES ${AULIB_SOURCES} src/DecoderAdlmidi.cpp)
+    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderAdlmidi.h)
     set(PKGCONF_LIBS_PRIV "${PKGCONF_LIBS_PRIV} -lADLMIDI")
     set(EXTRA_LIBRARIES ${EXTRA_LIBRARIES} ADLMIDI)
 endif(USE_DEC_ADLMIDI)
@@ -285,26 +285,28 @@ add_library(
     ${PUBLIC_HEADERS_AULIB_DIR}
     ${AULIB_SOURCES}
 
-    src/aulib_debug.h
-    src/aulib.cpp
-    src/AudioDecoder.cpp
-    src/AudioResampler.cpp
-    src/AudioResamplerSpeex.cpp
-    src/sampleconv.h
-    src/sampleconv.cpp
-    src/Stream.cpp
-    src/stream_p.h
-    src/stream_p.cpp
-    src/SdlAudioLocker.h
     src/Buffer.h
+    src/Decoder.cpp
     src/Processor.cpp
-    src/missing/sdl_load_file_rw.h
-    src/missing/sdl_load_file_rw.c
+    src/Resampler.cpp
+    src/ResamplerSpeex.cpp
+    src/SdlAudioLocker.h
+    src/Stream.cpp
+    src/aulib.cpp
+    src/aulib_debug.h
+    src/sampleconv.cpp
+    src/sampleconv.h
+    src/stream_p.cpp
+    src/stream_p.h
+
     src/missing/missing.h
+    src/missing/sdl_load_file_rw.c
+    src/missing/sdl_load_file_rw.h
+
     resampler/arch.h
+    resampler/resample.c
     resampler/resample_sse.h
     resampler/speex_resampler.h
-    resampler/resample.c
 )
 
 target_compile_definitions(
