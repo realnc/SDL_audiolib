@@ -34,7 +34,9 @@ int Aulib::init(int freq, SDL_AudioFormat format, int channels, int bufferSize)
     requestedSpec.samples = bufferSize;
     requestedSpec.callback = ::sdlCallback;
     Stream_priv::fAudioSpec = requestedSpec;
-    if (SDL_OpenAudio(&requestedSpec, &Stream_priv::fAudioSpec) != 0) {
+    Stream_priv::fDeviceId = SDL_OpenAudioDevice(
+        nullptr, false, &requestedSpec, &Stream_priv::fAudioSpec, SDL_AUDIO_ALLOW_ANY_CHANGE);
+    if (Stream_priv::fDeviceId == 0) {
         Aulib::quit();
         return -1;
     }
@@ -87,7 +89,7 @@ int Aulib::init(int freq, SDL_AudioFormat format, int channels, int bufferSize)
         return -1;
     }
 
-    SDL_PauseAudio(0);
+    SDL_PauseAudioDevice(Stream_priv::fDeviceId, false);
     gInitialized = true;
     std::atexit(Aulib::quit);
     return 0;

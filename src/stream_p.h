@@ -49,6 +49,7 @@ struct Stream_priv final
     Stream::Callback fLoopCallback;
 
     static ::SDL_AudioSpec fAudioSpec;
+    static SDL_AudioDeviceID fDeviceId;
     static std::vector<Stream*> fStreamList;
 
     // This points to an appropriate converter for the current audio format.

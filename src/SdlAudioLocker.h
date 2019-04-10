@@ -1,6 +1,7 @@
 // This is copyrighted software. More information is at the end of this file.
 #pragma once
 
+#include "stream_p.h"
 #include <SDL_audio.h>
 
 /*
@@ -11,7 +12,7 @@ class SdlAudioLocker final
 public:
     SdlAudioLocker()
     {
-        SDL_LockAudio();
+        SDL_LockAudioDevice(Aulib::Stream_priv::fDeviceId);
         fIsLocked = true;
     }
 
@@ -26,7 +27,7 @@ public:
     void unlock()
     {
         if (fIsLocked) {
-            SDL_UnlockAudio();
+            SDL_UnlockAudioDevice(Aulib::Stream_priv::fDeviceId);
             fIsLocked = false;
         }
     }

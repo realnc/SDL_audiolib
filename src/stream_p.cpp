@@ -12,6 +12,7 @@
 
 void (*Aulib::Stream_priv::fSampleConverter)(Uint8[], const Buffer<float>& src) = nullptr;
 SDL_AudioSpec Aulib::Stream_priv::fAudioSpec;
+SDL_AudioDeviceID Aulib::Stream_priv::fDeviceId;
 std::vector<Aulib::Stream*> Aulib::Stream_priv::fStreamList;
 Buffer<float> Aulib::Stream_priv::fFinalMixBuf{0};
 Buffer<float> Aulib::Stream_priv::fStrmBuf{0};
