@@ -297,7 +297,7 @@ protected:
 
 private:
     friend struct Stream_priv;
-    friend int Aulib::init(int, SDL_AudioFormat, int, int);
+    friend bool Aulib::init(int, SDL_AudioFormat, int, int);
 
     const std::unique_ptr<struct Stream_priv> d;
 };

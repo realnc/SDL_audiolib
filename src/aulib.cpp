@@ -18,10 +18,10 @@ static void sdlCallback(void* /*unused*/, Uint8 out[], int outLen)
 }
 }
 
-int Aulib::init(int freq, SDL_AudioFormat format, int channels, int bufferSize)
+bool Aulib::init(int freq, SDL_AudioFormat format, int channels, int bufferSize)
 {
     if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0) {
-        return -1;
+        return false;
     }
 
     // We only support mono and stereo at this point.
@@ -38,7 +38,7 @@ int Aulib::init(int freq, SDL_AudioFormat format, int channels, int bufferSize)
         nullptr, false, &requestedSpec, &Stream_priv::fAudioSpec, SDL_AUDIO_ALLOW_ANY_CHANGE);
     if (Stream_priv::fDeviceId == 0) {
         Aulib::quit();
-        return -1;
+        return false;
     }
 
     AM_debugPrint("SDL initialized with sample format: ");
@@ -86,13 +86,13 @@ int Aulib::init(int freq, SDL_AudioFormat format, int channels, int bufferSize)
     default:
         AM_warnLn("Unknown audio format spec: " << Stream_priv::fAudioSpec.format);
         Aulib::quit();
-        return -1;
+        return false;
     }
 
     SDL_PauseAudioDevice(Stream_priv::fDeviceId, false);
     gInitialized = true;
     std::atexit(Aulib::quit);
-    return 0;
+    return true;
 }
 
 void Aulib::quit()

@@ -29,10 +29,10 @@ namespace Aulib {
  *  that needs to play sound effects without much latency would use something like 2048 instead.
  *
  * \return
- *  \retval 0 The audio system was initialized successfully.
- *  \retval !=0 The audio system could not be initialized.
+ *  \retval true The audio system was initialized successfully.
+ *  \retval false The audio system could not be initialized.
  */
-AULIB_EXPORT int init(int freq, SDL_AudioFormat format, int channels, int bufferSize);
+AULIB_EXPORT bool init(int freq, SDL_AudioFormat format, int channels, int bufferSize);
 
 /*!
  *  \brief Shuts down the SDL_audiolib library.
