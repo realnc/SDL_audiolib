@@ -85,7 +85,7 @@ void Aulib::Stream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int out
 {
     AM_debugAssert(Stream_priv::fSampleConverter != nullptr);
 
-    int wantedSamples = outLen / ((fAudioSpec.format & 0xFF) / 8);
+    int wantedSamples = outLen / (SDL_AUDIO_BITSIZE(fAudioSpec.format) / 8);
 
     if (fStrmBuf.size() != wantedSamples) {
         fFinalMixBuf.reset(wantedSamples);
