@@ -52,7 +52,7 @@ bool Aulib::DecoderXmp::open(SDL_RWops* rwops)
         return false;
     }
     // libXMP supports 8-48kHz.
-    d->fRate = std::min(std::max(8000, Aulib::spec().freq), 48000);
+    d->fRate = std::min(std::max(8000, Aulib::sampleRate()), 48000);
     if (xmp_start_player(d->fContext.get(), d->fRate, 0) != 0) {
         return false;
     }

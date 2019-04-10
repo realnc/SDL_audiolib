@@ -89,7 +89,7 @@ static int initFluidSynth()
     if ((settings = new_fluid_settings()) == nullptr) {
         return -1;
     }
-    fluid_settings_setnum(settings, "synth.sample-rate", Aulib::spec().freq);
+    fluid_settings_setnum(settings, "synth.sample-rate", Aulib::sampleRate());
     for (const auto i : {FLUID_PANIC, FLUID_ERR, FLUID_WARN, FLUID_INFO, FLUID_DBG}) {
         fluid_set_log_function(i, nullptr, nullptr);
     }
@@ -262,13 +262,13 @@ int Aulib::DecoderFluidsynth::doDecoding(float buf[], int len, bool& callAgain)
         return 0;
     }
 
-    len /= Aulib::spec().channels;
+    len /= Aulib::channelCount();
     int res = fluid_synth_write_float(d->fSynth.get(), len, buf, 0, 2, buf, 1, 2);
     if (fluid_player_get_status(d->fPlayer.get()) == FLUID_PLAYER_DONE) {
         d->fEOF = true;
     }
     if (res == FLUID_OK) {
-        return len * Aulib::spec().channels;
+        return len * Aulib::channelCount();
     }
     return 0;
 }

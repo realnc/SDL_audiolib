@@ -92,7 +92,7 @@ Aulib::DecoderBassmidi_priv::DecoderBassmidi_priv()
     if (bassIsInitialized) {
         return;
     }
-    if (BASS_Init(0, Aulib::spec().freq, 0, nullptr, nullptr) != 0) {
+    if (BASS_Init(0, Aulib::sampleRate(), 0, nullptr, nullptr) != 0) {
         bassIsInitialized = true;
         return;
     }

@@ -67,7 +67,7 @@ bool Aulib::Stream::open()
         return false;
     }
     if (d->fResampler) {
-        d->fResampler->setSpec(Aulib::spec().freq, Aulib::spec().channels, Aulib::spec().samples);
+        d->fResampler->setSpec(Aulib::sampleRate(), Aulib::channelCount(), Aulib::frameSize());
     }
     d->fIsOpen = true;
     return true;

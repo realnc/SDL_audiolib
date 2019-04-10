@@ -42,9 +42,33 @@ AULIB_EXPORT int init(int freq, SDL_AudioFormat format, int channels, int buffer
  */
 AULIB_EXPORT void quit();
 
-//! \private
-// Don't use this. It will be removed soon.
-AULIB_EXPORT const SDL_AudioSpec& spec();
+/*!
+ * \brief Sample format the audio device is actually using.
+ *
+ * This can be different than the format that was requested.
+ */
+AULIB_EXPORT SDL_AudioFormat sampleFormat() noexcept;
+
+/*!
+ * \brief Sample rate the audio device is actually using.
+ *
+ * This can be different than the sample rate that was requested.
+ */
+AULIB_EXPORT int sampleRate() noexcept;
+
+/*!
+ * \brief Number of obtained output channels.
+ *
+ * This can be different than the channel count that was requested.
+ */
+AULIB_EXPORT int channelCount() noexcept;
+
+/*!
+ * \brief Number of frames (samples per channel) the audio device is actually using.
+ *
+ * This can be different than the frame size that was requested.
+ */
+AULIB_EXPORT int frameSize() noexcept;
 
 } // namespace Aulib
 

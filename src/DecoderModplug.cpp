@@ -12,15 +12,15 @@ namespace chrono = std::chrono;
 static ModPlug_Settings modplugSettings;
 static bool initialized = false;
 
-static void initModPlug(const SDL_AudioSpec& spec)
+static void initModPlug()
 {
     ModPlug_GetSettings(&modplugSettings);
     modplugSettings.mFlags = MODPLUG_ENABLE_OVERSAMPLING | MODPLUG_ENABLE_NOISE_REDUCTION;
     // TODO: can modplug handle more than 2 channels?
-    modplugSettings.mChannels = spec.channels == 1 ? 1 : 2;
+    modplugSettings.mChannels = Aulib::channelCount() == 1 ? 1 : 2;
     // It seems MogPlug does resample to any samplerate. 32, 44.1, up to
     // 192K all seem to work correctly.
-    modplugSettings.mFrequency = spec.freq;
+    modplugSettings.mFrequency = Aulib::sampleRate();
     modplugSettings.mResamplingMode = MODPLUG_RESAMPLE_FIR;
     modplugSettings.mBits = 32;
     ModPlug_SetSettings(&modplugSettings);
@@ -43,7 +43,7 @@ struct DecoderModplug_priv final
 Aulib::DecoderModplug_priv::DecoderModplug_priv()
 {
     if (not initialized) {
-        initModPlug(Aulib::spec());
+        initModPlug();
     }
 }
 

@@ -108,9 +108,24 @@ void Aulib::quit()
     gInitialized = false;
 }
 
-const SDL_AudioSpec& Aulib::spec()
+SDL_AudioFormat Aulib::sampleFormat() noexcept
 {
-    return Stream_priv::fAudioSpec;
+    return Stream_priv::fAudioSpec.format;
+}
+
+int Aulib::sampleRate() noexcept
+{
+    return Stream_priv::fAudioSpec.freq;
+}
+
+int Aulib::channelCount() noexcept
+{
+    return Stream_priv::fAudioSpec.channels;
+}
+
+int Aulib::frameSize() noexcept
+{
+    return Stream_priv::fAudioSpec.samples;
 }
 
 /*

@@ -151,15 +151,13 @@ static constexpr void stereoToMono(float dst[], const float src[], int srcLen)
 
 int Aulib::Decoder::decode(float buf[], int len, bool& callAgain)
 {
-    const SDL_AudioSpec& spec = Aulib::spec();
-
-    if (this->getChannels() == 1 and spec.channels == 2) {
+    if (this->getChannels() == 1 and Aulib::channelCount() == 2) {
         int srcLen = this->doDecoding(buf, len / 2, callAgain);
         monoToStereo(buf, srcLen * 2);
         return srcLen * 2;
     }
 
-    if (this->getChannels() == 2 and spec.channels == 1) {
+    if (this->getChannels() == 2 and Aulib::channelCount() == 1) {
         if (d->stereoBuf.size() != len * 2) {
             d->stereoBuf.reset(len * 2);
         }

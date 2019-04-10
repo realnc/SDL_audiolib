@@ -60,12 +60,12 @@ bool Aulib::DecoderOpenmpt::open(SDL_RWops* rwops)
 
 int Aulib::DecoderOpenmpt::getChannels() const
 {
-    return Aulib::spec().channels;
+    return Aulib::channelCount();
 }
 
 int Aulib::DecoderOpenmpt::getRate() const
 {
-    return Aulib::spec().freq;
+    return Aulib::sampleRate();
 }
 
 bool Aulib::DecoderOpenmpt::rewind()
@@ -92,13 +92,13 @@ int Aulib::DecoderOpenmpt::doDecoding(float buf[], int len, bool& callAgain)
         return 0;
     }
     int ret;
-    if (Aulib::spec().channels == 2) {
-        ret = d->fModule->read_interleaved_stereo(Aulib::spec().freq, static_cast<size_t>(len / 2),
+    if (Aulib::channelCount() == 2) {
+        ret = d->fModule->read_interleaved_stereo(Aulib::sampleRate(), static_cast<size_t>(len / 2),
                                                   buf)
               * 2;
     } else {
-        AM_debugAssert(Aulib::spec().channels == 1);
-        ret = d->fModule->read(Aulib::spec().freq, static_cast<size_t>(len), buf);
+        AM_debugAssert(Aulib::channelCount() == 1);
+        ret = d->fModule->read(Aulib::sampleRate(), static_cast<size_t>(len), buf);
     }
     if (ret == 0) {
         d->atEOF = true;
