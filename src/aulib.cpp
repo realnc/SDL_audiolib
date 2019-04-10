@@ -18,7 +18,7 @@ static void sdlCallback(void* /*unused*/, Uint8 out[], int outLen)
 }
 }
 
-bool Aulib::init(int freq, SDL_AudioFormat format, int channels, int bufferSize)
+bool Aulib::init(int freq, SDL_AudioFormat format, int channels, int frameSize)
 {
     if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0) {
         return false;
@@ -31,7 +31,7 @@ bool Aulib::init(int freq, SDL_AudioFormat format, int channels, int bufferSize)
     requestedSpec.freq = freq;
     requestedSpec.format = format;
     requestedSpec.channels = channels;
-    requestedSpec.samples = bufferSize;
+    requestedSpec.samples = frameSize;
     requestedSpec.callback = ::sdlCallback;
     Stream_priv::fAudioSpec = requestedSpec;
     Stream_priv::fDeviceId = SDL_OpenAudioDevice(

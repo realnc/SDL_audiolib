@@ -22,17 +22,18 @@ namespace Aulib {
  *  Amount of output channels to use. Can either be 1 (mono) or 2 (stereo.) Lower or higher values
  *  will be adjusted.
  *
- * \param bufferSize
- *  Size in bytes of the internal buffer that is used to feed audio samples to SDL. Lower values
- *  provide lower latency on audio operations, at the cost of increased CPU usage and risk of audio
- *  drop-outs. A good value for 44.1kHz output for music players is 8192 bytes (8kB), while a game
- *  that needs to play sound effects without much latency would use something like 2048 instead.
+ * \param frameSize
+ *  Size in frames (samples per channel) of the internal buffer that is used to feed audio samples
+ *  to SDL. Lower values provide lower latency on audio operations, at the cost of increased CPU
+ *  usage and risk of audio drop-outs. A good value for 44.1kHz output for music players is 8192
+ *  bytes (8kB), while a game that needs to play sound effects without much latency would use
+ *  something like 2048 instead.
  *
  * \return
  *  \retval true The audio system was initialized successfully.
  *  \retval false The audio system could not be initialized.
  */
-AULIB_EXPORT bool init(int freq, SDL_AudioFormat format, int channels, int bufferSize);
+AULIB_EXPORT bool init(int freq, SDL_AudioFormat format, int channels, int frameSize);
 
 /*!
  *  \brief Shuts down the SDL_audiolib library.
