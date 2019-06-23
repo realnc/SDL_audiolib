@@ -314,7 +314,6 @@ target_compile_definitions(
     PRIVATE
         -DSPX_RESAMPLE_EXPORT=
         -DOUTSIDE_SPEEX
-        -DFLOATING_POINT
         -DRANDOM_PREFIX=SDL_audiolib
 )
 
