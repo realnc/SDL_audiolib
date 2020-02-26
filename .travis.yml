@@ -1,6 +1,6 @@
 dist: xenial
-sudo: required
 language: cpp
+osx_image: xcode11.3
 
 addons:
     apt:
@@ -20,9 +20,12 @@ addons:
             - libxmp-dev
 
     homebrew:
+        update: true
         packages:
+            - fluidsynth
             - glib
             - libmodplug
+            - libopenmpt
             - libsamplerate
             - libsndfile
             - libsoxr
@@ -62,7 +65,7 @@ before_install:
             --disable-static
             --disable-gcc-opt
             --disable-sndfile
-            ;
+        ;
         make -j2;
         sudo make install;
       fi
@@ -70,47 +73,52 @@ before_install:
     #
     # Install libopenmpt
     #
-    - cd "$HOME"
-    - wget 'https://lib.openmpt.org/files/libopenmpt/src/libopenmpt-0.4.3+release.autotools.tar.gz'
-    - tar xf 'libopenmpt-0.4.3+release.autotools.tar.gz'
-    - mkdir openmpt-build
-    - cd openmpt-build
-    - ../libopenmpt-0.4.3+release.autotools/configure
-        --enable-silent-rules
-        --disable-dependency-tracking
-        --enable-shared
-        --disable-static
-        --disable-openmpt123
-        --disable-examples
-        --disable-tests
-        --disable-doxygen-doc
-        --without-zlib
-        --without-mpg123
-        --without-ogg
-        --without-vorbis
-        --without-vorbisfile
-        --without-pulseaudio
-        --without-portaudio
-        --without-portaudiocpp
-        --without-sdl2
-        --without-sdl
-        --without-sndfile
-        --without-flac
-    - make -j2
-    - sudo make install
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+        cd "$HOME";
+        wget 'https://lib.openmpt.org/files/libopenmpt/src/libopenmpt-0.4.11+release.autotools.tar.gz';
+        tar xf 'libopenmpt-0.4.11+release.autotools.tar.gz';
+        mkdir openmpt-build;
+        cd openmpt-build;
+        ../libopenmpt-0.4.11+release.autotools/configure
+            --enable-silent-rules
+            --disable-dependency-tracking
+            --enable-shared
+            --disable-static
+            --disable-openmpt123
+            --disable-examples
+            --disable-tests
+            --disable-doxygen-doc
+            --without-zlib
+            --without-mpg123
+            --without-ogg
+            --without-vorbis
+            --without-vorbisfile
+            --without-pulseaudio
+            --without-portaudio
+            --without-portaudiocpp
+            --without-sdl2
+            --without-sdl
+            --without-sndfile
+            --without-flac
+        ;
+        make -j2;
+        sudo make install;
+      fi
 
     #
     # Install fluidsynth
     #
-    - cd "$HOME"
-    - wget 'https://github.com/FluidSynth/fluidsynth/archive/v2.0.4.tar.gz'
-    - tar xf 'v2.0.4.tar.gz'
-    - cd fluidsynth-2.0.4
-    - mkdir build
-    - cd build
-    - cmake -Denable-framework=off ..
-    - make -j2
-    - sudo make install
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+        cd "$HOME";
+        wget 'https://github.com/FluidSynth/fluidsynth/archive/v2.1.1.tar.gz';
+        tar xf 'v2.1.1.tar.gz';
+        cd fluidsynth-2.1.1;
+        mkdir build;
+        cd build;
+        cmake -Denable-framework=off ..;
+        make -j2;
+        sudo make install;
+      fi
 
     #
     # Install bassmidi
