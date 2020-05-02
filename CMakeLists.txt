@@ -313,6 +313,7 @@ add_library(
     README.md
     mainpage.dox
     resampler/README
+    .github/workflows/ci.yml
 )
 
 target_compile_definitions(
