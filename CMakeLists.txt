@@ -307,6 +307,12 @@ add_library(
     resampler/resample.c
     resampler/resample_sse.h
     resampler/speex_resampler.h
+
+    COPYING
+    COPYING.LESSER
+    README.md
+    mainpage.dox
+    resampler/README
 )
 
 target_compile_definitions(
