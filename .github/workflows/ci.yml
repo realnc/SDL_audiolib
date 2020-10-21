@@ -22,8 +22,8 @@ jobs:
       CMAKE_GENERATOR: Ninja
       BASS_VERSION: 24
       BASSMIDI_VERSION: 24
-      FSYNTH_VERSION: 2.1.2
-      ADLMIDI_VERSION: a0da4cd2759e1ffeb905b35dc685fd91721b6644
+      FSYNTH_VERSION: 2.1.5
+      ADLMIDI_VERSION: 1.5.0.1
       WILDMIDI_VERSION: 0.4.3
 
     steps:
@@ -106,7 +106,7 @@ jobs:
     - name: Install libADLMIDI
       working-directory: /tmp
       run: |
-        wget -nv "https://github.com/Wohlstand/libADLMIDI/archive/$ADLMIDI_VERSION.tar.gz" -O- | tar xz
+        wget -nv "https://github.com/Wohlstand/libADLMIDI/archive/v$ADLMIDI_VERSION.tar.gz" -O- | tar xz
         cd "libADLMIDI-$ADLMIDI_VERSION"
         mkdir build
         cd build
@@ -121,7 +121,7 @@ jobs:
       if: runner.os == 'macOS'
       working-directory: /tmp
       run: |
-        wget -nv "https://github.com/Mindwerks/wildmidi/releases/download/wildmidi-0.4.3/wildmidi-$WILDMIDI_VERSION-macosx.tar.gz" -O- | tar xz
+        wget -nv "https://github.com/Mindwerks/wildmidi/releases/download/wildmidi-$WILDMIDI_VERSION/wildmidi-$WILDMIDI_VERSION-macosx.tar.gz" -O- | tar xz
         cd "wildmidi-$WILDMIDI_VERSION-macosx"
         sudo cp -a *.dylib /usr/local/lib/
         sudo cp wildmidi_lib.h /usr/local/include/
