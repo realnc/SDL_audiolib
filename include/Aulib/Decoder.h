@@ -20,24 +20,24 @@ public:
     virtual ~Decoder();
 
     Decoder(const Decoder&) = delete;
-    Decoder& operator=(const Decoder&) = delete;
+    auto operator=(const Decoder&) -> Decoder& = delete;
 
-    static std::unique_ptr<Decoder> decoderFor(const std::string& filename);
-    static std::unique_ptr<Decoder> decoderFor(SDL_RWops* rwops);
+    static auto decoderFor(const std::string& filename) -> std::unique_ptr<Decoder>;
+    static auto decoderFor(SDL_RWops* rwops) -> std::unique_ptr<Decoder>;
 
-    bool isOpen() const;
-    int decode(float buf[], int len, bool& callAgain);
+    auto isOpen() const -> bool;
+    auto decode(float buf[], int len, bool& callAgain) -> int;
 
-    virtual bool open(SDL_RWops* rwops) = 0;
-    virtual int getChannels() const = 0;
-    virtual int getRate() const = 0;
-    virtual bool rewind() = 0;
-    virtual std::chrono::microseconds duration() const = 0;
-    virtual bool seekToTime(std::chrono::microseconds pos) = 0;
+    virtual auto open(SDL_RWops* rwops) -> bool = 0;
+    virtual auto getChannels() const -> int = 0;
+    virtual auto getRate() const -> int = 0;
+    virtual auto rewind() -> bool = 0;
+    virtual auto duration() const -> std::chrono::microseconds = 0;
+    virtual auto seekToTime(std::chrono::microseconds pos) -> bool = 0;
 
 protected:
     void setIsOpen(bool f);
-    virtual int doDecoding(float buf[], int len, bool& callAgain) = 0;
+    virtual auto doDecoding(float buf[], int len, bool& callAgain) -> int = 0;
 
 private:
     const std::unique_ptr<struct Decoder_priv> d;

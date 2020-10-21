@@ -36,7 +36,7 @@ Aulib::Decoder::Decoder()
 
 Aulib::Decoder::~Decoder() = default;
 
-std::unique_ptr<Aulib::Decoder> Aulib::Decoder::decoderFor(const std::string& filename)
+auto Aulib::Decoder::decoderFor(const std::string& filename) -> std::unique_ptr<Aulib::Decoder>
 {
     auto rwopsClose = [](SDL_RWops* rwops) { SDL_RWclose(rwops); };
     std::unique_ptr<SDL_RWops, decltype(rwopsClose)> rwops(SDL_RWFromFile(filename.c_str(), "rb"),
@@ -44,7 +44,7 @@ std::unique_ptr<Aulib::Decoder> Aulib::Decoder::decoderFor(const std::string& fi
     return Decoder::decoderFor(rwops.get());
 }
 
-std::unique_ptr<Aulib::Decoder> Aulib::Decoder::decoderFor(SDL_RWops* rwops)
+auto Aulib::Decoder::decoderFor(SDL_RWops* rwops) -> std::unique_ptr<Aulib::Decoder>
 {
     const auto rwPos = SDL_RWtell(rwops);
 
@@ -121,7 +121,7 @@ std::unique_ptr<Aulib::Decoder> Aulib::Decoder::decoderFor(SDL_RWops* rwops)
     return nullptr;
 }
 
-bool Aulib::Decoder::isOpen() const
+auto Aulib::Decoder::isOpen() const -> bool
 {
     return d->isOpen;
 }
@@ -149,7 +149,7 @@ static constexpr void stereoToMono(float dst[], const float src[], int srcLen)
     }
 }
 
-int Aulib::Decoder::decode(float buf[], int len, bool& callAgain)
+auto Aulib::Decoder::decode(float buf[], int len, bool& callAgain) -> int
 {
     if (this->getChannels() == 1 and Aulib::channelCount() == 2) {
         int srcLen = this->doDecoding(buf, len / 2, callAgain);

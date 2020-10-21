@@ -11,7 +11,7 @@
 
 using namespace Aulib;
 
-int main(int /*argc*/, char* argv[])
+auto main(int /*argc*/, char* argv[]) -> int
 {
     init(44100, AUDIO_S16SYS, 2, 4096);
 
