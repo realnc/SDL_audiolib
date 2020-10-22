@@ -303,16 +303,16 @@ add_library(
     src/missing/sdl_load_file_rw.c
     src/missing/sdl_load_file_rw.h
 
-    resampler/arch.h
-    resampler/resample.c
-    resampler/resample_sse.h
-    resampler/speex_resampler.h
+    3rdparty/speex_resampler/arch.h
+    3rdparty/speex_resampler/resample.c
+    3rdparty/speex_resampler/resample_sse.h
+    3rdparty/speex_resampler/speex_resampler.h
 
     COPYING
     COPYING.LESSER
     README.md
     mainpage.dox
-    resampler/README
+    3rdparty/speex_resampler/README
     .github/workflows/ci.yml
 )
 
@@ -343,7 +343,7 @@ target_include_directories(
         ${PROJECT_BINARY_DIR}
 
     PRIVATE
-        ${PROJECT_SOURCE_DIR}/resampler
+        ${PROJECT_SOURCE_DIR}/3rdparty/speex_resampler
         ${PROJECT_SOURCE_DIR}/src/missing
         ${SRC_INCLUDE_DIRS}
         ${SOXR_INCLUDE_DIRS}
