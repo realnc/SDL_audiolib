@@ -12,6 +12,11 @@ expect API breaking changes every day. A C API will hopefully also be provided i
 
 The provided decoders are:
 
+- Aulib::DecoderDrflac - uses built-in [dr_flac](https://mackron.github.io/dr_flac)
+
+  It can decode raw FLAC or Ogg/FLAC audio. This decoder is built-in into SDL_audiolib and has no
+  external library dependencies.
+
 - Aulib::DecoderVorbis - uses [libvorbis](http://xiph.org/vorbis)
 
   It can decode Ogg/Vorbis audio.
@@ -94,11 +99,11 @@ opened with (in this case 44.1kHz,) you would do:
 #include <SDL.h>
 #include <iostream>
 
-// The library uses std::chrono for durations, seeking and fading.
-using namespace std::chrono_literals;
-
 int main()
 {
+    // The library uses std::chrono for durations, seeking and fading.
+    using namespace std::chrono_literals;
+
     // Initialize the SDL_audiolib library. Set the output sample rate to
     // 44.1kHz, the audio format to 16-bit signed, use 2 output channels
     // (stereo), and an 8kB output buffer.
@@ -120,6 +125,10 @@ int main()
     while (music.isPlaying()) {
         SDL_Delay(200);
     }
+
+    // Shut down and clean up. Calling this manually is optional, since the
+    // library will call this automatically when the program exits.
+    Aulib::quit();
 }
 \endcode
 */
