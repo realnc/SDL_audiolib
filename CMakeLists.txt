@@ -19,6 +19,12 @@ option(
 )
 
 option(
+    USE_DEC_DRFLAC
+    "Enable dr_flac FLAC and Ogg FLAC decoder (built-in)"
+    ON
+)
+
+option(
     USE_DEC_OPENMPT
     "Enable OpenMPT MOD decoder."
     ON
@@ -182,6 +188,12 @@ if (USE_RESAMP_SOXR)
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} soxr")
 endif(USE_RESAMP_SOXR)
 
+if (USE_DEC_DRFLAC)
+    set(AULIB_SOURCES ${AULIB_SOURCES} 3rdparty/dr_libs/dr_flac.h src/DecoderDrflac.cpp)
+    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderDrflac.h)
+    set(DRFLAC_INCLUDE_DIRS 3rdparty/dr_libs)
+endif(USE_DEC_DRFLAC)
+
 if (USE_DEC_OPENMPT)
     set(AULIB_SOURCES ${AULIB_SOURCES} src/DecoderOpenmpt.cpp)
     set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderOpenmpt.h)
@@ -312,6 +324,7 @@ add_library(
     COPYING.LESSER
     README.md
     mainpage.dox
+    3rdparty/dr_libs/README.md
     3rdparty/speex_resampler/README
     .github/workflows/ci.yml
 )
@@ -347,6 +360,7 @@ target_include_directories(
         ${PROJECT_SOURCE_DIR}/src/missing
         ${SRC_INCLUDE_DIRS}
         ${SOXR_INCLUDE_DIRS}
+        ${DRFLAC_INCLUDE_DIRS}
         ${FLUIDSYNTH_INCLUDE_DIRS}
         ${MPG123_INCLUDE_DIRS}
         ${SNDFILE_INCLUDE_DIRS}

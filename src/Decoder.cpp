@@ -3,6 +3,7 @@
 
 #include "Aulib/DecoderAdlmidi.h"
 #include "Aulib/DecoderBassmidi.h"
+#include "Aulib/DecoderDrflac.h"
 #include "Aulib/DecoderFluidsynth.h"
 #include "Aulib/DecoderModplug.h"
 #include "Aulib/DecoderMpg123.h"
@@ -57,6 +58,11 @@ auto Aulib::Decoder::decoderFor(SDL_RWops* rwops) -> std::unique_ptr<Aulib::Deco
         return ret;
     };
 
+#if USE_DEC_DRFLAC
+    if (tryDecoder(std::make_unique<DecoderDrflac>())) {
+        return std::make_unique<Aulib::DecoderDrflac>();
+    }
+#endif
 #if USE_DEC_LIBVORBIS
     if (tryDecoder(std::make_unique<DecoderVorbis>())) {
         return std::make_unique<Aulib::DecoderVorbis>();

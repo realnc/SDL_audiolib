@@ -1,25 +1,38 @@
 // This is copyrighted software. More information is at the end of this file.
 #pragma once
 
-#cmakedefine USE_RESAMP_SRC 1
-#cmakedefine USE_RESAMP_SOXR 1
-#cmakedefine USE_DEC_DRFLAC 1
-#cmakedefine USE_DEC_OPENMPT 1
-#cmakedefine USE_DEC_XMP 1
-#cmakedefine USE_DEC_MODPLUG 1
-#cmakedefine USE_DEC_MPG123 1
-#cmakedefine USE_DEC_SNDFILE 1
-#cmakedefine USE_DEC_LIBVORBIS 1
-#cmakedefine USE_DEC_LIBOPUSFILE 1
-#cmakedefine USE_DEC_MUSEPACK 1
-#cmakedefine USE_DEC_FLUIDSYNTH 1
-#cmakedefine USE_DEC_BASSMIDI 1
-#cmakedefine USE_DEC_WILDMIDI 1
-#cmakedefine USE_DEC_ADLMIDI 1
+#include <Aulib/Decoder.h>
+
+namespace Aulib {
+
+/*!
+ * \brief dr_flac decoder.
+ */
+class AULIB_EXPORT DecoderDrflac: public Decoder
+{
+public:
+    DecoderDrflac();
+    ~DecoderDrflac() override;
+
+    auto open(SDL_RWops* rwops) -> bool override;
+    auto getChannels() const -> int override;
+    auto getRate() const -> int override;
+    auto rewind() -> bool override;
+    auto duration() const -> std::chrono::microseconds override;
+    auto seekToTime(std::chrono::microseconds pos) -> bool override;
+
+protected:
+    auto doDecoding(float buf[], int len, bool& callAgain) -> int override;
+
+private:
+    std::unique_ptr<struct DecoderFlac_priv> d;
+};
+
+} // namespace Aulib
 
 /*
 
-Copyright (C) 2014, 2015, 2016, 2017, 2018, 2019 Nikos Chantziaras.
+Copyright (C) 2020 Nikos Chantziaras.
 
 This file is part of SDL_audiolib.
 
