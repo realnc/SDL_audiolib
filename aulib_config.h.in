@@ -1,21 +1,21 @@
 // This is copyrighted software. More information is at the end of this file.
 #pragma once
 
-#cmakedefine USE_RESAMP_SRC 1
-#cmakedefine USE_RESAMP_SOXR 1
+#cmakedefine USE_DEC_ADLMIDI 1
+#cmakedefine USE_DEC_BASSMIDI 1
 #cmakedefine USE_DEC_DRFLAC 1
-#cmakedefine USE_DEC_OPENMPT 1
-#cmakedefine USE_DEC_XMP 1
+#cmakedefine USE_DEC_FLUIDSYNTH 1
+#cmakedefine USE_DEC_LIBOPUSFILE 1
+#cmakedefine USE_DEC_LIBVORBIS 1
 #cmakedefine USE_DEC_MODPLUG 1
 #cmakedefine USE_DEC_MPG123 1
-#cmakedefine USE_DEC_SNDFILE 1
-#cmakedefine USE_DEC_LIBVORBIS 1
-#cmakedefine USE_DEC_LIBOPUSFILE 1
 #cmakedefine USE_DEC_MUSEPACK 1
-#cmakedefine USE_DEC_FLUIDSYNTH 1
-#cmakedefine USE_DEC_BASSMIDI 1
+#cmakedefine USE_DEC_OPENMPT 1
+#cmakedefine USE_DEC_SNDFILE 1
 #cmakedefine USE_DEC_WILDMIDI 1
-#cmakedefine USE_DEC_ADLMIDI 1
+#cmakedefine USE_DEC_XMP 1
+#cmakedefine USE_RESAMP_SOXR 1
+#cmakedefine USE_RESAMP_SRC 1
 
 /*
 
