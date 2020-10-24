@@ -2,9 +2,12 @@
 #pragma once
 
 #include "aulib_export.h"
+#include <SDL_rwops.h>
 #include <SDL_stdinc.h>
 #include <chrono>
 #include <memory>
+#include <string>
+#include <type_traits>
 
 struct SDL_RWops;
 
@@ -21,6 +24,22 @@ public:
 
     Decoder(const Decoder&) = delete;
     auto operator=(const Decoder&) -> Decoder& = delete;
+
+    /*!
+     * \brief Find and return an instance of the first decoder that can open the specified file.
+     *
+     * Only the specified decoder types will be tried.
+     */
+    template <class... Decoders>
+    static auto decoderFor(const std::string& filename) -> std::unique_ptr<Decoder>;
+
+    /*!
+     * \brief Find and return an instance of the first decoder that can open the specified rwops.
+     *
+     * Only the specified decoder types will be tried.
+     */
+    template <class... Decoders>
+    static auto decoderFor(SDL_RWops* rwops) -> std::unique_ptr<Decoder>;
 
     static auto decoderFor(const std::string& filename) -> std::unique_ptr<Decoder>;
     static auto decoderFor(SDL_RWops* rwops) -> std::unique_ptr<Decoder>;
@@ -42,6 +61,38 @@ protected:
 private:
     const std::unique_ptr<struct Decoder_priv> d;
 };
+
+template <class... Decoders>
+inline auto Decoder::decoderFor(const std::string& filename) -> std::unique_ptr<Decoder>
+{
+    auto rwopsClose = [](SDL_RWops* rwops) { SDL_RWclose(rwops); };
+    std::unique_ptr<SDL_RWops, decltype(rwopsClose)> rwops(SDL_RWFromFile(filename.c_str(), "rb"),
+                                                           rwopsClose);
+    return Decoder::decoderFor<Decoders...>(rwops.get());
+}
+
+template <class... Decoders>
+inline auto Decoder::decoderFor(SDL_RWops* rwops) -> std::unique_ptr<Decoder>
+{
+    static_assert(sizeof...(Decoders) > 0, "Need at least one decoder type.");
+    static_assert((std::is_base_of_v<Aulib::Decoder, Decoders> && ...),
+                  "Decoders must derive from Aulib::Decoder.");
+
+    const auto rwPos = SDL_RWtell(rwops);
+
+    auto rewindRwops = [rwops, rwPos] { SDL_RWseek(rwops, rwPos, RW_SEEK_SET); };
+
+    auto tryDecoder = [rwops, &rewindRwops](auto dec) {
+        rewindRwops();
+        bool ret = dec->open(rwops);
+        rewindRwops();
+        return ret;
+    };
+
+    std::unique_ptr<Decoder> decoder;
+    ((tryDecoder(std::make_unique<Decoders>()) && (decoder = std::make_unique<Decoders>())) || ...);
+    return decoder;
+}
 
 } // namespace Aulib
 
