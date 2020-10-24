@@ -29,19 +29,25 @@ public:
      * \brief Find and return an instance of the first decoder that can open the specified file.
      *
      * Only the specified decoder types will be tried.
+     *
+     * \return A suitable decoder or nullptr if none of the decoders can open the file.
      */
     template <class... Decoders>
     static auto decoderFor(const std::string& filename) -> std::unique_ptr<Decoder>;
-
-    /*!
-     * \brief Find and return an instance of the first decoder that can open the specified rwops.
-     *
-     * Only the specified decoder types will be tried.
-     */
+    //! \overload
     template <class... Decoders>
     static auto decoderFor(SDL_RWops* rwops) -> std::unique_ptr<Decoder>;
 
+    /*!
+     * \brief Find and return an instance of the first decoder that can open the specified file.
+     *
+     * All decoders known by SDL_Audiolib will be tried. If you want to try your own decoders or
+     * limit the list of tried decoders, then use the templated version of this function instead.
+     *
+     * \return A suitable decoder or nullptr if none of the decoders can open the file.
+     */
     static auto decoderFor(const std::string& filename) -> std::unique_ptr<Decoder>;
+    //! \overload
     static auto decoderFor(SDL_RWops* rwops) -> std::unique_ptr<Decoder>;
 
     auto isOpen() const -> bool;
