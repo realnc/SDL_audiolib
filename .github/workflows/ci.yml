@@ -24,7 +24,7 @@ jobs:
       BASSMIDI_VERSION: 24
       FSYNTH_VERSION: 2.1.5
       ADLMIDI_VERSION: 1.5.0.1
-      WILDMIDI_VERSION: 0.4.3
+      WILDMIDI_VERSION: 0.4.4
 
     steps:
     - run: sudo apt-get update
