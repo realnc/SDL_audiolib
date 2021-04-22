@@ -11,6 +11,14 @@
 #include <cstdio>
 #include <fluidsynth.h>
 
+#if FLUIDSYNTH_VERSION_MAJOR == 2 && FLUIDSYNTH_VERSION_MINOR >= 2
+using read_cb_count_type = fluid_long_long_t;
+using seek_cb_offset_type = fluid_long_long_t;
+#else
+using read_cb_count_type = int;
+using seek_cb_offset_type = long;
+#endif
+
 namespace chrono = std::chrono;
 
 static fluid_settings_t* settings = nullptr;
@@ -36,7 +44,7 @@ static auto sfontOpenCb(const char* filename) -> void*
     return rwops;
 }
 
-static auto sfontReadCb(void* dst, int count, void* rwops) -> int
+static auto sfontReadCb(void* dst, read_cb_count_type count, void* rwops) -> int
 {
     Buffer<char> buf(count);
     if (SDL_RWread(static_cast<SDL_RWops*>(rwops), buf.get(), 1, count) <= 0) {
@@ -46,7 +54,7 @@ static auto sfontReadCb(void* dst, int count, void* rwops) -> int
     return FLUID_OK;
 }
 
-static auto sfontSeekCb(void* rwops, long offset, int whence) -> int
+static auto sfontSeekCb(void* rwops, seek_cb_offset_type offset, int whence) -> int
 {
     switch (whence) {
     case SEEK_SET:
@@ -72,7 +80,7 @@ static auto sfontCloseCb(void* rwops) -> int
     return FLUID_OK;
 }
 
-static auto sfontTellCb(void* rwops) -> long
+static auto sfontTellCb(void* rwops) -> seek_cb_offset_type
 {
     auto pos = SDL_RWtell(static_cast<SDL_RWops*>(rwops));
     if (pos == -1) {
