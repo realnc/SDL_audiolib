@@ -32,6 +32,7 @@ struct Stream_priv final
     bool fIsPlaying = false;
     bool fIsPaused = false;
     float fVolume = 1.f;
+    float fStereoPos = 0.f;
     float fInternalVolume = 1.f;
     int fCurrentIteration = 0;
     int fWantedIterations = 0;

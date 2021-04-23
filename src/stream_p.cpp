@@ -145,14 +145,22 @@ void Aulib::Stream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int out
         }
 
         stream->d->fProcessFade();
-        float volume = stream->d->fVolume * stream->d->fInternalVolume;
+        float volumeLeft = stream->d->fVolume * stream->d->fInternalVolume;
+        float volumeRight = stream->d->fVolume * stream->d->fInternalVolume;
+
+        if (stream->d->fStereoPos < 0.f) {
+            volumeRight *= 1.f + stream->d->fStereoPos;
+        } else if (stream->d->fStereoPos > 0.f) {
+            volumeLeft *= 1.f - stream->d->fStereoPos;
+        }
 
         // Avoid mixing on zero volume.
-        if (not stream->d->fIsMuted and volume > 0.f) {
+        if (not stream->d->fIsMuted and (volumeLeft > 0.f or volumeRight > 0.f)) {
             // Avoid scaling operation when volume is 1.
-            if (volume != 1.f) {
-                for (int i = 0; i < len; ++i) {
-                    fFinalMixBuf[i] += fStrmBuf[i] * volume;
+            if (volumeLeft != 1.f or volumeRight != 1.f) {
+                for (int i = 0; i < len; i += 2) {
+                    fFinalMixBuf[i] += fStrmBuf[i] * volumeLeft;
+                    fFinalMixBuf[i + 1] += fStrmBuf[i + 1] * volumeRight;
                 }
             } else {
                 for (int i = 0; i < len; ++i) {

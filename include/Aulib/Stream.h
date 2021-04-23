@@ -152,6 +152,24 @@ public:
     virtual auto volume() const -> float;
 
     /*!
+     * \brief Set stereo position.
+     *
+     * This only attenuates the left or right channel. It does not mix one into the other. For
+     * example, when setting the position of a stereo stream all the way to the right, the left
+     * channel will be completely inaudible. It will not be mixed into the right channel.
+     *
+     * \param position
+     *  Must be between -1.0 (all the way to the left) and 1.0 (all the way to the right) with 0
+     *  being the center position.
+     */
+    virtual void setStereoPosition(float position);
+
+    /*!
+     * \brief Returns the currently set stereo position.
+     */
+    virtual auto getStereoPosition() const -> float;
+
+    /*!
      * \brief Mute the stream.
      *
      * A muted stream still accepts volume changes, but it will stay inaudible until it is unmuted.

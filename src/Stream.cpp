@@ -163,6 +163,16 @@ auto Aulib::Stream::volume() const -> float
     return d->fVolume;
 }
 
+void Aulib::Stream::setStereoPosition(const float position)
+{
+    d->fStereoPos = std::clamp(position, -1.f, 1.f);
+}
+
+auto Aulib::Stream::getStereoPosition() const -> float
+{
+    return d->fStereoPos;
+}
+
 void Aulib::Stream::mute()
 {
     SdlAudioLocker locker;
