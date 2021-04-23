@@ -152,11 +152,15 @@ configure_file (
 # Headers in include/SDL_Audiolib/
 set(
     PUBLIC_HEADERS
-
-    ${CMAKE_BINARY_DIR}/aulib_export.h
-    ${CMAKE_BINARY_DIR}/aulib_version.h
     include/aulib.h
     include/aulib_global.h
+)
+
+# Generated headers in include/SDL_Audiolib/
+set(
+    PUBLIC_HEADERS_GENERATED
+    ${CMAKE_BINARY_DIR}/aulib_export.h
+    ${CMAKE_BINARY_DIR}/aulib_version.h
 )
 
 # Headers in include/SDL_Audiolib/Aulib/
@@ -406,7 +410,7 @@ configure_file(
 )
 
 install(TARGETS SDL_audiolib DESTINATION ${CMAKE_INSTALL_LIBDIR})
-install(FILES ${PUBLIC_HEADERS} DESTINATION include/SDL_audiolib)
+install(FILES ${PUBLIC_HEADERS} ${PUBLIC_HEADERS_GENERATED} DESTINATION include/SDL_audiolib)
 install(FILES ${PUBLIC_HEADERS_AULIB_DIR} DESTINATION include/SDL_audiolib/Aulib)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/SDL_audiolib.pc
         DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/pkgconfig)
