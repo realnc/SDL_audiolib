@@ -294,8 +294,6 @@ link_directories(
 add_library(
     SDL_audiolib
 
-    ${PUBLIC_HEADERS}
-    ${PUBLIC_HEADERS_AULIB_DIR}
     ${AULIB_SOURCES}
 
     src/Buffer.h
