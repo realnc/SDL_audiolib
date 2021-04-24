@@ -331,7 +331,6 @@ add_library(
     COPYING.LESSER
     README.md
     mainpage.dox
-    3rdparty/dr_libs/README.md
     3rdparty/speex_resampler/README
     .github/workflows/ci.yml
 )
