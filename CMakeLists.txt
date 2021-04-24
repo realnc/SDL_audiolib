@@ -28,6 +28,12 @@ option(
 )
 
 option(
+    USE_DEC_DRWAV
+    "Enable dr_wav WAV decoder (built-in)"
+    ON
+)
+
+option(
     USE_DEC_OPENMPT
     "Enable OpenMPT MOD decoder."
     ON
@@ -201,6 +207,12 @@ if (USE_DEC_DRFLAC)
     set(DRFLAC_INCLUDE_DIRS 3rdparty/dr_libs)
 endif(USE_DEC_DRFLAC)
 
+if (USE_DEC_DRWAV)
+    set(AULIB_SOURCES ${AULIB_SOURCES} 3rdparty/dr_libs/dr_wav.h src/DecoderDrwav.cpp)
+    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderDrwav.h)
+    set(DRFLAC_INCLUDE_DIRS 3rdparty/dr_libs)
+endif(USE_DEC_DRWAV)
+
 if (USE_DEC_OPENMPT)
     set(AULIB_SOURCES ${AULIB_SOURCES} src/DecoderOpenmpt.cpp)
     set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderOpenmpt.h)
@@ -367,6 +379,7 @@ target_include_directories(
         ${SRC_INCLUDE_DIRS}
         ${SOXR_INCLUDE_DIRS}
         ${DRFLAC_INCLUDE_DIRS}
+        ${DRWAV_INCLUDE_DIRS}
         ${FLUIDSYNTH_INCLUDE_DIRS}
         ${MPG123_INCLUDE_DIRS}
         ${SNDFILE_INCLUDE_DIRS}
