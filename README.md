@@ -18,16 +18,18 @@ hardware.
 
 Most popular audio formats are supported:
 
-  * Vorbis
-  * Opus
-  * MP3
-  * Musepack
+  * Vorbis (libvorbisfile or libsndfile)
+  * Opus (libopusfile or libsndfile)
+  * MP3 (libmpg123)
+  * Musepack (libmpcdec)
   * FLAC (built-in through bundled
     [dr_flac](https://mackron.github.io/dr_flac), or through external
     libsndfile)
-  * WAV (and related formats through libsndfile)
-  * MIDI (FluidSynth, BASSMIDI, WildMIDI, libADLMIDI)
-  * MOD-based music formats (libopenmpt, libxmp, libmodplug)
+  * WAV and related formats (built-in through bundled
+    [dr_wav](https://mackron.github.io/dr_wav), or through external
+    libsndfile)
+  * MIDI (FluidSynth, BASSMIDI, WildMIDI or libADLMIDI)
+  * MOD-based music formats (libopenmpt, libxmp or libmodplug)
 
 You can also write your own decoders and resamplers by subclassing 
 `Aulib::Decoder` and `Aulib::Resampler`.
