@@ -132,7 +132,7 @@ jobs:
         mkdir build
         cd build
         if [[ ${{ runner.os }} == "Linux" ]]; then
-          export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/usr/local/lib64/pkgconfig"
+          export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig"
         fi
         cmake \
           -DUSE_RESAMP_SRC=ON \
