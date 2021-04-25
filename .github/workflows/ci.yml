@@ -20,6 +20,7 @@ jobs:
       CFLAGS: -isystem /usr/local/include
       CXXFLAGS: -isystem /usr/local/include
       CMAKE_GENERATOR: Ninja
+      VERBOSE: 1
       BASS_VERSION: 24
       BASSMIDI_VERSION: 24
       FSYNTH_VERSION: 2.1.5
