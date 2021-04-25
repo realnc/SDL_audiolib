@@ -17,6 +17,10 @@ The provided decoders are:
   It can decode raw FLAC or Ogg/FLAC audio. This decoder is built-in into SDL_audiolib and has no
   external library dependencies.
 
+- Aulib::DecoderDrwav - uses built-in [dr_wav](https://mackron.github.io/dr_wav)
+
+  This decoder is built-in into SDL_audiolib and has no external library dependencies.
+
 - Aulib::DecoderVorbis - uses [libvorbis](http://xiph.org/vorbis)
 
   It can decode Ogg/Vorbis audio.
