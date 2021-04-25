@@ -392,6 +392,7 @@ target_include_directories(
         ${OPUSFILE_INCLUDE_DIRS}
         ${OPENMPT_INCLUDE_DIRS}
         ${XMP_INCLUDE_DIRS}
+        ${ADLMIDI_INCLUDE_DIRS}
 
         # MogPlug ships a "sndfile.h" with its headers. This breaks the build,
         # since sndfile.h is expected to belong to libsndfile.
@@ -415,6 +416,7 @@ target_link_libraries(
         ${SNDFILE_LIBRARIES}
         ${VORBISFILE_LIBRARIES}
         ${OPUSFILE_LIBRARIES}
+        ${ADLMIDI_LIBRARIES}
         ${EXTRA_LIBRARIES}
 )
 
