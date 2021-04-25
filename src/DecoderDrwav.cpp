@@ -3,6 +3,7 @@
 
 #include "SdlAudioLocker.h"
 #include "aulib_debug.h"
+#include "missing.h"
 #define DR_WAV_IMPLEMENTATION
 #include "dr_wav.h"
 #include <SDL_rwops.h>

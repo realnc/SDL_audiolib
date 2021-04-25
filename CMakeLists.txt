@@ -10,6 +10,12 @@ cmake_policy(SET CMP0069 NEW)
 cmake_policy(SET CMP0077 NEW)
 
 option(
+    USE_SDL1
+    "Use SDL1 instead of SDL2."
+    OFF
+)
+
+option(
     USE_RESAMP_SRC
     "Enable SRC (aka libsamplerate) resampler."
     ON
@@ -181,11 +187,18 @@ set(
     include/Aulib/Stream.h
 )
 
-find_package(SDL2 REQUIRED)
-set(SDL_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS})
-set(SDL_LIBRARY_DIRS ${SDL2_LIBRARY_DIRS})
-set(SDL_LIBRARIES ${SDL2_LIBRARIES})
-set(PKGCONF_REQ_PUB "${PKGCONF_REQ_PUB} sdl2")
+if(USE_SDL1)
+    find_package(SDL REQUIRED)
+    set(SDL_INCLUDE_DIRS ${SDL_INCLUDE_DIR})
+    set(SDL_LIBRARIES ${SDL_LIBRARY})
+    set(PKGCONF_REQ_PUB "${PKGCONF_REQ_PUB} sdl")
+else()
+    find_package(SDL2 REQUIRED)
+    set(SDL_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS})
+    set(SDL_LIBRARY_DIRS ${SDL2_LIBRARY_DIRS})
+    set(SDL_LIBRARIES ${SDL2_LIBRARIES})
+    set(PKGCONF_REQ_PUB "${PKGCONF_REQ_PUB} sdl2")
+endif()
 
 set(LIBRARY_DIRS ${LIBRARY_DIRS} ${SDL_LIBRARY_DIRS})
 
@@ -339,9 +352,13 @@ add_library(
     src/stream_p.cpp
     src/stream_p.h
 
-    src/missing/missing.h
+    src/missing.h
+    src/missing/sdl_audio_format.h
+    src/missing/sdl_endian_float.h
     src/missing/sdl_load_file_rw.c
     src/missing/sdl_load_file_rw.h
+    src/missing/sdl_rwsize.c
+    src/missing/sdl_rwsize.h
 
     3rdparty/speex_resampler/arch.h
     3rdparty/speex_resampler/resample.c
@@ -384,7 +401,6 @@ target_include_directories(
 
     PRIVATE
         ${PROJECT_SOURCE_DIR}/3rdparty/speex_resampler
-        ${PROJECT_SOURCE_DIR}/src/missing
         ${SRC_INCLUDE_DIRS}
         ${SOXR_INCLUDE_DIRS}
         ${DRFLAC_INCLUDE_DIRS}

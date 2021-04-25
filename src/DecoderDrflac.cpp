@@ -2,6 +2,7 @@
 #include "Aulib/DecoderDrflac.h"
 
 #include "aulib_debug.h"
+#include "missing.h"
 #define DR_FLAC_IMPLEMENTATION
 #include "dr_flac.h"
 #include <SDL_rwops.h>

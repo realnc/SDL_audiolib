@@ -3,6 +3,7 @@
 
 #include "Buffer.h"
 #include "aulib.h"
+#include "missing.h"
 #include <SDL_audio.h>
 #include <libmodplug/modplug.h>
 #include <limits>

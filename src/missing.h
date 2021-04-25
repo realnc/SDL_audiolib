@@ -3,7 +3,13 @@
 #include <SDL_version.h>
 
 #if !SDL_VERSION_ATLEAST(2, 0, 6)
-#    include "sdl_load_file_rw.h"
+#    include "missing/sdl_load_file_rw.h"
+#endif
+
+#if !SDL_VERSION_ATLEAST(2, 0, 0)
+#    include "missing/sdl_audio_format.h"
+#    include "missing/sdl_endian_float.h"
+#    include "missing/sdl_rwsize.h"
 #endif
 
 /*

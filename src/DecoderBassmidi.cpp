@@ -4,6 +4,7 @@
 #include "Buffer.h"
 #include "aulib.h"
 #include "aulib_debug.h"
+#include "missing.h"
 #include <SDL_audio.h>
 #include <SDL_rwops.h>
 #include <bass.h>

@@ -2,6 +2,7 @@
 #include <Aulib/DecoderSndfile.h>
 
 #include "aulib_debug.h"
+#include "missing.h"
 #include <SDL_rwops.h>
 #include <SDL_version.h>
 #include <sndfile.h>

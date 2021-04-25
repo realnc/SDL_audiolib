@@ -4,6 +4,7 @@
 #include "Buffer.h"
 #include "aulib_config.h"
 #include "aulib_debug.h"
+#include "missing.h"
 #include <SDL_rwops.h>
 #include <cstring>
 #include <mpc/mpcdec.h>

@@ -2,6 +2,7 @@
 #include "Aulib/DecoderWildmidi.h"
 
 #include "Buffer.h"
+#include "missing.h"
 #include <SDL_rwops.h>
 #include <algorithm>
 #include <wildmidi_lib.h>

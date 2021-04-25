@@ -3,6 +3,7 @@
 
 #include "aulib_export.h"
 #include <SDL_stdinc.h>
+#include <SDL_version.h>
 #include <aulib.h>
 #include <chrono>
 #include <functional>
@@ -315,7 +316,7 @@ protected:
 
 private:
     friend struct Stream_priv;
-    friend auto Aulib::init(int, SDL_AudioFormat, int, int) -> bool;
+    friend auto Aulib::init(int, AudioFormat, int, int) -> bool;
 
     const std::unique_ptr<struct Stream_priv> d;
 };

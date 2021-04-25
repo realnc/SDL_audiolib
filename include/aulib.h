@@ -3,10 +3,21 @@
 
 #include "aulib_global.h"
 #include <SDL_audio.h>
+#include <SDL_version.h>
+
+#if !SDL_VERSION_ATLEAST(2, 0, 0)
+#    include <SDL_stdinc.h>
+#endif
 
 struct SDL_AudioSpec;
 
 namespace Aulib {
+
+#if SDL_VERSION_ATLEAST(2, 0, 0)
+using AudioFormat = SDL_AudioFormat;
+#else
+using AudioFormat = Uint16;
+#endif
 
 /*!
  * \brief Initializes the audio system.
@@ -40,7 +51,7 @@ namespace Aulib {
  *  \retval true The audio system was initialized successfully.
  *  \retval false The audio system could not be initialized.
  */
-AULIB_EXPORT auto init(int freq, SDL_AudioFormat format, int channels, int frameSize) -> bool;
+AULIB_EXPORT auto init(int freq, AudioFormat format, int channels, int frameSize) -> bool;
 
 /*!
  *  \brief Shuts down the SDL_audiolib library.
@@ -55,7 +66,7 @@ AULIB_EXPORT void quit();
  *
  * This can be different than the format that was requested.
  */
-AULIB_EXPORT auto sampleFormat() noexcept -> SDL_AudioFormat;
+AULIB_EXPORT auto sampleFormat() noexcept -> AudioFormat;
 
 /*!
  * \brief Sample rate the audio device is actually using.

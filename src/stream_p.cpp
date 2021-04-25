@@ -5,6 +5,7 @@
 #include "Aulib/Resampler.h"
 #include "Aulib/Stream.h"
 #include "aulib_debug.h"
+#include "missing.h"
 #include <SDL_timer.h>
 #include <algorithm>
 #include <cmath>
@@ -12,7 +13,9 @@
 
 void (*Aulib::Stream_priv::fSampleConverter)(Uint8[], const Buffer<float>& src) = nullptr;
 SDL_AudioSpec Aulib::Stream_priv::fAudioSpec;
+#if SDL_VERSION_ATLEAST(2, 0, 0)
 SDL_AudioDeviceID Aulib::Stream_priv::fDeviceId;
+#endif
 std::vector<Aulib::Stream*> Aulib::Stream_priv::fStreamList;
 Buffer<float> Aulib::Stream_priv::fFinalMixBuf{0};
 Buffer<float> Aulib::Stream_priv::fStrmBuf{0};
