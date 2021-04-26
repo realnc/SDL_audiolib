@@ -123,6 +123,11 @@ void Aulib::quit()
             stream->stop();
         }
     }
+#if SDL_VERSION_ATLEAST(2, 0, 0)
+    SDL_CloseAudioDevice(Stream_priv::fDeviceId);
+#else
+    SDL_CloseAudio();
+#endif
     SDL_QuitSubSystem(SDL_INIT_AUDIO);
     Stream_priv::fSampleConverter = nullptr;
     gInitialized = false;
