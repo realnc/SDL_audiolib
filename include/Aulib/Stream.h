@@ -8,6 +8,7 @@
 #include <chrono>
 #include <functional>
 #include <memory>
+#include <string>
 
 struct SDL_RWops;
 struct SDL_AudioSpec;
@@ -316,7 +317,7 @@ protected:
 
 private:
     friend struct Stream_priv;
-    friend auto Aulib::init(int, AudioFormat, int, int) -> bool;
+    friend auto Aulib::init(int, AudioFormat, int, int, const std::string&) -> bool;
 
     const std::unique_ptr<struct Stream_priv> d;
 };
