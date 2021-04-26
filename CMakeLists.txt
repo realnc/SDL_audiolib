@@ -6,8 +6,15 @@ project(SDL_audiolib
 )
 set(AULIB_VERSION 0x000000)
 
-cmake_policy(SET CMP0069 NEW)
-cmake_policy(SET CMP0077 NEW)
+if(POLICY CMP0069)
+    cmake_policy(SET CMP0069 NEW)
+endif()
+if(POLICY CMP0077)
+    cmake_policy(SET CMP0077 NEW)
+endif()
+if(POLICY CMP0111)
+    cmake_policy(SET CMP0111 NEW)
+endif()
 
 option(
     USE_SDL1
@@ -136,7 +143,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-cmake_policy(SET CMP0063 NEW)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_C_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
