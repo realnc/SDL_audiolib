@@ -202,27 +202,24 @@ else()
     else()
         # Work around broken cmake config for older SDL2 versions
         set(SDL_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS})
-        set(SDL_LIBRARY_DIRS ${SDL2_LIBRARY_DIRS})
         set(SDL_LIBRARIES ${SDL2_LIBRARIES})
     endif()
     set(PKGCONF_REQ_PUB "${PKGCONF_REQ_PUB} sdl2")
 endif()
 
-set(LIBRARY_DIRS ${LIBRARY_DIRS} ${SDL_LIBRARY_DIRS})
-
 if (USE_RESAMP_SRC)
     set(AULIB_SOURCES ${AULIB_SOURCES} src/ResamplerSrc.cpp)
     set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/ResamplerSrc.h)
-    pkg_check_modules(SRC REQUIRED samplerate>=0.1.9)
-    set(LIBRARY_DIRS ${LIBRARY_DIRS} ${SRC_LIBRARY_DIRS})
+    pkg_check_modules(SRC REQUIRED samplerate>=0.1.9 IMPORTED_TARGET)
+    list(APPEND EXTRA_LIBRARIES PkgConfig::SRC)
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} samplerate")
 endif(USE_RESAMP_SRC)
 
 if (USE_RESAMP_SOXR)
     set(AULIB_SOURCES ${AULIB_SOURCES} src/ResamplerSox.cpp)
     set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/ResamplerSox.h)
-    pkg_check_modules(SOXR REQUIRED soxr)
-    set(LIBRARY_DIRS ${LIBRARY_DIRS} ${SOXR_LIBRARY_DIRS})
+    pkg_check_modules(SOXR REQUIRED soxr IMPORTED_TARGET)
+    list(APPEND EXTRA_LIBRARIES PkgConfig::SOXR)
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} soxr")
 endif(USE_RESAMP_SOXR)
 
@@ -241,56 +238,56 @@ endif(USE_DEC_DRWAV)
 if (USE_DEC_OPENMPT)
     set(AULIB_SOURCES ${AULIB_SOURCES} src/DecoderOpenmpt.cpp)
     set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderOpenmpt.h)
-    pkg_check_modules(OPENMPT REQUIRED libopenmpt)
-    set(LIBRARY_DIRS ${LIBRARY_DIRS} ${OPENMPT_LIBRARY_DIRS})
+    pkg_check_modules(OPENMPT REQUIRED libopenmpt IMPORTED_TARGET)
+    list(APPEND EXTRA_LIBRARIES PkgConfig::OPENMPT)
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} libopenmpt")
 endif(USE_DEC_OPENMPT)
 
 if (USE_DEC_XMP)
     set(AULIB_SOURCES ${AULIB_SOURCES} src/DecoderXmp.cpp)
     set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderXmp.h)
-    pkg_check_modules(XMP REQUIRED libxmp)
-    set(LIBRARY_DIRS ${LIBRARY_DIRS} ${XMP_LIBRARY_DIRS})
+    pkg_check_modules(XMP REQUIRED libxmp IMPORTED_TARGET)
+    list(APPEND EXTRA_LIBRARIES PkgConfig::XMP)
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} libxmp")
 endif(USE_DEC_XMP)
 
 if (USE_DEC_MODPLUG)
     set(AULIB_SOURCES ${AULIB_SOURCES} src/DecoderModplug.cpp)
     set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderModplug.h)
-    pkg_check_modules(MODPLUG REQUIRED libmodplug)
-    set(LIBRARY_DIRS ${LIBRARY_DIRS} ${MODPLUG_LIBRARY_DIRS})
+    pkg_check_modules(MODPLUG REQUIRED libmodplug IMPORTED_TARGET)
+    list(APPEND EXTRA_LIBRARIES PkgConfig::MODPLUG)
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} libmodplug")
 endif(USE_DEC_MODPLUG)
 
 if (USE_DEC_MPG123)
     set(AULIB_SOURCES ${AULIB_SOURCES} src/DecoderMpg123.cpp)
     set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderMpg123.h)
-    pkg_check_modules(MPG123 REQUIRED libmpg123)
-    set(LIBRARY_DIRS ${LIBRARY_DIRS} ${MPG123_LIBRARY_DIRS})
+    pkg_check_modules(MPG123 REQUIRED libmpg123 IMPORTED_TARGET)
+    list(APPEND EXTRA_LIBRARIES PkgConfig::MPG123)
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} libmpg123")
 endif(USE_DEC_MPG123)
 
 if (USE_DEC_SNDFILE)
     set(AULIB_SOURCES ${AULIB_SOURCES} src/DecoderSndfile.cpp)
     set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderSndfile.h)
-    pkg_check_modules(SNDFILE REQUIRED sndfile)
-    set(LIBRARY_DIRS ${LIBRARY_DIRS} ${SNDFILE_LIBRARY_DIRS})
+    pkg_check_modules(SNDFILE REQUIRED sndfile IMPORTED_TARGET)
+    list(APPEND EXTRA_LIBRARIES PkgConfig::SNDFILE)
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} sndfile")
 endif(USE_DEC_SNDFILE)
 
 if (USE_DEC_LIBVORBIS)
     set(AULIB_SOURCES ${AULIB_SOURCES} src/DecoderVorbis.cpp)
     set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderVorbis.h)
-    pkg_check_modules(VORBISFILE REQUIRED vorbisfile)
-    set(LIBRARY_DIRS ${LIBRARY_DIRS} ${VORBISFILE_LIBRARY_DIRS})
+    pkg_check_modules(VORBISFILE REQUIRED vorbisfile IMPORTED_TARGET)
+    list(APPEND EXTRA_LIBRARIES PkgConfig::VORBISFILE)
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} vorbisfile")
 endif(USE_DEC_LIBVORBIS)
 
 if (USE_DEC_LIBOPUSFILE)
     set(AULIB_SOURCES ${AULIB_SOURCES} src/DecoderOpus.cpp)
     set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderOpus.h)
-    pkg_check_modules(OPUSFILE REQUIRED opusfile)
-    set(LIBRARY_DIRS ${LIBRARY_DIRS} ${OPUSFILE_LIBRARY_DIRS})
+    pkg_check_modules(OPUSFILE REQUIRED opusfile IMPORTED_TARGET)
+    list(APPEND EXTRA_LIBRARIES PkgConfig::OPUSFILE)
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} opusfile")
 endif(USE_DEC_LIBOPUSFILE)
 
@@ -299,14 +296,14 @@ if (USE_DEC_MUSEPACK)
     set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderMusepack.h)
     find_library(MUSEPACK_LIBRARY NAMES mpcdec)
     set(PKGCONF_LIBS_PRIV "${PKGCONF_LIBS_PRIV} ${MUSEPACK_LIBRARY}")
-    set(EXTRA_LIBRARIES ${EXTRA_LIBRARIES} ${MUSEPACK_LIBRARY})
+    list(APPEND EXTRA_LIBRARIES ${MUSEPACK_LIBRARY})
 endif(USE_DEC_MUSEPACK)
 
 if (USE_DEC_FLUIDSYNTH)
     set(AULIB_SOURCES ${AULIB_SOURCES} src/DecoderFluidsynth.cpp)
     set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderFluidsynth.h)
-    pkg_check_modules(FLUIDSYNTH REQUIRED fluidsynth>=2)
-    set(LIBRARY_DIRS ${LIBRARY_DIRS} ${FLUIDSYNTH_LIBRARY_DIRS})
+    pkg_check_modules(FLUIDSYNTH REQUIRED fluidsynth>=2 IMPORTED_TARGET)
+    list(APPEND EXTRA_LIBRARIES PkgConfig::FLUIDSYNTH)
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} fluidsynth")
 endif(USE_DEC_FLUIDSYNTH)
 
@@ -316,7 +313,7 @@ if (USE_DEC_BASSMIDI)
     find_library(BASS_LIBRARY NAMES bass)
     find_library(BASSMIDI_LIBRARY NAMES bassmidi)
     set(PKGCONF_LIBS_PRIV "${PKGCONF_LIBS_PRIV} ${BASS_LIBRARY} ${BASSMIDI_LIBRARY}")
-    set(EXTRA_LIBRARIES ${EXTRA_LIBRARIES} ${BASS_LIBRARY} ${BASSMIDI_LIBRARY})
+    list(APPEND EXTRA_LIBRARIES ${BASS_LIBRARY} ${BASSMIDI_LIBRARY})
 endif(USE_DEC_BASSMIDI)
 
 if (USE_DEC_WILDMIDI)
@@ -324,20 +321,16 @@ if (USE_DEC_WILDMIDI)
     set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderWildmidi.h)
     find_library(WILDMIDI_LIBRARY NAMES WildMidi)
     set(PKGCONF_LIBS_PRIV "${PKGCONF_LIBS_PRIV} ${WILDMIDI_LIBRARY}")
-    set(EXTRA_LIBRARIES ${EXTRA_LIBRARIES} ${WILDMIDI_LIBRARY})
+    list(APPEND EXTRA_LIBRARIES ${WILDMIDI_LIBRARY})
 endif(USE_DEC_WILDMIDI)
 
 if (USE_DEC_ADLMIDI)
     set(AULIB_SOURCES ${AULIB_SOURCES} src/DecoderAdlmidi.cpp)
     set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderAdlmidi.h)
-    pkg_check_modules(ADLMIDI REQUIRED libADLMIDI)
-    set(LIBRARY_DIRS ${LIBRARY_DIRS} ${ADLMIDI_LIBRARY_DIRS})
+    pkg_check_modules(ADLMIDI REQUIRED libADLMIDI IMPORTED_TARGET)
+    list(APPEND EXTRA_LIBRARIES PkgConfig::ADLMIDI)
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} libADLMIDI")
 endif(USE_DEC_ADLMIDI)
-
-link_directories(
-    ${LIBRARY_DIRS}
-)
 
 add_library(
     SDL_audiolib
@@ -409,17 +402,8 @@ target_include_directories(
 
     PRIVATE
         ${PROJECT_SOURCE_DIR}/3rdparty/speex_resampler
-        ${SRC_INCLUDE_DIRS}
-        ${SOXR_INCLUDE_DIRS}
         ${DRFLAC_INCLUDE_DIRS}
         ${DRWAV_INCLUDE_DIRS}
-        ${FLUIDSYNTH_INCLUDE_DIRS}
-        ${MPG123_INCLUDE_DIRS}
-        ${SNDFILE_INCLUDE_DIRS}
-        ${VORBISFILE_INCLUDE_DIRS}
-        ${OPUSFILE_INCLUDE_DIRS}
-        ${OPENMPT_INCLUDE_DIRS}
-        ${XMP_INCLUDE_DIRS}
         ${ADLMIDI_INCLUDE_DIRS}
 
         # MogPlug ships a "sndfile.h" with its headers. This breaks the build,
@@ -434,17 +418,6 @@ target_link_libraries(
         ${SDL_LIBRARIES}
 
     PRIVATE
-        ${SRC_LIBRARIES}
-        ${SOXR_LIBRARIES}
-        ${FLUIDSYNTH_LIBRARIES}
-        ${OPENMPT_LIBRARIES}
-        ${XMP_LIBRARIES}
-        ${MODPLUG_LIBRARIES}
-        ${MPG123_LIBRARIES}
-        ${SNDFILE_LIBRARIES}
-        ${VORBISFILE_LIBRARIES}
-        ${OPUSFILE_LIBRARIES}
-        ${ADLMIDI_LIBRARIES}
         ${EXTRA_LIBRARIES}
 )
 
