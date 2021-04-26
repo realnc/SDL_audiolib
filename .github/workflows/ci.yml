@@ -39,6 +39,7 @@ jobs:
         libopenmpt-dev
         libopusfile-dev
         libsamplerate0-dev
+        libsdl-dev
         libsdl2-dev
         libsndfile1-dev
         libsoxr-dev
@@ -64,6 +65,7 @@ jobs:
           ninja
           opusfile
           pkg-config
+          sdl
           sdl2
 
     - name: Install FluidSynth
@@ -127,14 +129,43 @@ jobs:
         sudo cp wildmidi_lib.h /usr/local/include/
 
     - uses: actions/checkout@v2
-    - name: Build
+    - name: Build (SDL 1)
       run: |
-        mkdir build
-        cd build
+        mkdir build_sdl1
+        cd build_sdl1
         if [[ ${{ runner.os }} == "Linux" ]]; then
           export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig"
         fi
         cmake \
+          -DUSE_SDL1=ON \
+          -DUSE_RESAMP_SRC=ON \
+          -DUSE_RESAMP_SOXR=ON \
+          -DUSE_DEC_OPENMPT=ON \
+          -DUSE_DEC_XMP=ON \
+          -DUSE_DEC_MODPLUG=ON \
+          -DUSE_DEC_MPG123=ON \
+          -DUSE_DEC_SNDFILE=ON \
+          -DUSE_DEC_LIBVORBIS=ON \
+          -DUSE_DEC_LIBOPUSFILE=ON \
+          -DUSE_DEC_MUSEPACK=ON \
+          -DUSE_DEC_FLUIDSYNTH=ON \
+          -DUSE_DEC_BASSMIDI=ON \
+          -DUSE_DEC_WILDMIDI=ON \
+          -DUSE_DEC_ADLMIDI=ON \
+          -DENABLE_SDLMIXER_EMU=OFF \
+          -DBUILD_EXAMPLE=ON \
+          ..
+        sudo cmake --build . --target install -v
+
+    - name: Build (SDL 2)
+      run: |
+        mkdir build_sdl2
+        cd build_sdl2
+        if [[ ${{ runner.os }} == "Linux" ]]; then
+          export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig"
+        fi
+        cmake \
+          -DUSE_SDL1=OFF \
           -DUSE_RESAMP_SRC=ON \
           -DUSE_RESAMP_SOXR=ON \
           -DUSE_DEC_OPENMPT=ON \
