@@ -410,7 +410,6 @@ target_include_directories(
         ${PROJECT_SOURCE_DIR}/3rdparty/speex_resampler
         ${DRFLAC_INCLUDE_DIRS}
         ${DRWAV_INCLUDE_DIRS}
-        ${ADLMIDI_INCLUDE_DIRS}
 
         # MogPlug ships a "sndfile.h" with its headers. This breaks the build,
         # since sndfile.h is expected to belong to libsndfile.
