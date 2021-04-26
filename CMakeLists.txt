@@ -448,6 +448,11 @@ target_link_libraries(
         ${EXTRA_LIBRARIES}
 )
 
+if(MSVC)
+    target_compile_options(SDL_audiolib PRIVATE "/Zc:__cplusplus")
+    target_compile_options(SDL_audiolib PRIVATE "/permissive-")
+endif()
+
 if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
     set(CMAKE_INSTALL_LIBDIR lib CACHE PATH "Output directory for libraries.")
 endif(NOT DEFINED CMAKE_INSTALL_LIBDIR)
