@@ -32,7 +32,7 @@ auto Aulib::ResamplerSox::quality() const noexcept -> Aulib::ResamplerSox::Quali
 
 void Aulib::ResamplerSox::doResampling(float dst[], const float src[], int& dstLen, int& srcLen)
 {
-    if (not d->fResampler) {
+    if (!d->fResampler) {
         dstLen = srcLen = 0;
         return;
     }

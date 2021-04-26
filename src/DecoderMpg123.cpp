@@ -75,7 +75,7 @@ struct DecoderMpg123_priv final
 
 Aulib::DecoderMpg123_priv::DecoderMpg123_priv()
 {
-    if (not initialized) {
+    if (!initialized) {
         initLibMpg();
     }
 }
@@ -91,11 +91,11 @@ auto Aulib::DecoderMpg123::open(SDL_RWops* rwops) -> bool
     if (isOpen()) {
         return true;
     }
-    if (not initialized) {
+    if (!initialized) {
         return false;
     }
     d->fMpgHandle.reset(mpg123_new(nullptr, nullptr));
-    if (not d->fMpgHandle) {
+    if (!d->fMpgHandle) {
         return false;
     }
     mpg123_param(d->fMpgHandle.get(), MPG123_FLAGS, MPG123_QUIET, 0);
@@ -145,7 +145,7 @@ auto Aulib::DecoderMpg123::doDecoding(float buf[], int len, bool& callAgain) -> 
     size_t decBytes = 0;
     int totalBytes = 0;
 
-    while (totalBytes < bytesWanted and not callAgain) {
+    while (totalBytes < bytesWanted && !callAgain) {
         int ret = mpg123_read(d->fMpgHandle.get(), reinterpret_cast<unsigned char*>(buf),
                               static_cast<size_t>(bytesWanted), &decBytes);
         totalBytes += decBytes;
@@ -182,7 +182,7 @@ auto Aulib::DecoderMpg123::seekToTime(chrono::microseconds pos) -> bool
 {
     using std::chrono::duration;
     off_t targetFrame = mpg123_timeframe(d->fMpgHandle.get(), duration<double>(pos).count());
-    if (targetFrame < 0 or mpg123_seek_frame(d->fMpgHandle.get(), targetFrame, SEEK_SET) < 0) {
+    if (targetFrame < 0 || mpg123_seek_frame(d->fMpgHandle.get(), targetFrame, SEEK_SET) < 0) {
         return false;
     }
     d->fEOF = false;

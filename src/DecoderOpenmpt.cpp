@@ -35,7 +35,7 @@ auto Aulib::DecoderOpenmpt::open(SDL_RWops* rwops) -> bool
     }
     // FIXME: error reporting
     Sint64 dataSize = SDL_RWsize(rwops);
-    if (dataSize <= 0 or dataSize > std::numeric_limits<int>::max()) {
+    if (dataSize <= 0 || dataSize > std::numeric_limits<int>::max()) {
         return false;
     }
     Buffer<Uint8> data(dataSize);

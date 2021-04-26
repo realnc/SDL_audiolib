@@ -115,7 +115,7 @@ auto Aulib::init(int freq, AudioFormat format, int channels, int frameSize) -> b
 
 void Aulib::quit()
 {
-    if (not gInitialized) {
+    if (!gInitialized) {
         return;
     }
     for (const auto stream : Stream_priv::fStreamList) {

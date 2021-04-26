@@ -95,7 +95,7 @@ auto Aulib::DecoderVorbis::doDecoding(float buf[], int len, bool& callAgain) -> 
     float** out;
     int decSamples = 0;
 
-    while (decSamples < len and not callAgain) {
+    while (decSamples < len && !callAgain) {
         int lastSection = d->fCurrentSection;
         // TODO: We only support up to 2 channels for now.
         auto channels = std::min(d->fCurrentInfo->channels, 2);

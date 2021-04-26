@@ -55,7 +55,7 @@ auto Aulib::DecoderOpus::open(SDL_RWops* rwops) -> bool
     }
     int error;
     d->fOpusHandle.reset(op_open_callbacks(rwops, &d->fCbs, nullptr, 0, &error));
-    if (not d->fOpusHandle) {
+    if (!d->fOpusHandle) {
         AM_debugPrintLn("ERROR:" << error);
         if (error == OP_ENOTFORMAT) {
             AM_debugPrintLn("OP_ENOTFORMAT");

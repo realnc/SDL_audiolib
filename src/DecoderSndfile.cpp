@@ -80,7 +80,7 @@ auto Aulib::DecoderSndfile::open(SDL_RWops* rwops) -> bool
     cbs.write = nullptr;
     cbs.tell = sfTellCb;
     d->fSndfile.reset(sf_open_virtual(&cbs, SFM_READ, &d->fInfo, rwops));
-    if (not d->fSndfile) {
+    if (!d->fSndfile) {
         return false;
     }
     d->fDuration = chrono::duration_cast<chrono::microseconds>(

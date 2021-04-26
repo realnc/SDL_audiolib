@@ -136,7 +136,7 @@ auto Aulib::DecoderBassmidi::open(SDL_RWops* rwops) -> bool
         return false;
     }
     d->hstream.reset(TRUE, newMidiData.get(), 0, newMidiData.size(), bassFlags, 1);
-    if (not d->hstream) {
+    if (!d->hstream) {
         return false;
     }
     d->midiData.swap(newMidiData);
@@ -162,7 +162,7 @@ auto Aulib::DecoderBassmidi::getRate() const -> int
 
 auto Aulib::DecoderBassmidi::doDecoding(float buf[], int len, bool& /*callAgain*/) -> int
 {
-    if (d->eof or not d->hstream) {
+    if (d->eof || !d->hstream) {
         return 0;
     }
 
@@ -185,7 +185,7 @@ auto Aulib::DecoderBassmidi::rewind() -> bool
 
 auto Aulib::DecoderBassmidi::duration() const -> chrono::microseconds
 {
-    if (not d->hstream) {
+    if (!d->hstream) {
         return {};
     }
 
@@ -207,7 +207,7 @@ auto Aulib::DecoderBassmidi::duration() const -> chrono::microseconds
 
 auto Aulib::DecoderBassmidi::seekToTime(chrono::microseconds pos) -> bool
 {
-    if (not d->hstream) {
+    if (!d->hstream) {
         return false;
     }
 

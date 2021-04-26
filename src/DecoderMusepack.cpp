@@ -74,7 +74,7 @@ auto Aulib::DecoderMusepack::open(SDL_RWops* rwops) -> bool
     }
     d->reader.data = rwops;
     d->demuxer.reset(mpc_demux_init(&d->reader));
-    if (not d->demuxer) {
+    if (!d->demuxer) {
         d->reader.data = nullptr;
         return false;
     }

@@ -37,12 +37,12 @@ auto Aulib::DecoderXmp::open(SDL_RWops* rwops) -> bool
 
     // FIXME: error reporting
     d->fContext.reset(xmp_create_context());
-    if (not d->fContext) {
+    if (!d->fContext) {
         return false;
     }
 
     Sint64 dataSize = SDL_RWsize(rwops);
-    if (dataSize <= 0 or dataSize > std::numeric_limits<int>::max()) {
+    if (dataSize <= 0 || dataSize > std::numeric_limits<int>::max()) {
         return false;
     }
     Buffer<Uint8> data(dataSize);

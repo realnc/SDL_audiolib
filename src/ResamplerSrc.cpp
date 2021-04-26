@@ -33,7 +33,7 @@ auto Aulib::ResamplerSrc::quality() const noexcept -> Aulib::ResamplerSrc::Quali
 
 void Aulib::ResamplerSrc::doResampling(float dst[], const float src[], int& dstLen, int& srcLen)
 {
-    if (not d->fResampler) {
+    if (!d->fResampler) {
         dstLen = srcLen = 0;
         return;
     }
@@ -76,7 +76,7 @@ auto Aulib::ResamplerSrc::adjustForOutputSpec(int dstRate, int srcRate, int chan
     }
 
     d->fResampler.reset(src_new(src_q, channels, &err));
-    if (not d->fResampler) {
+    if (!d->fResampler) {
         return -1;
     }
     return 0;

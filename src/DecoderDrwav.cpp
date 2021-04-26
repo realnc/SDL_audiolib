@@ -74,7 +74,7 @@ Aulib::DecoderDrwav::DecoderDrwav()
 
 Aulib::DecoderDrwav::~DecoderDrwav()
 {
-    if (not isOpen()) {
+    if (!isOpen()) {
         return;
     }
 
@@ -90,7 +90,7 @@ auto Aulib::DecoderDrwav::open(SDL_RWops* const rwops) -> bool
         return true;
     }
 
-    if (not drwav_init(&d->handle_, drwavReadCb, drwavSeekCb, rwops, nullptr)) {
+    if (!drwav_init(&d->handle_, drwavReadCb, drwavSeekCb, rwops, nullptr)) {
         SDL_SetError("drwav_init failed.");
         return false;
     }
@@ -141,7 +141,7 @@ auto Aulib::DecoderDrwav::duration() const -> chrono::microseconds
 auto Aulib::DecoderDrwav::seekToTime(const chrono::microseconds pos) -> bool
 {
     const auto target_frame = chrono::duration<double>(pos).count() * getRate();
-    if (not drwav_seek_to_pcm_frame(&d->handle_, target_frame)) {
+    if (!drwav_seek_to_pcm_frame(&d->handle_, target_frame)) {
         return false;
     }
     d->fEOF = false;

@@ -80,7 +80,7 @@ auto Aulib::DecoderDrflac::open(SDL_RWops* const rwops) -> bool
     }
 
     d->handle_ = {drflac_open(drflacReadCb, drflacSeekCb, rwops, nullptr), drflac_close};
-    if (not d->handle_) {
+    if (!d->handle_) {
         SDL_SetError("drflac_open returned null.");
         return false;
     }
@@ -131,7 +131,7 @@ auto Aulib::DecoderDrflac::duration() const -> chrono::microseconds
 auto Aulib::DecoderDrflac::seekToTime(const chrono::microseconds pos) -> bool
 {
     const auto target_frame = chrono::duration<double>(pos).count() * getRate();
-    if (not drflac_seek_to_pcm_frame(d->handle_.get(), target_frame)) {
+    if (!drflac_seek_to_pcm_frame(d->handle_.get(), target_frame)) {
         return false;
     }
     d->fEOF = false;

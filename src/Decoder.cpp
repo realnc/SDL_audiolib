@@ -81,7 +81,7 @@ auto Aulib::Decoder::decoderFor(SDL_RWops* rwops) -> std::unique_ptr<Aulib::Deco
 #if USE_DEC_FLUIDSYNTH or USE_DEC_BASSMIDI or USE_DEC_WILDMIDI or USE_DEC_ADLMIDI
     {
         std::array<char, 5> head{};
-        if (SDL_RWread(rwops, head.data(), 1, 4) == 4 and head == decltype(head){"MThd"}) {
+        if (SDL_RWread(rwops, head.data(), 1, 4) == 4 && head == decltype(head){"MThd"}) {
             using midi_dec_type =
 #    if USE_DEC_FLUIDSYNTH
                 DecoderFluidsynth;
@@ -135,7 +135,7 @@ auto Aulib::Decoder::isOpen() const -> bool
 // Conversion happens in-place.
 static constexpr void monoToStereo(float buf[], int len)
 {
-    if (len < 1 or buf == nullptr) {
+    if (len < 1 || buf == nullptr) {
         return;
     }
     for (int i = len / 2 - 1, j = len - 1; i > 0; --i) {
@@ -146,7 +146,7 @@ static constexpr void monoToStereo(float buf[], int len)
 
 static constexpr void stereoToMono(float dst[], const float src[], int srcLen)
 {
-    if (srcLen < 1 or dst == nullptr or src == nullptr) {
+    if (srcLen < 1 || dst == nullptr || src == nullptr) {
         return;
     }
     for (int i = 0, j = 0; i < srcLen; i += 2, ++j) {
@@ -157,13 +157,13 @@ static constexpr void stereoToMono(float dst[], const float src[], int srcLen)
 
 auto Aulib::Decoder::decode(float buf[], int len, bool& callAgain) -> int
 {
-    if (this->getChannels() == 1 and Aulib::channelCount() == 2) {
+    if (this->getChannels() == 1 && Aulib::channelCount() == 2) {
         int srcLen = this->doDecoding(buf, len / 2, callAgain);
         monoToStereo(buf, srcLen * 2);
         return srcLen * 2;
     }
 
-    if (this->getChannels() == 2 and Aulib::channelCount() == 1) {
+    if (this->getChannels() == 2 && Aulib::channelCount() == 1) {
         if (d->stereoBuf.size() != len * 2) {
             d->stereoBuf.reset(len * 2);
         }

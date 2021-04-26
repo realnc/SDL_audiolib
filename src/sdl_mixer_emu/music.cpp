@@ -231,7 +231,7 @@ void Mix_ResumeMusic()
 {
     AM_debugPrintLn(__func__);
 
-    if (gMusic != nullptr and gMusic->isPaused()) {
+    if (gMusic != nullptr && gMusic->isPaused()) {
         gMusic->resume();
     }
 }

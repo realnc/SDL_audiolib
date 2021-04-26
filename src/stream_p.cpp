@@ -37,7 +37,7 @@ Aulib::Stream_priv::Stream_priv(Stream* pub, std::unique_ptr<Decoder> decoder,
 
 Aulib::Stream_priv::~Stream_priv()
 {
-    if (fCloseRw and fRWops != nullptr) {
+    if (fCloseRw && fRWops != nullptr) {
         SDL_RWclose(fRWops);
     }
 }
@@ -158,9 +158,9 @@ void Aulib::Stream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int out
         }
 
         // Avoid mixing on zero volume.
-        if (not stream->d->fIsMuted and (volumeLeft > 0.f or volumeRight > 0.f)) {
+        if (!stream->d->fIsMuted && (volumeLeft > 0.f || volumeRight > 0.f)) {
             // Avoid scaling operation when volume is 1.
-            if (volumeLeft != 1.f or volumeRight != 1.f) {
+            if (volumeLeft != 1.f || volumeRight != 1.f) {
                 for (int i = 0; i < len; i += 2) {
                     fFinalMixBuf[i] += fStrmBuf[i] * volumeLeft;
                     fFinalMixBuf[i + 1] += fStrmBuf[i + 1] * volumeRight;

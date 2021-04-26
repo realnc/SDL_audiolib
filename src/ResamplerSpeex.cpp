@@ -47,7 +47,7 @@ void Aulib::ResamplerSpeex::setQuality(int quality)
 
 void Aulib::ResamplerSpeex::doResampling(float dst[], const float src[], int& dstLen, int& srcLen)
 {
-    if (not d->fResampler) {
+    if (!d->fResampler) {
         dstLen = srcLen = 0;
         return;
     }
@@ -55,7 +55,7 @@ void Aulib::ResamplerSpeex::doResampling(float dst[], const float src[], int& ds
     int channels = currentChannels();
     auto spxInLen = static_cast<spx_uint32_t>(srcLen / channels);
     auto spxOutLen = static_cast<spx_uint32_t>(dstLen / channels);
-    if (spxInLen == 0 or spxOutLen == 0) {
+    if (spxInLen == 0 || spxOutLen == 0) {
         dstLen = srcLen = 0;
         return;
     }

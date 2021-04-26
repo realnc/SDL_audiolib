@@ -120,7 +120,7 @@ auto Aulib::DecoderAdlmidi::setEmulator(Emulator emulator) -> bool
     if (d->adl_player == nullptr) {
         return true;
     }
-    if (not d->setEmulator()) {
+    if (!d->setEmulator()) {
         return false;
     }
     adl_reset(d->adl_player.get());
@@ -133,7 +133,7 @@ auto Aulib::DecoderAdlmidi::setChipAmount(int chip_amount) -> bool
     if (d->adl_player == nullptr) {
         return true;
     }
-    if (not d->setChipAmount()) {
+    if (!d->setChipAmount()) {
         return false;
     }
     adl_reset(d->adl_player.get());
@@ -156,7 +156,7 @@ auto Aulib::DecoderAdlmidi::loadBank(SDL_RWops* rwops) -> bool
         d->bank_data = std::move(tmp_data);
         return true;
     }
-    if (not d->setAndFreeBank()) {
+    if (!d->setAndFreeBank()) {
         return false;
     }
     adl_reset(d->adl_player.get());
@@ -175,7 +175,7 @@ auto Aulib::DecoderAdlmidi::loadBank(const std::string& filename) -> bool
 
 auto Aulib::DecoderAdlmidi::loadEmbeddedBank(int bank_number) -> bool
 {
-    if (bank_number < 0 or bank_number >= adl_getBanksCount()) {
+    if (bank_number < 0 || bank_number >= adl_getBanksCount()) {
         SDL_SetError("Invalid bank number.");
         return false;
     }
@@ -184,7 +184,7 @@ auto Aulib::DecoderAdlmidi::loadEmbeddedBank(int bank_number) -> bool
     if (d->adl_player == nullptr) {
         return true;
     }
-    if (not d->setEmbeddedBank()) {
+    if (!d->setEmbeddedBank()) {
         return false;
     }
     return true;
@@ -215,18 +215,18 @@ auto Aulib::DecoderAdlmidi::open(SDL_RWops* rwops) -> bool
         SDL_SetError("Failed to initialize libADLMIDI: %s", adl_errorString());
         return false;
     }
-    if (not d->setChipAmount()) {
+    if (!d->setChipAmount()) {
         return false;
     }
-    if (d->change_emulator and not d->setEmulator()) {
+    if (d->change_emulator && !d->setEmulator()) {
         return false;
     }
-    if (d->bank_data == nullptr and d->embedded_bank < 0) {
+    if (d->bank_data == nullptr && d->embedded_bank < 0) {
         SDL_SetError("No FM patch bank loaded.");
         return false;
     }
-    if ((d->bank_data and not d->setAndFreeBank())
-        or (d->embedded_bank >= 0 and not d->setEmbeddedBank())) {
+    if ((d->bank_data && !d->setAndFreeBank())
+        || (d->embedded_bank >= 0 && !d->setEmbeddedBank())) {
         return false;
     }
     if (adl_openData(d->adl_player.get(), new_midi_data.get(), new_midi_data.size()) != 0) {
@@ -277,7 +277,7 @@ auto Aulib::DecoderAdlmidi::seekToTime(chrono::microseconds pos) -> bool
 auto Aulib::DecoderAdlmidi::doDecoding(float buf[], int len, bool& callAgain) -> int
 {
     callAgain = false;
-    if (d->adl_player == nullptr or d->eof) {
+    if (d->adl_player == nullptr || d->eof) {
         return 0;
     }
     constexpr ADLMIDI_AudioFormat adl_format{ADLMIDI_SampleType_F32, sizeof(float),

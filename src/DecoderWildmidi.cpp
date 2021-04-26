@@ -65,7 +65,7 @@ auto Aulib::DecoderWildmidi::open(SDL_RWops* rwops) -> bool
     if (isOpen()) {
         return true;
     }
-    if (not DecoderWildmidi_priv::initialized) {
+    if (!DecoderWildmidi_priv::initialized) {
         return false;
     }
 
@@ -80,7 +80,7 @@ auto Aulib::DecoderWildmidi::open(SDL_RWops* rwops) -> bool
         return false;
     }
     d->midiHandle.reset(WildMidi_OpenBuffer(newMidiData.get(), newMidiData.usize()));
-    if (not d->midiHandle) {
+    if (!d->midiHandle) {
         return false;
     }
     d->midiData.swap(newMidiData);
@@ -101,7 +101,7 @@ auto Aulib::DecoderWildmidi::getRate() const -> int
 auto Aulib::DecoderWildmidi::doDecoding(float buf[], int len, bool& callAgain) -> int
 {
     callAgain = false;
-    if (not d->midiHandle or d->eof) {
+    if (!d->midiHandle || d->eof) {
         return 0;
     }
 
@@ -137,7 +137,7 @@ auto Aulib::DecoderWildmidi::rewind() -> bool
 auto Aulib::DecoderWildmidi::duration() const -> chrono::microseconds
 {
     _WM_Info* info;
-    if (not d->midiHandle or (info = WildMidi_GetInfo(d->midiHandle.get())) == nullptr) {
+    if (!d->midiHandle || (info = WildMidi_GetInfo(d->midiHandle.get())) == nullptr) {
         return {};
     }
     auto sec = static_cast<double>(info->approx_total_samples) / getRate();
@@ -146,7 +146,7 @@ auto Aulib::DecoderWildmidi::duration() const -> chrono::microseconds
 
 auto Aulib::DecoderWildmidi::seekToTime(chrono::microseconds pos) -> bool
 {
-    if (not d->midiHandle) {
+    if (!d->midiHandle) {
         return false;
     }
 

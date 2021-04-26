@@ -127,7 +127,7 @@ Aulib::DecoderFluidsynth_priv::DecoderFluidsynth_priv()
         initFluidSynth();
     }
     fSynth.reset(new_fluid_synth(settings));
-    if (not fSynth) {
+    if (!fSynth) {
         return;
     }
     fluid_synth_set_interp_method(fSynth.get(), -1, FLUID_INTERP_7THORDER);
@@ -163,7 +163,7 @@ auto Aulib::DecoderFluidsynth::loadSoundfont(SDL_RWops* rwops) -> bool
 
     std::array<char, 64> bogus_fname;
     auto ret = snprintf(bogus_fname.data(), bogus_fname.size(), "&%p", static_cast<void*>(rwops));
-    if (ret < 0 or ret >= static_cast<int>(bogus_fname.size())) {
+    if (ret < 0 || ret >= static_cast<int>(bogus_fname.size())) {
         SDL_SetError("internal string representation of pointer is too long (please file a bug)");
         closeRwops();
         return false;
@@ -200,7 +200,7 @@ auto Aulib::DecoderFluidsynth::open(SDL_RWops* rwops) -> bool
     if (isOpen()) {
         return true;
     }
-    if (not d->fSynth) {
+    if (!d->fSynth) {
         SDL_SetError("FluidSynth failed to initialize.");
         return false;
     }
@@ -266,7 +266,7 @@ auto Aulib::DecoderFluidsynth::getRate() const -> int
 auto Aulib::DecoderFluidsynth::doDecoding(float buf[], int len, bool& callAgain) -> int
 {
     callAgain = false;
-    if (not d->fPlayer or d->fEOF) {
+    if (!d->fPlayer || d->fEOF) {
         return 0;
     }
 
@@ -290,7 +290,7 @@ auto Aulib::DecoderFluidsynth::rewind() -> bool
 
     fluid_player_stop(d->fPlayer.get());
     d->fPlayer.reset(new_fluid_player(d->fSynth.get()));
-    if (not d->fPlayer) {
+    if (!d->fPlayer) {
         SDL_SetError("FluidSynth failed to create new player.");
         return false;
     }
