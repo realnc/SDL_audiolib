@@ -19,7 +19,8 @@ static void sdlCallback(void* /*unused*/, Uint8 out[], int outLen)
 }
 }
 
-auto Aulib::init(int freq, AudioFormat format, int channels, int frameSize) -> bool
+auto Aulib::init(int freq, AudioFormat format, int channels, int frameSize, const char* device)
+    -> bool
 {
     if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0) {
         return false;
@@ -41,7 +42,7 @@ auto Aulib::init(int freq, AudioFormat format, int channels, int frameSize) -> b
     flags |= SDL_AUDIO_ALLOW_SAMPLES_CHANGE;
 #    endif
     Stream_priv::fDeviceId =
-        SDL_OpenAudioDevice(nullptr, false, &requestedSpec, &Stream_priv::fAudioSpec, flags);
+        SDL_OpenAudioDevice(device, false, &requestedSpec, &Stream_priv::fAudioSpec, flags);
     if (Stream_priv::fDeviceId == 0) {
         Aulib::quit();
         return false;

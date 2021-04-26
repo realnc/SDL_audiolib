@@ -316,7 +316,7 @@ protected:
 
 private:
     friend struct Stream_priv;
-    friend auto Aulib::init(int, AudioFormat, int, int) -> bool;
+    friend auto Aulib::init(int, AudioFormat, int, int, const char*) -> bool;
 
     const std::unique_ptr<struct Stream_priv> d;
 };

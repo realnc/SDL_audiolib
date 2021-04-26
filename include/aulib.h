@@ -47,11 +47,16 @@ using AudioFormat = Uint16;
  *  depends on the audio device and output driver used by SDL. Use \ref frameSize() to find out the
  *  actual frame size.
  *
+ * \param device
+ *  A UTF-8 string reported by SDL_GetAudioDeviceName() or a driver-specific name as appropriate.
+ *  `nullptr` requests the most reasonable default device.
+ *
  * \return
  *  \retval true The audio system was initialized successfully.
  *  \retval false The audio system could not be initialized.
  */
-AULIB_EXPORT auto init(int freq, AudioFormat format, int channels, int frameSize) -> bool;
+AULIB_EXPORT auto init(int freq, AudioFormat format, int channels, int frameSize,
+                       const char* device = nullptr) -> bool;
 
 /*!
  *  \brief Shuts down the SDL_audiolib library.
