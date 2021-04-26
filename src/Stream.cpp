@@ -8,11 +8,11 @@
 #include "aulib.h"
 #include "aulib_debug.h"
 #include "aulib_global.h"
+#include "missing/algorithm.h"
 #include "sampleconv.h"
 #include "stream_p.h"
 #include <SDL_audio.h>
 #include <SDL_timer.h>
-#include <algorithm>
 
 /* This is implemented here in order to avoid having the dtor call stop(),
  * which is a virtual.
@@ -165,7 +165,7 @@ auto Aulib::Stream::volume() const -> float
 
 void Aulib::Stream::setStereoPosition(const float position)
 {
-    d->fStereoPos = std::clamp(position, -1.f, 1.f);
+    d->fStereoPos = Aulib::priv::clamp(position, -1.f, 1.f);
 }
 
 auto Aulib::Stream::getStereoPosition() const -> float

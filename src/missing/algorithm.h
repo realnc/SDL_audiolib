@@ -1,28 +1,29 @@
 // This is copyrighted software. More information is at the end of this file.
 #pragma once
+#include "aulib_config.h"
+#include "aulib_debug.h"
+#include <algorithm>
 
-#cmakedefine USE_DEC_ADLMIDI 1
-#cmakedefine USE_DEC_BASSMIDI 1
-#cmakedefine USE_DEC_DRFLAC 1
-#cmakedefine USE_DEC_DRWAV 1
-#cmakedefine USE_DEC_FLUIDSYNTH 1
-#cmakedefine USE_DEC_LIBOPUSFILE 1
-#cmakedefine USE_DEC_LIBVORBIS 1
-#cmakedefine USE_DEC_MODPLUG 1
-#cmakedefine USE_DEC_MPG123 1
-#cmakedefine USE_DEC_MUSEPACK 1
-#cmakedefine USE_DEC_OPENMPT 1
-#cmakedefine USE_DEC_SNDFILE 1
-#cmakedefine USE_DEC_WILDMIDI 1
-#cmakedefine USE_DEC_XMP 1
-#cmakedefine USE_RESAMP_SOXR 1
-#cmakedefine USE_RESAMP_SRC 1
+namespace Aulib {
+namespace priv {
 
-#cmakedefine HAVE_STD_CLAMP 1
+#if HAVE_STD_CLAMP
+    using std::clamp;
+#else
+    template <typename T>
+    constexpr auto clamp(const T& val, const T& lo, const T& hi) -> const T&
+    {
+        AM_debugAssert(not(hi < lo));
+        return (val < lo) ? lo : (hi < val) ? hi : val;
+    }
+#endif
+
+} // namespace priv
+} // namespace Aulib
 
 /*
 
-Copyright (C) 2014, 2015, 2016, 2017, 2018, 2019 Nikos Chantziaras.
+Copyright (C) 2021 Nikos Chantziaras.
 
 This file is part of SDL_audiolib.
 

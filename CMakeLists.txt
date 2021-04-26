@@ -164,11 +164,6 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DAULIB_DEBUG)
 endif()
 
-configure_file (
-    ${PROJECT_SOURCE_DIR}/aulib_config.h.in
-    ${PROJECT_BINARY_DIR}/aulib_config.h
-)
-
 # Headers in include/SDL_Audiolib/
 set(
     PUBLIC_HEADERS
@@ -342,6 +337,14 @@ if (USE_DEC_ADLMIDI)
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} libADLMIDI")
 endif(USE_DEC_ADLMIDI)
 
+check_cxx_source_compiles(
+    "
+    #include <algorithm>
+    int main() { (void)std::clamp(1, 2, 3); }
+    "
+    HAVE_STD_CLAMP
+)
+
 add_library(
     SDL_audiolib
 
@@ -364,6 +367,7 @@ add_library(
     src/stream_p.h
 
     src/missing.h
+    src/missing/algorithm.h
     src/missing/sdl_audio_format.h
     src/missing/sdl_endian_float.h
     src/missing/sdl_load_file_rw.c
@@ -482,6 +486,11 @@ if (BUILD_EXAMPLE)
         SDL_audiolib
     )
 endif(BUILD_EXAMPLE)
+
+configure_file (
+    ${PROJECT_SOURCE_DIR}/aulib_config.h.in
+    ${PROJECT_BINARY_DIR}/aulib_config.h
+)
 
 configure_file(
     ${PROJECT_SOURCE_DIR}/Doxyfile.in
