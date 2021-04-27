@@ -138,7 +138,7 @@ static constexpr void monoToStereo(float buf[], int len)
     if (len < 1 or buf == nullptr) {
         return;
     }
-    for (int i = len / 2 - 1, j = len - 1; i > 0; --i) {
+    for (int i = len / 2 - 1, j = len - 1; i >= 0; --i) {
         buf[j--] = buf[i];
         buf[j--] = buf[i];
     }
