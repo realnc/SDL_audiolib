@@ -84,7 +84,7 @@ template <class... Decoders>
 inline auto Decoder::decoderFor(SDL_RWops* rwops) -> std::unique_ptr<Decoder>
 {
     static_assert(sizeof...(Decoders) > 0, "Need at least one decoder type.");
-    static_assert((std::is_base_of_v<Aulib::Decoder, Decoders> && ...),
+    static_assert((std::is_base_of<Aulib::Decoder, Decoders>::value && ...),
                   "Decoders must derive from Aulib::Decoder.");
 
     const auto rwPos = SDL_RWtell(rwops);
