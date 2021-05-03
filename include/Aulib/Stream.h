@@ -21,6 +21,10 @@ class Processor;
 
 /*!
  * \brief A \ref Stream handles playback for audio produced by a Decoder.
+ *
+ * All public functions of this class will lock the SDL audio device when they are called, and
+ * unlock it when they return. Therefore, it is safe to manipulate a Stream that is currently
+ * playing without having to manually lock the SDL audio device.
  */
 class AULIB_EXPORT Stream
 {

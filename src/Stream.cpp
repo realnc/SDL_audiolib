@@ -42,6 +42,8 @@ Aulib::Stream::~Stream()
 
 auto Aulib::Stream::open() -> bool
 {
+    SdlAudioLocker lock;
+
     if (d->fIsOpen) {
         return true;
     }
@@ -57,6 +59,8 @@ auto Aulib::Stream::open() -> bool
 
 auto Aulib::Stream::play(int iterations, std::chrono::microseconds fadeTime) -> bool
 {
+    SdlAudioLocker locker;
+
     if (not open()) {
         return false;
     }
@@ -76,7 +80,6 @@ auto Aulib::Stream::play(int iterations, std::chrono::microseconds fadeTime) -> 
         d->fInternalVolume = 1.f;
         d->fFadingIn = false;
     }
-    SdlAudioLocker locker;
     d->fStreamList.push_back(this);
     d->fIsPlaying = true;
     return true;
@@ -99,10 +102,11 @@ void Aulib::Stream::stop(std::chrono::microseconds fadeTime)
 
 void Aulib::Stream::pause(std::chrono::microseconds fadeTime)
 {
+    SdlAudioLocker locker;
+
     if (not open() or d->fIsPaused) {
         return;
     }
-    SdlAudioLocker locker;
     if (fadeTime.count() > 0) {
         d->fFadingIn = false;
         d->fFadingOut = true;
@@ -116,10 +120,11 @@ void Aulib::Stream::pause(std::chrono::microseconds fadeTime)
 
 void Aulib::Stream::resume(std::chrono::microseconds fadeTime)
 {
+    SdlAudioLocker locker;
+
     if (not d->fIsPaused) {
         return;
     }
-    SdlAudioLocker locker;
     if (fadeTime.count() > 0) {
         d->fInternalVolume = 0.f;
         d->fFadingIn = true;
@@ -134,96 +139,126 @@ void Aulib::Stream::resume(std::chrono::microseconds fadeTime)
 
 auto Aulib::Stream::rewind() -> bool
 {
+    SdlAudioLocker locker;
+
     if (not open()) {
         return false;
     }
-    SdlAudioLocker locker;
     return d->fDecoder->rewind();
 }
 
 void Aulib::Stream::setVolume(float volume)
 {
+    SdlAudioLocker locker;
+
     if (volume < 0.f) {
         volume = 0.f;
     }
-    SdlAudioLocker locker;
     d->fVolume = volume;
 }
 
 auto Aulib::Stream::volume() const -> float
 {
+    SdlAudioLocker locker;
+
     return d->fVolume;
 }
 
 void Aulib::Stream::setStereoPosition(const float position)
 {
+    SdlAudioLocker locker;
+
     d->fStereoPos = Aulib::priv::clamp(position, -1.f, 1.f);
 }
 
 auto Aulib::Stream::getStereoPosition() const -> float
 {
+    SdlAudioLocker locker;
+
     return d->fStereoPos;
 }
 
 void Aulib::Stream::mute()
 {
     SdlAudioLocker locker;
+
     d->fIsMuted = true;
 }
 
 void Aulib::Stream::unmute()
 {
     SdlAudioLocker locker;
+
     d->fIsMuted = false;
 }
 
 auto Aulib::Stream::isMuted() const -> bool
 {
+    SdlAudioLocker locker;
+
     return d->fIsMuted;
 }
 
 auto Aulib::Stream::isPlaying() const -> bool
 {
+    SdlAudioLocker locker;
+
     return d->fIsPlaying;
 }
 
 auto Aulib::Stream::isPaused() const -> bool
 {
+    SdlAudioLocker locker;
+
     return d->fIsPaused;
 }
 
 auto Aulib::Stream::duration() const -> std::chrono::microseconds
 {
+    SdlAudioLocker locker;
+
     return d->fDecoder->duration();
 }
 
 auto Aulib::Stream::seekToTime(std::chrono::microseconds pos) -> bool
 {
+    SdlAudioLocker locker;
+
     return d->fDecoder->seekToTime(pos);
 }
 
 void Aulib::Stream::setFinishCallback(Callback func)
 {
+    SdlAudioLocker locker;
+
     d->fFinishCallback = std::move(func);
 }
 
 void Aulib::Stream::unsetFinishCallback()
 {
+    SdlAudioLocker locker;
+
     d->fFinishCallback = nullptr;
 }
 
 void Aulib::Stream::setLoopCallback(Callback func)
 {
+    SdlAudioLocker locker;
+
     d->fLoopCallback = std::move(func);
 }
 
 void Aulib::Stream::unsetLoopCallback()
 {
+    SdlAudioLocker locker;
+
     d->fLoopCallback = nullptr;
 }
 
 void Aulib::Stream::addProcessor(std::shared_ptr<Processor> processor)
 {
+    SdlAudioLocker locker;
+
     if (processor == nullptr
         or std::find_if(
                d->processors.begin(), d->processors.end(),
@@ -231,25 +266,26 @@ void Aulib::Stream::addProcessor(std::shared_ptr<Processor> processor)
                != d->processors.end()) {
         return;
     }
-    SdlAudioLocker locker;
     d->processors.push_back(std::move(processor));
 }
 
 void Aulib::Stream::removeProcessor(Processor* processor)
 {
+    SdlAudioLocker locker;
+
     auto it =
         std::find_if(d->processors.begin(), d->processors.end(),
                      [&processor](std::shared_ptr<Processor>& p) { return p.get() == processor; });
     if (it == d->processors.end()) {
         return;
     }
-    SdlAudioLocker locker;
     d->processors.erase(it);
 }
 
 void Aulib::Stream::clearProcessors()
 {
     SdlAudioLocker locker;
+
     d->processors.clear();
 }
 
