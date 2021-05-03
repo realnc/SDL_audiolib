@@ -14,26 +14,6 @@
 #include <SDL_audio.h>
 #include <SDL_timer.h>
 
-/* This is implemented here in order to avoid having the dtor call stop(),
- * which is a virtual.
- */
-static void stop_impl(Aulib::Stream_priv* d, std::chrono::microseconds fadeTime)
-{
-    if (not d->fIsOpen or not d->fIsPlaying) {
-        return;
-    }
-    SdlAudioLocker locker;
-    if (fadeTime.count() > 0) {
-        d->fFadingIn = false;
-        d->fFadingOut = true;
-        d->fFadeOutDuration = std::chrono::duration_cast<std::chrono::milliseconds>(fadeTime);
-        d->fFadeOutStartTick = SDL_GetTicks();
-        d->fStopAfterFade = true;
-    } else {
-        d->fStop();
-    }
-}
-
 Aulib::Stream::Stream(const std::string& filename, std::unique_ptr<Decoder> decoder,
                       std::unique_ptr<Resampler> resampler)
     : Stream(SDL_RWFromFile(filename.c_str(), "rb"), std::move(decoder), std::move(resampler), true)
@@ -55,7 +35,9 @@ Aulib::Stream::Stream(SDL_RWops* rwops, std::unique_ptr<Decoder> decoder, bool c
 
 Aulib::Stream::~Stream()
 {
-    stop_impl(d.get(), std::chrono::microseconds::zero());
+    SdlAudioLocker lock;
+
+    d->fStop();
 }
 
 auto Aulib::Stream::open() -> bool
@@ -102,7 +84,17 @@ auto Aulib::Stream::play(int iterations, std::chrono::microseconds fadeTime) -> 
 
 void Aulib::Stream::stop(std::chrono::microseconds fadeTime)
 {
-    stop_impl(d.get(), fadeTime);
+    SdlAudioLocker lock;
+
+    if (fadeTime.count() > 0) {
+        d->fFadingIn = false;
+        d->fFadingOut = true;
+        d->fFadeOutDuration = std::chrono::duration_cast<std::chrono::milliseconds>(fadeTime);
+        d->fFadeOutStartTick = SDL_GetTicks();
+        d->fStopAfterFade = true;
+    } else {
+        d->fStop();
+    }
 }
 
 void Aulib::Stream::pause(std::chrono::microseconds fadeTime)
