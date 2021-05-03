@@ -81,7 +81,7 @@ void Aulib::Stream_priv::fProcessFade()
 void Aulib::Stream_priv::fStop()
 {
     {
-        std::lock_guard lock(fStreamListMutex);
+        std::lock_guard<SdlMutex> lock(fStreamListMutex);
         fStreamList.erase(std::remove(fStreamList.begin(), fStreamList.end(), this->q),
                           fStreamList.end());
     }
@@ -107,7 +107,7 @@ void Aulib::Stream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int out
     // Iterate over a copy of the original stream list, since we might want to
     // modify the original as we go, removing streams that have stopped.
     const std::vector<Stream*> streamList = [] {
-        std::lock_guard lock(fStreamListMutex);
+        std::lock_guard<SdlMutex> lock(fStreamListMutex);
         return fStreamList;
     }();
 
@@ -145,7 +145,7 @@ void Aulib::Stream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int out
                     if (stream->d->fCurrentIteration >= stream->d->fWantedIterations) {
                         stream->d->fIsPlaying = false;
                         {
-                            std::lock_guard lock(fStreamListMutex);
+                            std::lock_guard<SdlMutex> lock(fStreamListMutex);
                             fStreamList.erase(
                                 std::remove(fStreamList.begin(), fStreamList.end(), stream),
                                 fStreamList.end());
