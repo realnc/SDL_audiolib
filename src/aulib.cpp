@@ -119,11 +119,6 @@ void Aulib::quit()
     if (not gInitialized) {
         return;
     }
-    for (const auto stream : Stream_priv::fStreamList) {
-        if (stream->isPlaying()) {
-            stream->stop();
-        }
-    }
 #if SDL_VERSION_ATLEAST(2, 0, 0)
     SDL_CloseAudioDevice(Stream_priv::fDeviceId);
 #else
