@@ -25,6 +25,12 @@ class Processor;
  * All public functions of this class will lock the SDL audio device when they are called, and
  * unlock it when they return. Therefore, it is safe to manipulate a Stream that is currently
  * playing without having to manually lock the SDL audio device.
+ *
+ * This class is re-entrant but not thread-safe. You can call functions of this class from different
+ * threads only if those calls operate on different objects. If you need to control the same Stream
+ * object from multiple threads, you need to synchronize access to that object. This includes Stream
+ * destruction, meaning you should not create a Stream in one thread and destroy it in another
+ * without synchronization.
  */
 class AULIB_EXPORT Stream
 {
