@@ -4,6 +4,7 @@
 #include "Aulib/Processor.h"
 #include "Aulib/Stream.h"
 #include "Buffer.h"
+#include "SdlMutex.h"
 #include "aulib.h"
 #include <SDL_audio.h>
 #include <chrono>
@@ -54,6 +55,7 @@ struct Stream_priv final
     static SDL_AudioDeviceID fDeviceId;
 #endif
     static std::vector<Stream*> fStreamList;
+    static SdlMutex fStreamListMutex;
 
     // This points to an appropriate converter for the current audio format.
     static void (*fSampleConverter)(Uint8[], const Buffer<float>& src);

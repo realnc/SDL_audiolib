@@ -13,6 +13,7 @@
 #include "stream_p.h"
 #include <SDL_audio.h>
 #include <SDL_timer.h>
+#include <mutex>
 
 Aulib::Stream::Stream(const std::string& filename, std::unique_ptr<Decoder> decoder,
                       std::unique_ptr<Resampler> resampler)
@@ -80,8 +81,11 @@ auto Aulib::Stream::play(int iterations, std::chrono::microseconds fadeTime) -> 
         d->fInternalVolume = 1.f;
         d->fFadingIn = false;
     }
-    d->fStreamList.push_back(this);
     d->fIsPlaying = true;
+    {
+        std::lock_guard lock(d->fStreamListMutex);
+        d->fStreamList.push_back(this);
+    }
     return true;
 }
 

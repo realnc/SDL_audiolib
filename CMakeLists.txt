@@ -358,6 +358,7 @@ add_library(
     src/Resampler.cpp
     src/ResamplerSpeex.cpp
     src/SdlAudioLocker.h
+    src/SdlMutex.h
     src/Stream.cpp
     src/aulib.cpp
     src/aulib_debug.h

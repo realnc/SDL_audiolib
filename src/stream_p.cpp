@@ -9,6 +9,7 @@
 #include <SDL_timer.h>
 #include <algorithm>
 #include <cmath>
+#include <mutex>
 #include <type_traits>
 
 void (*Aulib::Stream_priv::fSampleConverter)(Uint8[], const Buffer<float>& src) = nullptr;
@@ -17,6 +18,7 @@ SDL_AudioSpec Aulib::Stream_priv::fAudioSpec;
 SDL_AudioDeviceID Aulib::Stream_priv::fDeviceId;
 #endif
 std::vector<Aulib::Stream*> Aulib::Stream_priv::fStreamList;
+SdlMutex Aulib::Stream_priv::fStreamListMutex;
 Buffer<float> Aulib::Stream_priv::fFinalMixBuf{0};
 Buffer<float> Aulib::Stream_priv::fStrmBuf{0};
 Buffer<float> Aulib::Stream_priv::fProcessorBuf{0};
@@ -78,8 +80,11 @@ void Aulib::Stream_priv::fProcessFade()
 
 void Aulib::Stream_priv::fStop()
 {
-    fStreamList.erase(std::remove(fStreamList.begin(), fStreamList.end(), this->q),
-                      fStreamList.end());
+    {
+        std::lock_guard lock(fStreamListMutex);
+        fStreamList.erase(std::remove(fStreamList.begin(), fStreamList.end(), this->q),
+                          fStreamList.end());
+    }
     fDecoder->rewind();
     fIsPlaying = false;
 }
@@ -101,7 +106,10 @@ void Aulib::Stream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int out
 
     // Iterate over a copy of the original stream list, since we might want to
     // modify the original as we go, removing streams that have stopped.
-    std::vector<Stream*> streamList(fStreamList);
+    const std::vector<Stream*> streamList = [] {
+        std::lock_guard lock(fStreamListMutex);
+        return fStreamList;
+    }();
 
     for (const auto stream : streamList) {
         if (stream->d->fWantedIterations != 0
@@ -136,9 +144,12 @@ void Aulib::Stream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int out
                     ++stream->d->fCurrentIteration;
                     if (stream->d->fCurrentIteration >= stream->d->fWantedIterations) {
                         stream->d->fIsPlaying = false;
-                        fStreamList.erase(
-                            std::remove(fStreamList.begin(), fStreamList.end(), stream),
-                            fStreamList.end());
+                        {
+                            std::lock_guard lock(fStreamListMutex);
+                            fStreamList.erase(
+                                std::remove(fStreamList.begin(), fStreamList.end(), stream),
+                                fStreamList.end());
+                        }
                         has_finished = true;
                         break;
                     }
