@@ -2,11 +2,12 @@
 #pragma once
 #include <SDL_error.h>
 #include <SDL_mutex.h>
+#include <SDL_version.h>
 #include <stdexcept>
 
 /*
- * RAII wrapper for SDL_mutex. Satisfies std's "Lockable" requirements so it can be used with
- * std::lock_guard and friends.
+ * RAII wrapper for SDL_mutex. Satisfies std's "Lockable" (SDL 2) or "BasicLockable" (SDL 1)
+ * requirements so it can be used with std::lock_guard and friends.
  */
 class SdlMutex final
 {
@@ -31,10 +32,12 @@ public:
         SDL_LockMutex(mutex_);
     }
 
+#if SDL_VERSION_ATLEAST(2, 0, 0)
     bool try_lock() noexcept
     {
         return SDL_TryLockMutex(mutex_) == 0;
     }
+#endif
 
     void unlock() noexcept
     {
