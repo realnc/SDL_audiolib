@@ -237,7 +237,7 @@ endif(USE_DEC_DRFLAC)
 if (USE_DEC_DRWAV)
     set(AULIB_SOURCES ${AULIB_SOURCES} 3rdparty/dr_libs/dr_wav.h src/DecoderDrwav.cpp)
     set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderDrwav.h)
-    set(DRFLAC_INCLUDE_DIRS 3rdparty/dr_libs)
+    set(DRWAV_INCLUDE_DIRS 3rdparty/dr_libs)
 endif(USE_DEC_DRWAV)
 
 if (USE_DEC_OPENMPT)
