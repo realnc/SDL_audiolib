@@ -20,7 +20,9 @@ Most popular audio formats are supported:
 
   * Vorbis (libvorbisfile or libsndfile)
   * Opus (libopusfile or libsndfile)
-  * MP3 (libmpg123)
+  * MP3 (built-in through bundled
+    [dr_mp3](https://github.com/mackron/dr_libs), or through external
+    libmpg123)
   * Musepack (libmpcdec)
   * FLAC (built-in through bundled
     [dr_flac](https://mackron.github.io/dr_flac), or through external
