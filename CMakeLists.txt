@@ -41,6 +41,12 @@ option(
 )
 
 option(
+    USE_DEC_DRMP3
+    "Enable dr_mp3 MP3 decoder (built-in)"
+    ON
+)
+
+option(
     USE_DEC_DRWAV
     "Enable dr_wav WAV decoder (built-in)"
     ON
@@ -234,6 +240,12 @@ if (USE_DEC_DRFLAC)
     set(DRFLAC_INCLUDE_DIRS 3rdparty/dr_libs)
 endif(USE_DEC_DRFLAC)
 
+if (USE_DEC_DRMP3)
+    set(AULIB_SOURCES ${AULIB_SOURCES} 3rdparty/dr_libs/dr_mp3.h src/DecoderDrmp3.cpp)
+    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderDrmp3.h)
+    set(DRMP3_INCLUDE_DIRS 3rdparty/dr_libs)
+endif(USE_DEC_DRMP3)
+
 if (USE_DEC_DRWAV)
     set(AULIB_SOURCES ${AULIB_SOURCES} 3rdparty/dr_libs/dr_wav.h src/DecoderDrwav.cpp)
     set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderDrwav.h)
@@ -418,6 +430,7 @@ target_include_directories(
     PRIVATE
         ${PROJECT_SOURCE_DIR}/3rdparty/speex_resampler
         ${DRFLAC_INCLUDE_DIRS}
+        ${DRMP3_INCLUDE_DIRS}
         ${DRWAV_INCLUDE_DIRS}
 
         # MogPlug ships a "sndfile.h" with its headers. This breaks the build,
