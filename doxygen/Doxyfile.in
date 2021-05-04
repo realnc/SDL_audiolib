@@ -865,7 +865,7 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  = ${CMAKE_SOURCE_DIR}/include \
-                         ${CMAKE_SOURCE_DIR}/mainpage.dox \
+                         ${CMAKE_SOURCE_DIR}/doxygen/mainpage.dox \
                          ${PROJECT_BINARY_DIR}/aulib_version.h
 
 # This tag can be used to specify the character encoding of the source files
@@ -1241,7 +1241,7 @@ HTML_STYLESHEET        =
 # list). For an example see the documentation.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_EXTRA_STYLESHEET  =
+HTML_EXTRA_STYLESHEET  = ${CMAKE_SOURCE_DIR}/doxygen/doxygen-awesome-css/doxygen-awesome.css
 
 # The HTML_EXTRA_FILES tag can be used to specify one or more extra images or
 # other source files which should be copied to the HTML output directory. Note

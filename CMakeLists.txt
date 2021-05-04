@@ -396,7 +396,7 @@ add_library(
     COPYING
     COPYING.LESSER
     README.md
-    mainpage.dox
+    doxygen/mainpage.dox
     3rdparty/speex_resampler/README
     .github/workflows/ci.yml
 )
@@ -507,6 +507,6 @@ configure_file (
 )
 
 configure_file(
-    ${PROJECT_SOURCE_DIR}/Doxyfile.in
+    ${PROJECT_SOURCE_DIR}/doxygen/Doxyfile.in
     ${PROJECT_BINARY_DIR}/Doxyfile
 )
