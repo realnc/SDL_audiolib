@@ -2,7 +2,6 @@
 #include "Aulib/ResamplerSpeex.h"
 
 #include "Aulib/Decoder.h"
-#include "SdlAudioLocker.h"
 #include "aulib_global.h"
 #include "speex_resampler.h"
 
@@ -41,7 +40,6 @@ void Aulib::ResamplerSpeex::setQuality(int quality)
     if (d->fResampler == nullptr) {
         return;
     }
-    SdlAudioLocker lock;
     speex_resampler_set_quality(d->fResampler.get(), newQ);
 }
 

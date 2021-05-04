@@ -1,7 +1,6 @@
 // This is copyrighted software. More information is at the end of this file.
 #include "Aulib/DecoderDrwav.h"
 
-#include "SdlAudioLocker.h"
 #include "aulib_debug.h"
 #include "missing.h"
 #define DR_WAV_IMPLEMENTATION
@@ -78,8 +77,6 @@ Aulib::DecoderDrwav::~DecoderDrwav()
     if (not isOpen()) {
         return;
     }
-
-    SdlAudioLocker lock;
 
     drwav_uninit(&d->handle_);
     setIsOpen(false);
