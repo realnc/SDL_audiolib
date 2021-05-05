@@ -263,7 +263,7 @@ void Aulib::Stream::addProcessor(std::shared_ptr<Processor> processor)
 {
     SdlAudioLocker locker;
 
-    if (processor == nullptr
+    if (not processor
         or std::find_if(
                d->processors.begin(), d->processors.end(),
                [&processor](std::shared_ptr<Processor>& p) { return p.get() == processor.get(); })

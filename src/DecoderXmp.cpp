@@ -93,9 +93,8 @@ auto Aulib::DecoderXmp::seekToTime(chrono::microseconds pos) -> bool
     return true;
 }
 
-auto Aulib::DecoderXmp::doDecoding(float buf[], int len, bool& callAgain) -> int
+auto Aulib::DecoderXmp::doDecoding(float buf[], int len, bool& /*callAgain*/) -> int
 {
-    callAgain = false;
     if (d->fEof) {
         return 0;
     }

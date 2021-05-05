@@ -88,9 +88,8 @@ auto Aulib::DecoderModplug::getRate() const -> int
     return modplugSettings.mFrequency;
 }
 
-auto Aulib::DecoderModplug::doDecoding(float buf[], int len, bool& callAgain) -> int
+auto Aulib::DecoderModplug::doDecoding(float buf[], int len, bool& /*callAgain*/) -> int
 {
-    callAgain = false;
     if (d->atEOF) {
         return 0;
     }

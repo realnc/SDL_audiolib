@@ -77,9 +77,7 @@ Aulib::DecoderDrwav::~DecoderDrwav()
     if (not isOpen()) {
         return;
     }
-
     drwav_uninit(&d->handle_);
-    setIsOpen(false);
 }
 
 auto Aulib::DecoderDrwav::open(SDL_RWops* const rwops) -> bool
@@ -96,9 +94,8 @@ auto Aulib::DecoderDrwav::open(SDL_RWops* const rwops) -> bool
     return true;
 }
 
-auto Aulib::DecoderDrwav::doDecoding(float* const buf, const int len, bool& callAgain) -> int
+auto Aulib::DecoderDrwav::doDecoding(float* const buf, const int len, bool& /*callAgain*/) -> int
 {
-    callAgain = false;
     if (d->fEOF) {
         return 0;
     }
@@ -123,11 +120,7 @@ auto Aulib::DecoderDrwav::getRate() const -> int
 
 auto Aulib::DecoderDrwav::rewind() -> bool
 {
-    if (drwav_seek_to_pcm_frame(&d->handle_, 0)) {
-        d->fEOF = false;
-        return true;
-    }
-    return false;
+    return seekToTime({});
 }
 
 auto Aulib::DecoderDrwav::duration() const -> chrono::microseconds

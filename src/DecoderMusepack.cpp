@@ -93,9 +93,8 @@ auto Aulib::DecoderMusepack::getRate() const -> int
     return d->demuxer ? d->strmInfo.sample_freq : 0;
 }
 
-auto Aulib::DecoderMusepack::doDecoding(float buf[], int len, bool& callAgain) -> int
+auto Aulib::DecoderMusepack::doDecoding(float buf[], int len, bool& /*callAgain*/) -> int
 {
-    callAgain = false;
     int totalSamples = 0;
     int wantedSamples = len;
 
@@ -148,7 +147,7 @@ auto Aulib::DecoderMusepack::rewind() -> bool
 
 auto Aulib::DecoderMusepack::duration() const -> chrono::microseconds
 {
-    if (d->demuxer == nullptr) {
+    if (not d->demuxer) {
         return chrono::microseconds::zero();
     }
     using namespace std::chrono;
@@ -160,7 +159,7 @@ auto Aulib::DecoderMusepack::seekToTime(chrono::microseconds pos) -> bool
 {
     using namespace std::chrono;
     using std::chrono::duration;
-    if (d->demuxer == nullptr
+    if (not d->demuxer
         or mpc_demux_seek_second(d->demuxer.get(), duration<double>(pos).count())
                != MPC_STATUS_OK) {
         return false;

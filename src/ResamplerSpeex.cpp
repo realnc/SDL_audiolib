@@ -37,7 +37,7 @@ void Aulib::ResamplerSpeex::setQuality(int quality)
 {
     auto newQ = std::min(std::max(0, quality), 10);
     d->fQuality = newQ;
-    if (d->fResampler == nullptr) {
+    if (not d->fResampler) {
         return;
     }
     speex_resampler_set_quality(d->fResampler.get(), newQ);

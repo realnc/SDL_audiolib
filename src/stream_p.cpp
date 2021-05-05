@@ -39,7 +39,7 @@ Aulib::Stream_priv::Stream_priv(Stream* pub, std::unique_ptr<Decoder> decoder,
 
 Aulib::Stream_priv::~Stream_priv()
 {
-    if (fCloseRw and fRWops != nullptr) {
+    if (fCloseRw and fRWops) {
         SDL_RWclose(fRWops);
     }
 }
@@ -91,7 +91,7 @@ void Aulib::Stream_priv::fStop()
 
 void Aulib::Stream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int outLen)
 {
-    AM_debugAssert(Stream_priv::fSampleConverter != nullptr);
+    AM_debugAssert(Stream_priv::fSampleConverter);
 
     int wantedSamples = outLen / (SDL_AUDIO_BITSIZE(fAudioSpec.format) / 8);
 

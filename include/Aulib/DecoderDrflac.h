@@ -25,7 +25,7 @@ protected:
     auto doDecoding(float buf[], int len, bool& callAgain) -> int override;
 
 private:
-    std::unique_ptr<struct DecoderFlac_priv> d;
+    std::unique_ptr<struct DecoderDrflac_priv> d;
 };
 
 } // namespace Aulib

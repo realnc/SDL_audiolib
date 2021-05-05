@@ -136,7 +136,6 @@ auto Aulib::DecoderMpg123::getRate() const -> int
 
 auto Aulib::DecoderMpg123::doDecoding(float buf[], int len, bool& callAgain) -> int
 {
-    callAgain = false;
     if (d->fEOF) {
         return 0;
     }

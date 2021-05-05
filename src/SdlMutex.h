@@ -14,7 +14,7 @@ class SdlMutex final
 public:
     SdlMutex()
     {
-        if (mutex_ == nullptr) {
+        if (not mutex_) {
             throw std::runtime_error(SDL_GetError());
         }
     }

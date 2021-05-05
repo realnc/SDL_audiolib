@@ -91,6 +91,8 @@ auto Aulib::DecoderDrmp3::open(SDL_RWops* const rwops) -> bool
         SDL_SetError("drmp3_init failed.");
         return false;
     }
+    // Calculating the duration on an MP3 stream involves iterating over every frame in it, which is
+    // only possible when the total size of the stream is known.
     if (SDL_RWsize(rwops) > 0) {
         d->duration_ = chrono::duration_cast<chrono::microseconds>(chrono::duration<double>(
             static_cast<double>(drmp3_get_pcm_frame_count(&d->handle_)) / getRate()));

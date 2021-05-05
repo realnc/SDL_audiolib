@@ -60,7 +60,7 @@ static auto drflacSeekCb(void* const rwops_void, const int offset, const drflac_
 
 namespace Aulib {
 
-struct DecoderFlac_priv final
+struct DecoderDrflac_priv final
 {
     std::unique_ptr<drflac, decltype(&drflac_close)> handle_{nullptr, drflac_close};
     bool fEOF = false;
@@ -69,7 +69,7 @@ struct DecoderFlac_priv final
 } // namespace Aulib
 
 Aulib::DecoderDrflac::DecoderDrflac()
-    : d(std::make_unique<DecoderFlac_priv>())
+    : d(std::make_unique<DecoderDrflac_priv>())
 {}
 
 Aulib::DecoderDrflac::~DecoderDrflac() = default;
@@ -89,9 +89,8 @@ auto Aulib::DecoderDrflac::open(SDL_RWops* const rwops) -> bool
     return true;
 }
 
-auto Aulib::DecoderDrflac::doDecoding(float* const buf, const int len, bool& callAgain) -> int
+auto Aulib::DecoderDrflac::doDecoding(float* const buf, const int len, bool& /*callAgain*/) -> int
 {
-    callAgain = false;
     if (d->fEOF) {
         return 0;
     }

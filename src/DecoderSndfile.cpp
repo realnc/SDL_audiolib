@@ -99,9 +99,8 @@ auto Aulib::DecoderSndfile::getRate() const -> int
     return d->fInfo.samplerate;
 }
 
-auto Aulib::DecoderSndfile::doDecoding(float buf[], int len, bool& callAgain) -> int
+auto Aulib::DecoderSndfile::doDecoding(float buf[], int len, bool& /*callAgain*/) -> int
 {
-    callAgain = false;
     if (d->fEOF) {
         return 0;
     }

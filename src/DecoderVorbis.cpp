@@ -76,18 +76,16 @@ auto Aulib::DecoderVorbis::open(SDL_RWops* rwops) -> bool
 
 auto Aulib::DecoderVorbis::getChannels() const -> int
 {
-    return d->fCurrentInfo != nullptr ? d->fCurrentInfo->channels : 0;
+    return d->fCurrentInfo ? d->fCurrentInfo->channels : 0;
 }
 
 auto Aulib::DecoderVorbis::getRate() const -> int
 {
-    return d->fCurrentInfo != nullptr ? d->fCurrentInfo->rate : 0;
+    return d->fCurrentInfo ? d->fCurrentInfo->rate : 0;
 }
 
 auto Aulib::DecoderVorbis::doDecoding(float buf[], int len, bool& callAgain) -> int
 {
-    callAgain = false;
-
     if (d->fEOF) {
         return 0;
     }

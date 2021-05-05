@@ -84,10 +84,8 @@ auto Aulib::DecoderOpus::getRate() const -> int
     return 48000;
 }
 
-auto Aulib::DecoderOpus::doDecoding(float buf[], int len, bool& callAgain) -> int
+auto Aulib::DecoderOpus::doDecoding(float buf[], int len, bool& /*callAgain*/) -> int
 {
-    callAgain = false;
-
     if (d->fEOF) {
         return 0;
     }
