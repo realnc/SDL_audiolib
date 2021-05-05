@@ -1,11 +1,11 @@
 // This is copyrighted software. More information is at the end of this file.
 #include "Aulib/DecoderDrflac.h"
 
-#include "aulib_debug.h"
-#include "missing.h"
-#define DR_FLAC_IMPLEMENTATION
 #define DR_FLAC_NO_STDIO
+
+#include "aulib_debug.h"
 #include "dr_flac.h"
+#include "missing.h"
 #include <SDL_rwops.h>
 
 namespace chrono = std::chrono;

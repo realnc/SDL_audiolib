@@ -1,7 +1,6 @@
 // This is copyrighted software. More information is at the end of this file.
 #include "Aulib/DecoderDrmp3.h"
 
-#define DR_MP3_IMPLEMENTATION
 #define DR_MP3_NO_STDIO
 
 #include "aulib_debug.h"

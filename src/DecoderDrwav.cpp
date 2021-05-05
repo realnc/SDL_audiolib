@@ -1,11 +1,11 @@
 // This is copyrighted software. More information is at the end of this file.
 #include "Aulib/DecoderDrwav.h"
 
-#include "aulib_debug.h"
-#include "missing.h"
-#define DR_WAV_IMPLEMENTATION
 #define DR_WAV_NO_STDIO
+
+#include "aulib_debug.h"
 #include "dr_wav.h"
+#include "missing.h"
 #include <SDL_rwops.h>
 
 namespace chrono = std::chrono;
