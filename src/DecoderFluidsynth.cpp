@@ -150,6 +150,9 @@ Aulib::DecoderFluidsynth::~DecoderFluidsynth() = default;
 
 auto Aulib::DecoderFluidsynth::loadSoundfont(SDL_RWops* rwops) -> bool
 {
+    if (not isOpen()) {
+        return false;
+    }
     if (not rwops) {
         SDL_SetError("rwops is null.");
         return false;
@@ -178,6 +181,9 @@ auto Aulib::DecoderFluidsynth::loadSoundfont(SDL_RWops* rwops) -> bool
 
 auto Aulib::DecoderFluidsynth::loadSoundfont(const std::string& filename) -> bool
 {
+    if (not isOpen()) {
+        return false;
+    }
     if (fluid_synth_sfload(d->fSynth.get(), filename.c_str(), 1) == FLUID_FAILED) {
         SDL_SetError("FluidSynth failed to load soundfont.");
         return false;
@@ -187,12 +193,17 @@ auto Aulib::DecoderFluidsynth::loadSoundfont(const std::string& filename) -> boo
 
 auto Aulib::DecoderFluidsynth::gain() const -> float
 {
+    if (not isOpen()) {
+        return 0.f;
+    }
     return fluid_synth_get_gain(d->fSynth.get());
 }
 
 void Aulib::DecoderFluidsynth::setGain(float gain)
 {
-    fluid_synth_set_gain(d->fSynth.get(), gain);
+    if (isOpen()) {
+        fluid_synth_set_gain(d->fSynth.get(), gain);
+    }
 }
 
 auto Aulib::DecoderFluidsynth::open(SDL_RWops* rwops) -> bool
@@ -240,8 +251,7 @@ auto Aulib::DecoderFluidsynth::open(SDL_RWops* rwops) -> bool
 
 auto Aulib::DecoderFluidsynth::getChannels() const -> int
 {
-    if (not d->fSynth) {
-        SDL_SetError("FluidSynth failed to initialize.");
+    if (not settings) {
         return 0;
     }
 
@@ -253,8 +263,7 @@ auto Aulib::DecoderFluidsynth::getChannels() const -> int
 
 auto Aulib::DecoderFluidsynth::getRate() const -> int
 {
-    if (not d->fSynth) {
-        SDL_SetError("FluidSynth failed to initialize.");
+    if (not settings) {
         return 0;
     }
 
@@ -265,7 +274,7 @@ auto Aulib::DecoderFluidsynth::getRate() const -> int
 
 auto Aulib::DecoderFluidsynth::doDecoding(float buf[], int len, bool& /*callAgain*/) -> int
 {
-    if (not d->fPlayer or d->fEOF) {
+    if (d->fEOF or not isOpen()) {
         return 0;
     }
 
@@ -282,8 +291,7 @@ auto Aulib::DecoderFluidsynth::doDecoding(float buf[], int len, bool& /*callAgai
 
 auto Aulib::DecoderFluidsynth::rewind() -> bool
 {
-    if (not d->fSynth) {
-        SDL_SetError("FluidSynth failed to initialize.");
+    if (not isOpen()) {
         return false;
     }
 

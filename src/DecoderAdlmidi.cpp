@@ -117,7 +117,7 @@ auto Aulib::DecoderAdlmidi::setEmulator(Emulator emulator) -> bool
 {
     d->emulator = emulator;
     d->change_emulator = true;
-    if (not d->adl_player) {
+    if (not isOpen()) {
         return true;
     }
     if (not d->setEmulator()) {
@@ -130,7 +130,7 @@ auto Aulib::DecoderAdlmidi::setEmulator(Emulator emulator) -> bool
 auto Aulib::DecoderAdlmidi::setChipAmount(int chip_amount) -> bool
 {
     d->chip_amount = chip_amount;
-    if (not d->adl_player) {
+    if (not isOpen()) {
         return true;
     }
     if (not d->setChipAmount()) {
@@ -152,7 +152,7 @@ auto Aulib::DecoderAdlmidi::loadBank(SDL_RWops* rwops) -> bool
         return false;
     }
     d->embedded_bank = -1;
-    if (not d->adl_player) {
+    if (not isOpen()) {
         d->bank_data = std::move(tmp_data);
         return true;
     }
@@ -181,7 +181,7 @@ auto Aulib::DecoderAdlmidi::loadEmbeddedBank(int bank_number) -> bool
     }
     d->bank_data.reset();
     d->embedded_bank = bank_number;
-    if (not d->adl_player) {
+    if (not isOpen()) {
         return true;
     }
     if (not d->setEmbeddedBank()) {
@@ -251,7 +251,7 @@ auto Aulib::DecoderAdlmidi::getRate() const -> int
 
 auto Aulib::DecoderAdlmidi::rewind() -> bool
 {
-    if (not d->adl_player) {
+    if (not isOpen()) {
         return false;
     }
     adl_positionRewind(d->adl_player.get());
@@ -266,7 +266,7 @@ auto Aulib::DecoderAdlmidi::duration() const -> chrono::microseconds
 
 auto Aulib::DecoderAdlmidi::seekToTime(chrono::microseconds pos) -> bool
 {
-    if (not d->adl_player) {
+    if (not isOpen()) {
         return false;
     }
     adl_positionSeek(d->adl_player.get(), chrono::duration<double>(pos).count());
@@ -276,7 +276,7 @@ auto Aulib::DecoderAdlmidi::seekToTime(chrono::microseconds pos) -> bool
 
 auto Aulib::DecoderAdlmidi::doDecoding(float buf[], int len, bool& /*callAgain*/) -> int
 {
-    if (not d->adl_player or d->eof) {
+    if (d->eof or not isOpen()) {
         return 0;
     }
     constexpr ADLMIDI_AudioFormat adl_format{ADLMIDI_SampleType_F32, sizeof(float),

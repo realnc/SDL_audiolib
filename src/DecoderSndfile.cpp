@@ -101,7 +101,7 @@ auto Aulib::DecoderSndfile::getRate() const -> int
 
 auto Aulib::DecoderSndfile::doDecoding(float buf[], int len, bool& /*callAgain*/) -> int
 {
-    if (d->fEOF) {
+    if (d->fEOF or not isOpen()) {
         return 0;
     }
     sf_count_t ret = sf_read_float(d->fSndfile.get(), buf, len);
@@ -124,7 +124,8 @@ auto Aulib::DecoderSndfile::duration() const -> std::chrono::microseconds
 auto Aulib::DecoderSndfile::seekToTime(std::chrono::microseconds pos) -> bool
 {
     using chrono::duration;
-    if (sf_seek(d->fSndfile.get(), duration<double>(pos).count() * getRate(), SEEK_SET) == -1) {
+    if (not isOpen()
+        or sf_seek(d->fSndfile.get(), duration<double>(pos).count() * getRate(), SEEK_SET) == -1) {
         return false;
     }
     d->fEOF = false;

@@ -86,7 +86,7 @@ auto Aulib::DecoderVorbis::getRate() const -> int
 
 auto Aulib::DecoderVorbis::doDecoding(float buf[], int len, bool& callAgain) -> int
 {
-    if (d->fEOF) {
+    if (d->fEOF or not isOpen()) {
         return 0;
     }
 
@@ -137,6 +137,10 @@ auto Aulib::DecoderVorbis::doDecoding(float buf[], int len, bool& callAgain) -> 
 
 auto Aulib::DecoderVorbis::rewind() -> bool
 {
+    if (not isOpen()) {
+        return false;
+    }
+
     int ret;
     if (d->fEOF) {
         ret = ov_raw_seek(d->fVFHandle.get(), 0);
@@ -154,7 +158,8 @@ auto Aulib::DecoderVorbis::duration() const -> chrono::microseconds
 
 auto Aulib::DecoderVorbis::seekToTime(chrono::microseconds pos) -> bool
 {
-    if (ov_time_seek_lap(d->fVFHandle.get(), chrono::duration<double>(pos).count()) != 0) {
+    if (not isOpen()
+        or ov_time_seek_lap(d->fVFHandle.get(), chrono::duration<double>(pos).count()) != 0) {
         return false;
     }
     d->fEOF = false;

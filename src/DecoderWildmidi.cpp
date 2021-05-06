@@ -100,7 +100,7 @@ auto Aulib::DecoderWildmidi::getRate() const -> int
 
 auto Aulib::DecoderWildmidi::doDecoding(float buf[], int len, bool& /*callAgain*/) -> int
 {
-    if (not d->midiHandle or d->eof) {
+    if (d->eof or not isOpen()) {
         return 0;
     }
 
@@ -136,7 +136,7 @@ auto Aulib::DecoderWildmidi::rewind() -> bool
 auto Aulib::DecoderWildmidi::duration() const -> chrono::microseconds
 {
     _WM_Info* info;
-    if (not d->midiHandle or not(info = WildMidi_GetInfo(d->midiHandle.get()))) {
+    if (not isOpen() or not(info = WildMidi_GetInfo(d->midiHandle.get()))) {
         return {};
     }
     auto sec = static_cast<double>(info->approx_total_samples) / getRate();
@@ -145,7 +145,7 @@ auto Aulib::DecoderWildmidi::duration() const -> chrono::microseconds
 
 auto Aulib::DecoderWildmidi::seekToTime(chrono::microseconds pos) -> bool
 {
-    if (not d->midiHandle) {
+    if (not isOpen()) {
         return false;
     }
 

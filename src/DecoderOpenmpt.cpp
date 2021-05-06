@@ -81,6 +81,10 @@ auto Aulib::DecoderOpenmpt::duration() const -> chrono::microseconds
 
 auto Aulib::DecoderOpenmpt::seekToTime(chrono::microseconds pos) -> bool
 {
+    if (not isOpen()) {
+        return false;
+    }
+
     d->fModule->set_position_seconds(chrono::duration<double>(pos).count());
     d->atEOF = false;
     return true;
@@ -88,7 +92,7 @@ auto Aulib::DecoderOpenmpt::seekToTime(chrono::microseconds pos) -> bool
 
 auto Aulib::DecoderOpenmpt::doDecoding(float buf[], int len, bool& /*callAgain*/) -> int
 {
-    if (d->atEOF) {
+    if (d->atEOF or not isOpen()) {
         return 0;
     }
     int ret;

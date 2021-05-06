@@ -91,7 +91,7 @@ auto Aulib::DecoderDrflac::open(SDL_RWops* const rwops) -> bool
 
 auto Aulib::DecoderDrflac::doDecoding(float* const buf, const int len, bool& /*callAgain*/) -> int
 {
-    if (d->fEOF) {
+    if (d->fEOF or not isOpen()) {
         return 0;
     }
 
@@ -105,25 +105,30 @@ auto Aulib::DecoderDrflac::doDecoding(float* const buf, const int len, bool& /*c
 
 auto Aulib::DecoderDrflac::getChannels() const -> int
 {
+    if (not isOpen()) {
+        return 0;
+    }
     return d->handle_.get()->channels;
 }
 
 auto Aulib::DecoderDrflac::getRate() const -> int
 {
+    if (not isOpen()) {
+        return 0;
+    }
     return d->handle_.get()->sampleRate;
 }
 
 auto Aulib::DecoderDrflac::rewind() -> bool
 {
-    if (drflac_seek_to_pcm_frame(d->handle_.get(), 0)) {
-        d->fEOF = false;
-        return true;
-    }
-    return false;
+    return seekToTime({});
 }
 
 auto Aulib::DecoderDrflac::duration() const -> chrono::microseconds
 {
+    if (not isOpen()) {
+        return {};
+    }
     return chrono::duration_cast<chrono::microseconds>(chrono::duration<double>(
         static_cast<double>(d->handle_.get()->totalPCMFrameCount) / getRate()));
 }
@@ -131,7 +136,7 @@ auto Aulib::DecoderDrflac::duration() const -> chrono::microseconds
 auto Aulib::DecoderDrflac::seekToTime(const chrono::microseconds pos) -> bool
 {
     const auto target_frame = chrono::duration<double>(pos).count() * getRate();
-    if (not drflac_seek_to_pcm_frame(d->handle_.get(), target_frame)) {
+    if (not isOpen() or not drflac_seek_to_pcm_frame(d->handle_.get(), target_frame)) {
         return false;
     }
     d->fEOF = false;

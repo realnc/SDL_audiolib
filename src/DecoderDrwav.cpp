@@ -96,7 +96,7 @@ auto Aulib::DecoderDrwav::open(SDL_RWops* const rwops) -> bool
 
 auto Aulib::DecoderDrwav::doDecoding(float* const buf, const int len, bool& /*callAgain*/) -> int
 {
-    if (d->fEOF) {
+    if (d->fEOF or not isOpen()) {
         return 0;
     }
 
@@ -125,6 +125,9 @@ auto Aulib::DecoderDrwav::rewind() -> bool
 
 auto Aulib::DecoderDrwav::duration() const -> chrono::microseconds
 {
+    if (not isOpen()) {
+        return {};
+    }
     return chrono::duration_cast<chrono::microseconds>(
         chrono::duration<double>(static_cast<double>(d->handle_.totalPCMFrameCount) / getRate()));
 }
@@ -132,7 +135,7 @@ auto Aulib::DecoderDrwav::duration() const -> chrono::microseconds
 auto Aulib::DecoderDrwav::seekToTime(const chrono::microseconds pos) -> bool
 {
     const auto target_frame = chrono::duration<double>(pos).count() * getRate();
-    if (not drwav_seek_to_pcm_frame(&d->handle_, target_frame)) {
+    if (not isOpen() or not drwav_seek_to_pcm_frame(&d->handle_, target_frame)) {
         return false;
     }
     d->fEOF = false;
