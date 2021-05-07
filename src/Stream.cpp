@@ -60,11 +60,12 @@ auto Aulib::Stream::open() -> bool
 
 auto Aulib::Stream::play(int iterations, std::chrono::microseconds fadeTime) -> bool
 {
-    SdlAudioLocker locker;
-
     if (not open()) {
         return false;
     }
+
+    SdlAudioLocker locker;
+
     if (d->fIsPlaying) {
         return true;
     }
@@ -106,11 +107,12 @@ void Aulib::Stream::stop(std::chrono::microseconds fadeTime)
 
 void Aulib::Stream::pause(std::chrono::microseconds fadeTime)
 {
-    SdlAudioLocker locker;
-
     if (not open() or d->fIsPaused) {
         return;
     }
+
+    SdlAudioLocker locker;
+
     if (fadeTime.count() > 0) {
         d->fFadingIn = false;
         d->fFadingOut = true;
@@ -143,11 +145,11 @@ void Aulib::Stream::resume(std::chrono::microseconds fadeTime)
 
 auto Aulib::Stream::rewind() -> bool
 {
-    SdlAudioLocker locker;
-
     if (not open()) {
         return false;
     }
+
+    SdlAudioLocker locker;
     return d->fDecoder->rewind();
 }
 
