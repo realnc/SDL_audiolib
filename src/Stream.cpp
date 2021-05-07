@@ -107,12 +107,15 @@ void Aulib::Stream::stop(std::chrono::microseconds fadeTime)
 
 void Aulib::Stream::pause(std::chrono::microseconds fadeTime)
 {
-    if (not open() or d->fIsPaused) {
+    if (not open()) {
         return;
     }
 
     SdlAudioLocker locker;
 
+    if (d->fIsPaused) {
+        return;
+    }
     if (fadeTime.count() > 0) {
         d->fFadingIn = false;
         d->fFadingOut = true;
