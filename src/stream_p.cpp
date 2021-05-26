@@ -93,12 +93,13 @@ void Aulib::Stream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int out
 {
     AM_debugAssert(Stream_priv::fSampleConverter);
 
-    int wantedSamples = outLen / (SDL_AUDIO_BITSIZE(fAudioSpec.format) / 8);
+    const int out_len_samples = outLen / (SDL_AUDIO_BITSIZE(fAudioSpec.format) / 8);
+    const int out_len_frames = out_len_samples / fAudioSpec.channels;
 
-    if (fStrmBuf.size() != wantedSamples) {
-        fFinalMixBuf.reset(wantedSamples);
-        fStrmBuf.reset(wantedSamples);
-        fProcessorBuf.reset(wantedSamples);
+    if (fStrmBuf.size() != out_len_samples) {
+        fFinalMixBuf.reset(out_len_samples);
+        fStrmBuf.reset(out_len_samples);
+        fProcessorBuf.reset(out_len_samples);
     }
 
     // Fill with silence.
@@ -111,6 +112,9 @@ void Aulib::Stream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int out
         return fStreamList;
     }();
 
+    const int now_tick = SDL_GetTicks();
+    const int wanted_ticks = out_len_frames * 1000 / fAudioSpec.freq;
+
     for (const auto stream : streamList) {
         if (stream->d->fWantedIterations != 0
             and stream->d->fCurrentIteration >= stream->d->fWantedIterations) {
@@ -120,25 +124,44 @@ void Aulib::Stream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int out
             continue;
         }
 
+        const int ticks_since_play_start = now_tick - stream->d->fPlaybackStartTick;
+        if (ticks_since_play_start <= 0) {
+            continue;
+        }
+
         bool has_finished = false;
         bool has_looped = false;
-        int len = 0;
+        int cur_pos = 0;
+        const int out_offset = [&] {
+            if (ticks_since_play_start < wanted_ticks) {
+                const int out_offset_ticks = wanted_ticks - ticks_since_play_start;
+                const int offset = out_offset_ticks * fAudioSpec.channels * fAudioSpec.freq / 1000;
+                return offset - (offset % fAudioSpec.channels);
+            }
+            return 0;
+        }();
+        if (ticks_since_play_start < wanted_ticks) {
+            cur_pos = out_offset;
+        }
 
-        while (len < wantedSamples) {
+        while (cur_pos < out_len_samples) {
             if (stream->d->fResampler) {
-                len += stream->d->fResampler->resample(fStrmBuf.get() + len, wantedSamples - len);
+                cur_pos += stream->d->fResampler->resample(fStrmBuf.get() + cur_pos,
+                                                           out_len_samples - cur_pos);
             } else {
                 bool callAgain = true;
-                while (len < wantedSamples and callAgain) {
-                    len += stream->d->fDecoder->decode(fStrmBuf.get() + len, wantedSamples - len,
-                                                       callAgain);
+                while (cur_pos < out_len_samples and callAgain) {
+                    cur_pos += stream->d->fDecoder->decode(fStrmBuf.get() + cur_pos,
+                                                           out_len_samples - cur_pos, callAgain);
                 }
             }
             for (const auto& proc : stream->d->processors) {
-                proc->process(fProcessorBuf.get(), fStrmBuf.get(), len);
-                std::memcpy(fStrmBuf.get(), fProcessorBuf.get(), len * sizeof(*fStrmBuf.get()));
+                const int len = cur_pos - out_offset;
+                proc->process(fProcessorBuf.get() + out_offset, fStrmBuf.get() + out_offset, len);
+                std::memcpy(fStrmBuf.get() + out_offset, fProcessorBuf.get() + out_offset,
+                            len * sizeof(*fStrmBuf.get()));
             }
-            if (len < wantedSamples) {
+            if (cur_pos < out_len_samples) {
                 stream->d->fDecoder->rewind();
                 if (stream->d->fWantedIterations != 0) {
                     ++stream->d->fCurrentIteration;
@@ -162,22 +185,28 @@ void Aulib::Stream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int out
         float volumeLeft = stream->d->fVolume * stream->d->fInternalVolume;
         float volumeRight = stream->d->fVolume * stream->d->fInternalVolume;
 
-        if (stream->d->fStereoPos < 0.f) {
-            volumeRight *= 1.f + stream->d->fStereoPos;
-        } else if (stream->d->fStereoPos > 0.f) {
-            volumeLeft *= 1.f - stream->d->fStereoPos;
+        if (fAudioSpec.channels > 1) {
+            if (stream->d->fStereoPos < 0.f) {
+                volumeRight *= 1.f + stream->d->fStereoPos;
+            } else if (stream->d->fStereoPos > 0.f) {
+                volumeLeft *= 1.f - stream->d->fStereoPos;
+            }
         }
 
         // Avoid mixing on zero volume.
         if (not stream->d->fIsMuted and (volumeLeft > 0.f or volumeRight > 0.f)) {
             // Avoid scaling operation when volume is 1.
-            if (volumeLeft != 1.f or volumeRight != 1.f) {
-                for (int i = 0; i < len; i += 2) {
+            if (fAudioSpec.channels > 1 and (volumeLeft != 1.f or volumeRight != 1.f)) {
+                for (int i = out_offset; i < cur_pos; i += 2) {
                     fFinalMixBuf[i] += fStrmBuf[i] * volumeLeft;
                     fFinalMixBuf[i + 1] += fStrmBuf[i + 1] * volumeRight;
                 }
+            } else if (volumeLeft != 1.f) {
+                for (int i = out_offset; i < cur_pos; ++i) {
+                    fFinalMixBuf[i] += fStrmBuf[i] * volumeLeft;
+                }
             } else {
-                for (int i = 0; i < len; ++i) {
+                for (int i = out_offset; i < cur_pos; ++i) {
                     fFinalMixBuf[i] += fStrmBuf[i];
                 }
             }
