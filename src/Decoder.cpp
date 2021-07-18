@@ -53,7 +53,7 @@ auto Aulib::Decoder::decoderFor(SDL_RWops* rwops) -> std::unique_ptr<Aulib::Deco
 
     auto rewindRwops = [rwops, rwPos] { SDL_RWseek(rwops, rwPos, RW_SEEK_SET); };
 
-    auto tryDecoder = [rwops, &rewindRwops](auto dec) {
+    [[maybe_unused]] auto tryDecoder = [rwops, &rewindRwops](auto dec) {
         rewindRwops();
         bool ret = dec->open(rwops);
         rewindRwops();
