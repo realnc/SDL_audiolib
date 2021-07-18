@@ -4,6 +4,8 @@
 #include "Aulib/DecoderAdlmidi.h"
 #include "Aulib/DecoderBassmidi.h"
 #include "Aulib/DecoderDrflac.h"
+#include "Aulib/DecoderDrmp3.h"
+#include "Aulib/DecoderDrwav.h"
 #include "Aulib/DecoderFluidsynth.h"
 #include "Aulib/DecoderModplug.h"
 #include "Aulib/DecoderMpg123.h"
@@ -103,6 +105,11 @@ auto Aulib::Decoder::decoderFor(SDL_RWops* rwops) -> std::unique_ptr<Aulib::Deco
         return std::make_unique<Aulib::DecoderSndfile>();
     }
 #endif
+#if USE_DEC_DRWAV
+    if (tryDecoder(std::make_unique<DecoderDrwav>())) {
+        return std::make_unique<Aulib::DecoderDrwav>();
+    }
+#endif
 #if USE_DEC_OPENMPT
     if (tryDecoder(std::make_unique<DecoderOpenmpt>())) {
         return std::make_unique<Aulib::DecoderOpenmpt>();
@@ -119,9 +126,16 @@ auto Aulib::Decoder::decoderFor(SDL_RWops* rwops) -> std::unique_ptr<Aulib::Deco
     // file, which would result in virtually everything we feed it giving a
     // false positive.
 #endif
+
+// The MP3 decoders have too many false positives. So try them last.
 #if USE_DEC_MPG123
     if (tryDecoder(std::make_unique<DecoderMpg123>())) {
         return std::make_unique<Aulib::DecoderMpg123>();
+    }
+#endif
+#if USE_DEC_DRMP3
+    if (tryDecoder(std::make_unique<DecoderDrmp3>())) {
+        return std::make_unique<Aulib::DecoderDrmp3>();
     }
 #endif
     return nullptr;
