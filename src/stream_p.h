@@ -65,7 +65,7 @@ struct Stream_priv final
     static Buffer<float> fStrmBuf;
     static Buffer<float> fProcessorBuf;
 
-    void fProcessFade();
+    auto fProcessFadeAndCheckIfFinished() -> bool;
     void fStop();
 
     static void fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int outLen);

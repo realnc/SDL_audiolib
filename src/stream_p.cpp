@@ -44,7 +44,7 @@ Aulib::Stream_priv::~Stream_priv()
     }
 }
 
-void Aulib::Stream_priv::fProcessFade()
+auto Aulib::Stream_priv::fProcessFadeAndCheckIfFinished() -> bool
 {
     static_assert(std::is_same<decltype(fFadeInDuration), std::chrono::milliseconds>::value, "");
     static_assert(std::is_same<decltype(fFadeOutDuration), std::chrono::milliseconds>::value, "");
@@ -55,7 +55,7 @@ void Aulib::Stream_priv::fProcessFade()
         if (curPos >= fFadeInDuration.count()) {
             fInternalVolume = 1.f;
             fFadingIn = false;
-            return;
+            return false;
         }
         fInternalVolume =
             std::pow(static_cast<float>(now - fFadeInStartTick) / fFadeInDuration.count(), 3.f);
@@ -68,14 +68,15 @@ void Aulib::Stream_priv::fProcessFade()
             if (fStopAfterFade) {
                 fStopAfterFade = false;
                 fStop();
-            } else {
-                fIsPaused = true;
+                return true;
             }
-            return;
+            fIsPaused = true;
+            return false;
         }
         fInternalVolume = std::pow(
             -static_cast<float>(now - fFadeOutStartTick) / fFadeOutDuration.count() + 1.f, 3.f);
     }
+    return false;
 }
 
 void Aulib::Stream_priv::fStop()
@@ -181,7 +182,8 @@ void Aulib::Stream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int out
             }
         }
 
-        stream->d->fProcessFade();
+        has_finished |= stream->d->fProcessFadeAndCheckIfFinished();
+
         float volumeLeft = stream->d->fVolume * stream->d->fInternalVolume;
         float volumeRight = stream->d->fVolume * stream->d->fInternalVolume;
 
