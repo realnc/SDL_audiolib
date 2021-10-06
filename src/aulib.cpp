@@ -10,7 +10,14 @@
 #include <SDL_audio.h>
 #include <SDL_version.h>
 
-static bool gInitialized = false;
+enum class InitType
+{
+    None,
+    NoOutput,
+    Full,
+};
+
+static InitType gInitType = InitType::None;
 
 extern "C" {
 static void sdlCallback(void* /*unused*/, Uint8 out[], int outLen)
@@ -22,6 +29,11 @@ static void sdlCallback(void* /*unused*/, Uint8 out[], int outLen)
 auto Aulib::init(int freq, AudioFormat format, int channels, int frameSize,
                  const std::string& device) -> bool
 {
+    if (gInitType != InitType::None) {
+        SDL_SetError("SDL_audiolib already initialized, cannot initialize again.");
+        return false;
+    }
+
     if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0) {
         return false;
     }
@@ -109,14 +121,28 @@ auto Aulib::init(int freq, AudioFormat format, int channels, int frameSize,
 #else
     SDL_PauseAudio(/*pause_on=*/0);
 #endif
-    gInitialized = true;
+    gInitType = InitType::Full;
+    std::atexit(Aulib::quit);
+    return true;
+}
+
+auto Aulib::initWithoutOutput(const int freq, const int channels) -> bool
+{
+    if (gInitType != InitType::None) {
+        SDL_SetError("SDL_audiolib already initialized, cannot initialize again.");
+        return false;
+    }
+
+    Stream_priv::fAudioSpec.freq = freq;
+    Stream_priv::fAudioSpec.channels = channels;
+    gInitType = InitType::NoOutput;
     std::atexit(Aulib::quit);
     return true;
 }
 
 void Aulib::quit()
 {
-    if (not gInitialized) {
+    if (gInitType == InitType::None) {
         return;
     }
 #if SDL_VERSION_ATLEAST(2, 0, 0)
@@ -126,7 +152,7 @@ void Aulib::quit()
 #endif
     SDL_QuitSubSystem(SDL_INIT_AUDIO);
     Stream_priv::fSampleConverter = nullptr;
-    gInitialized = false;
+    gInitType = InitType::None;
 }
 
 auto Aulib::sampleFormat() noexcept -> AudioFormat
