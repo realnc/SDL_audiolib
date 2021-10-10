@@ -63,6 +63,14 @@ public:
      */
     auto resample(float dst[], int dstLen) -> int;
 
+    /*! \brief Discards any samples that have not yet been retrieved with resample().
+     *
+     * This is especially useful after seeking the decoder to a different position and you want
+     * resample() to immediately give you samples from the new position rather than the ones from
+     * the old position that were previously resampled but not yet retrieved.
+     */
+    void discardPendingSamples();
+
 protected:
     /*! \brief Change sample rate and amount of channels.
      *
