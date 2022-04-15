@@ -190,6 +190,7 @@ set(
     include/Aulib/Decoder.h
     include/Aulib/Processor.h
     include/Aulib/Resampler.h
+    include/Aulib/ResamplerSdl.h
     include/Aulib/ResamplerSpeex.h
     include/Aulib/Stream.h
 )
@@ -368,6 +369,7 @@ add_library(
     src/Decoder.cpp
     src/Processor.cpp
     src/Resampler.cpp
+    src/ResamplerSdl.cpp
     src/ResamplerSpeex.cpp
     src/SdlAudioLocker.h
     src/SdlMutex.h
