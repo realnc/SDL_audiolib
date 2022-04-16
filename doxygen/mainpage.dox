@@ -96,6 +96,11 @@ it is resampled using one of the available resamplers:
 
    It uses the [SoxR](https://sourceforge.net/p/soxr/wiki/Home) resampler.
 
+ - Aulib::ResamplerSdl
+
+   It uses the built-in resampling functionality of SDL (through the SDL_AudioStream API) and has no
+   external dependencies. Requires at least SDL 2.0.7.
+
 Usage of the library is fairly simple. To play a music.ogg file containing Vorbis audio and having the
 audio automatically resampled by the internal resampler to the sample rate that the audio device is
 opened with (in this case 44.1kHz,) you would do:

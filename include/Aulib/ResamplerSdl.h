@@ -10,7 +10,14 @@ struct ResamplerSdl_priv;
 /*!
  * \brief SDL_AudioStream resampler.
  *
- * This uses SDL's built-in resampler. It requires at least SDL 2.0.7.
+ * This uses the built-in resampling functionality of SDL (through the SDL_AudioStream API) and has
+ * no external dependencies. Requires at least SDL 2.0.7. Note that SDL can be built to use
+ * libsamplerate instead of its own resampler. There's no way to detect whether this is the case or
+ * not.
+ *
+ * It usually makes no sense to use this resampler, unless you have a specific need to use SDL's
+ * resampler and you know that the SDL version you're running on was not built with libsamplerate
+ * support. If you do want libsamplerate, then you can just use \ref Aulib::ResamplerSrc instead.
  */
 class AULIB_EXPORT ResamplerSdl: public Resampler
 {
