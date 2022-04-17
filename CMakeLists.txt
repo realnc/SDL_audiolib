@@ -142,6 +142,12 @@ option(
     ON
 )
 
+option(
+    WITH_SYSTEM_FMTLIB
+    "Use system-provided fmtlib instead of bundled one."
+    OFF
+)
+
 include(GNUInstallDirs)
 include(FindPkgConfig)
 include(GenerateExportHeader)
@@ -351,6 +357,19 @@ if (USE_DEC_ADLMIDI)
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} libADLMIDI")
 endif(USE_DEC_ADLMIDI)
 
+function(add_bundled_fmtlib)
+    set(BUILD_SHARED_LIBS OFF)
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+    add_subdirectory(3rdparty/fmt)
+endfunction()
+
+if (WITH_SYSTEM_FMTLIB)
+    find_package(FMT REQUIRED)
+    set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} fmt")
+else()
+    add_bundled_fmtlib()
+endif()
+
 check_cxx_source_compiles(
     "
     #include <algorithm>
@@ -449,6 +468,7 @@ target_link_libraries(
 
     PRIVATE
         ${EXTRA_LIBRARIES}
+        fmt::fmt
 )
 
 if(MSVC)
