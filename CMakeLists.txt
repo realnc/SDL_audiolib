@@ -142,6 +142,7 @@ option(
     ON
 )
 
+include(GNUInstallDirs)
 include(FindPkgConfig)
 include(GenerateExportHeader)
 
@@ -455,21 +456,17 @@ if(MSVC)
     target_compile_options(SDL_audiolib PRIVATE "/permissive-")
 endif()
 
-if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
-    set(CMAKE_INSTALL_LIBDIR lib CACHE PATH "Output directory for libraries.")
-endif(NOT DEFINED CMAKE_INSTALL_LIBDIR)
-
 configure_file(
     ${PROJECT_SOURCE_DIR}/SDL_audiolib.pc.in
     ${PROJECT_BINARY_DIR}/SDL_audiolib.pc
     @ONLY
 )
 
-install(TARGETS SDL_audiolib DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(TARGETS SDL_audiolib DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR})
 install(FILES ${PUBLIC_HEADERS} ${PUBLIC_HEADERS_GENERATED} DESTINATION include/SDL_audiolib)
 install(FILES ${PUBLIC_HEADERS_AULIB_DIR} DESTINATION include/SDL_audiolib/Aulib)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/SDL_audiolib.pc
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+        DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig)
 
 if (ENABLE_SDLMIXER_EMU)
     add_library(
@@ -488,7 +485,7 @@ if (ENABLE_SDLMIXER_EMU)
         SDL_audiolib
     )
 
-    install(TARGETS SDL_mixer-2.0 DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    install(TARGETS SDL_mixer-2.0 DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR})
 endif(ENABLE_SDLMIXER_EMU)
 
 if (BUILD_EXAMPLE)
