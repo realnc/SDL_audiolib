@@ -428,10 +428,10 @@ add_library(
 target_compile_definitions(
     SDL_audiolib
     PRIVATE
-        -DSPX_RESAMPLE_EXPORT=
-        -DOUTSIDE_SPEEX
-        -DRANDOM_PREFIX=SDL_audiolib
         $<$<CONFIG:Debug>:AULIB_DEBUG>
+        OUTSIDE_SPEEX
+        RANDOM_PREFIX=SDL_audiolib
+        SPX_RESAMPLE_EXPORT=
 )
 
 set_target_properties(
