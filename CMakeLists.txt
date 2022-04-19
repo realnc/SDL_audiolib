@@ -177,10 +177,6 @@ if("${CMAKE_CXX_COMPILER_ID}" MATCHES "^(GNU|((Apple)?Clang))$")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -W -Wextra -Wpedantic")
 endif()
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_definitions(-DAULIB_DEBUG)
-endif()
-
 # Headers in include/SDL_Audiolib/
 set(
     PUBLIC_HEADERS
@@ -435,6 +431,7 @@ target_compile_definitions(
         -DSPX_RESAMPLE_EXPORT=
         -DOUTSIDE_SPEEX
         -DRANDOM_PREFIX=SDL_audiolib
+        $<$<CONFIG:Debug>:AULIB_DEBUG>
 )
 
 set_target_properties(
