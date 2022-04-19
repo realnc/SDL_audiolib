@@ -152,8 +152,12 @@ include(GNUInstallDirs)
 include(FindPkgConfig)
 include(GenerateExportHeader)
 
+if ("cxx_std_20" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
+    set(CMAKE_CXX_STANDARD 20)
+else()
+    set(CMAKE_CXX_STANDARD 17)
+endif()
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
