@@ -425,6 +425,7 @@ add_library(
     README.md
     doxygen/mainpage.dox
     3rdparty/speex_resampler/README
+    .clang-format
     .github/workflows/ci.yml
 )
 
