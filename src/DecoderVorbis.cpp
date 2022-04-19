@@ -1,7 +1,7 @@
 // This is copyrighted software. More information is at the end of this file.
 #include "Aulib/DecoderVorbis.h"
 
-#include "aulib_debug.h"
+#include "aulib_log.h"
 #include <SDL_rwops.h>
 #include <vorbis/vorbisfile.h>
 
@@ -104,19 +104,19 @@ auto Aulib::DecoderVorbis::doDecoding(float buf[], int len, bool& callAgain) -> 
             break;
         }
         if (ret < 0) {
-            AM_debugPrint("libvorbis stream error: ");
+            aulib::log::debug("libvorbis stream error: ");
             switch (ret) {
             case OV_HOLE:
-                AM_debugPrintLn("OV_HOLE");
+                aulib::log::debugLn("OV_HOLE");
                 break;
             case OV_EBADLINK:
-                AM_debugPrintLn("OV_EBADLINK");
+                aulib::log::debugLn("OV_EBADLINK");
                 break;
             case OV_EINVAL:
-                AM_debugPrintLn("OV_EINVAL");
+                aulib::log::debugLn("OV_EINVAL");
                 break;
             default:
-                AM_debugPrintLn("unknown error: " << ret);
+                aulib::log::debugLn("unknown error: {}", ret);
             }
             break;
         }

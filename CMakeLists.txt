@@ -400,6 +400,7 @@ add_library(
     src/Stream.cpp
     src/aulib.cpp
     src/aulib_debug.h
+    src/aulib_log.h
     src/sampleconv.cpp
     src/sampleconv.h
     src/stream_p.cpp

@@ -3,8 +3,8 @@
 
 #include "Aulib/Decoder.h"
 #include "Buffer.h"
-#include "aulib_debug.h"
 #include "aulib_global.h"
+#include "aulib_log.h"
 #include <SDL_audio.h>
 #include <algorithm>
 #include <cmath>

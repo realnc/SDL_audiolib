@@ -5,6 +5,7 @@
 #include "Aulib/Resampler.h"
 #include "Aulib/Stream.h"
 #include "aulib_debug.h"
+#include "aulib_log.h"
 #include "missing.h"
 #include <SDL_timer.h>
 #include <algorithm>

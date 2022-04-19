@@ -1,7 +1,7 @@
 // This is copyrighted software. More information is at the end of this file.
 #include "Aulib/ResamplerSox.h"
 
-#include "aulib_debug.h"
+#include "aulib_log.h"
 #include <cstring>
 #include <soxr.h>
 
@@ -43,7 +43,7 @@ void Aulib::ResamplerSox::doResampling(float dst[], const float src[], int& dstL
                          dst, static_cast<size_t>(dstLen / channels), &dstDone);
     if (error) {
         // FIXME: What do we do?
-        AM_warnLn("soxr_process() error: " << error);
+        aulib::log::warnLn("soxr_process() error: {}", error);
         dstLen = srcLen = 0;
         return;
     }

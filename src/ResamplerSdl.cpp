@@ -1,6 +1,6 @@
 // This is copyrighted software. More information is at the end of this file.
 #include "Aulib/ResamplerSdl.h"
-#include "aulib_debug.h"
+#include "aulib_log.h"
 #include <SDL_audio.h>
 
 #if SDL_VERSION_ATLEAST(2, 0, 7)
