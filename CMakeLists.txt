@@ -95,6 +95,12 @@ option(
 )
 
 option(
+    USE_DEC_FLAC
+    "Enable libFLAC decoder."
+    ON
+)
+
+option(
     USE_DEC_MUSEPACK
     "Enable libmpcdec Musepack decoder."
     ON
@@ -315,6 +321,14 @@ if (USE_DEC_LIBOPUSFILE)
     list(APPEND EXTRA_LIBRARIES PkgConfig::OPUSFILE)
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} opusfile")
 endif(USE_DEC_LIBOPUSFILE)
+
+if (USE_DEC_FLAC)
+    set(AULIB_SOURCES ${AULIB_SOURCES} src/DecoderFlac.cpp)
+    set(PUBLIC_HEADERS_AULIB_DIR ${PUBLIC_HEADERS_AULIB_DIR} include/Aulib/DecoderFlac.h)
+    pkg_check_modules(FLAC REQUIRED flac IMPORTED_TARGET)
+    list(APPEND EXTRA_LIBRARIES PkgConfig::FLAC)
+    set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} flac")
+endif(USE_DEC_FLAC)
 
 if (USE_DEC_MUSEPACK)
     set(AULIB_SOURCES ${AULIB_SOURCES} src/DecoderMusepack.cpp)
