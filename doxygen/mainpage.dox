@@ -33,6 +33,10 @@ The provided decoders are:
 
   It can decode Ogg/Opus audio.
 
+- Aulib::DecoderFlac - uses [libFLAC](https://xiph.org/flac)
+
+  It can decode FLAC and Ogg/FLAC audio.
+
 - Aulib::DecoderMusepack - uses [Musepack SV8](http://www.musepack.net)
 
   It can decode Musepack audio.
