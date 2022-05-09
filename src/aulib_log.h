@@ -3,7 +3,8 @@
 #include "aulib_config.h"
 #include <fmt/core.h>
 
-namespace aulib::log {
+namespace aulib {
+namespace log {
 
 template <typename... Args>
 void debug([[maybe_unused]] fmt::format_string<Args...>&& fmt_str, [[maybe_unused]] Args&&... args)
@@ -58,7 +59,8 @@ void infoLn(fmt::format_string<Args...>&& fmt_str, Args&&... args)
                            std::forward<Args>(args)...));
 }
 
-} // namespace aulib::log
+} // namespace log
+} // namespace aulib
 
 /*
 
