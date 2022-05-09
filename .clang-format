@@ -69,7 +69,7 @@ KeepEmptyLinesAtTheStartOfBlocks: false
 MacroBlockBegin: ''
 MacroBlockEnd: ''
 MaxEmptyLinesToKeep: 1
-NamespaceIndentation: Inner
+NamespaceIndentation: None
 PackConstructorInitializers: Never
 PointerAlignment: Left
 ReflowComments: true
