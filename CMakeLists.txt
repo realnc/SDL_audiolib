@@ -378,7 +378,11 @@ function(add_bundled_fmtlib)
 endfunction()
 
 if (WITH_SYSTEM_FMTLIB)
-    find_package(FMT REQUIRED)
+    # Only try to find fmt::fmt if it doesn't already exist.
+    # It may exist when SDL_audiolib is used as a subpackage of another CMake project.
+    if(NOT TARGET fmt::fmt)
+        find_package(FMT REQUIRED)
+    endif()
     set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} fmt")
 else()
     add_bundled_fmtlib()
