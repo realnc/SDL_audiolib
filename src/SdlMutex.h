@@ -12,12 +12,7 @@
 class SdlMutex final
 {
 public:
-    SdlMutex()
-    {
-        if (not mutex_) {
-            throw std::runtime_error(SDL_GetError());
-        }
-    }
+    SdlMutex();
 
     ~SdlMutex()
     {
