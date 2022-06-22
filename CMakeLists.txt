@@ -411,6 +411,7 @@ add_library(
     src/ResamplerSpeex.cpp
     src/SdlAudioLocker.h
     src/SdlMutex.h
+    src/SdlMutex.cpp
     src/Stream.cpp
     src/aulib.cpp
     src/aulib_debug.h
@@ -442,6 +443,15 @@ add_library(
     .clang-format
     .github/workflows/ci.yml
 )
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    # Allow using `SDL_audiolib` where exceptions are disabled globally.
+    # This is the only file in the project that requires exceptions.
+    set_source_files_properties(
+        src/SdlMutex.cpp
+        PROPERTIES
+            COMPILE_FLAGS -fexceptions)
+endif()
 
 target_compile_definitions(
     SDL_audiolib
