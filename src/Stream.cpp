@@ -85,7 +85,7 @@ auto Aulib::Stream::play(int iterations, std::chrono::microseconds fadeTime) -> 
     }
     d->fIsPlaying = true;
     {
-        std::lock_guard<SdlMutex> lock(d->fStreamListMutex);
+        std::lock_guard<SdlMutex> lock(*d->fStreamListMutex);
         d->fStreamList.push_back(this);
     }
     return true;

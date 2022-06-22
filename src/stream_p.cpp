@@ -19,7 +19,7 @@ SDL_AudioSpec Aulib::Stream_priv::fAudioSpec;
 SDL_AudioDeviceID Aulib::Stream_priv::fDeviceId;
 #endif
 std::vector<Aulib::Stream*> Aulib::Stream_priv::fStreamList;
-SdlMutex Aulib::Stream_priv::fStreamListMutex;
+std::optional<SdlMutex> Aulib::Stream_priv::fStreamListMutex;
 Buffer<float> Aulib::Stream_priv::fFinalMixBuf{0};
 Buffer<float> Aulib::Stream_priv::fStrmBuf{0};
 Buffer<float> Aulib::Stream_priv::fProcessorBuf{0};
@@ -83,7 +83,7 @@ auto Aulib::Stream_priv::fProcessFadeAndCheckIfFinished() -> bool
 void Aulib::Stream_priv::fStop()
 {
     {
-        std::lock_guard<SdlMutex> lock(fStreamListMutex);
+        std::lock_guard<SdlMutex> lock(*fStreamListMutex);
         fStreamList.erase(std::remove(fStreamList.begin(), fStreamList.end(), this->q),
                           fStreamList.end());
     }
@@ -110,7 +110,7 @@ void Aulib::Stream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int out
     // Iterate over a copy of the original stream list, since we might want to
     // modify the original as we go, removing streams that have stopped.
     const std::vector<Stream*> streamList = [] {
-        std::lock_guard<SdlMutex> lock(fStreamListMutex);
+        std::lock_guard<SdlMutex> lock(*fStreamListMutex);
         return fStreamList;
     }();
 
@@ -170,7 +170,7 @@ void Aulib::Stream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int out
                     if (stream->d->fCurrentIteration >= stream->d->fWantedIterations) {
                         stream->d->fIsPlaying = false;
                         {
-                            std::lock_guard<SdlMutex> lock(fStreamListMutex);
+                            std::lock_guard<SdlMutex> lock(*fStreamListMutex);
                             fStreamList.erase(
                                 std::remove(fStreamList.begin(), fStreamList.end(), stream),
                                 fStreamList.end());

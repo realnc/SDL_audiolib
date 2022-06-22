@@ -4,10 +4,12 @@
 #include "Aulib/Stream.h"
 #include "aulib_log.h"
 #include "missing.h"
+#include "missing/optional.h"
 #include "sampleconv.h"
 #include "stream_p.h"
 #include <SDL.h>
 #include <SDL_audio.h>
+#include <SDL_mutex.h>
 #include <SDL_version.h>
 
 enum class InitType
@@ -65,6 +67,15 @@ auto Aulib::init(int freq, AudioFormat format, int channels, int frameSize,
         return false;
     }
 #endif
+
+    {
+        SDL_mutex* mutex = SDL_CreateMutex();
+        if (mutex == nullptr) {
+            Aulib::quit();
+            return false;
+        }
+        Stream_priv::fStreamListMutex.emplace(mutex);
+    }
 
     aulib::log::debug("SDL initialized with sample format: ");
     switch (Stream_priv::fAudioSpec.format) {
@@ -152,6 +163,7 @@ void Aulib::quit()
 #endif
     SDL_QuitSubSystem(SDL_INIT_AUDIO);
     Stream_priv::fSampleConverter = nullptr;
+    Stream_priv::fStreamListMutex = std::nullopt;
     gInitType = InitType::None;
 }
 

@@ -3,7 +3,6 @@
 #include <SDL_error.h>
 #include <SDL_mutex.h>
 #include <SDL_version.h>
-#include <stdexcept>
 
 /*
  * RAII wrapper for SDL_mutex. Satisfies std's "Lockable" (SDL 2) or "BasicLockable" (SDL 1)
@@ -12,12 +11,10 @@
 class SdlMutex final
 {
 public:
-    SdlMutex()
-    {
-        if (not mutex_) {
-            throw std::runtime_error(SDL_GetError());
-        }
-    }
+    // The mutex must not be null.
+    explicit SdlMutex(SDL_mutex* mutex)
+        : mutex_(mutex)
+    { }
 
     ~SdlMutex()
     {
@@ -45,7 +42,7 @@ public:
     }
 
 private:
-    SDL_mutex* mutex_ = SDL_CreateMutex();
+    SDL_mutex* mutex_;
 };
 
 /*

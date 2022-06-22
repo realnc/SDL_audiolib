@@ -422,6 +422,7 @@ add_library(
 
     src/missing.h
     src/missing/algorithm.h
+    src/missing/optional.h
     src/missing/sdl_audio_format.h
     src/missing/sdl_endian_float.h
     src/missing/sdl_load_file_rw.c
