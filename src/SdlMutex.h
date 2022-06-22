@@ -3,7 +3,8 @@
 #include <SDL_error.h>
 #include <SDL_mutex.h>
 #include <SDL_version.h>
-#include <stdexcept>
+#include <fmt/core.h>
+#include <cstdlib>
 
 /*
  * RAII wrapper for SDL_mutex. Satisfies std's "Lockable" (SDL 2) or "BasicLockable" (SDL 1)
@@ -15,7 +16,8 @@ public:
     SdlMutex()
     {
         if (not mutex_) {
-            throw std::runtime_error(SDL_GetError());
+            fmt::print(stderr, "SDL_audiolib fatal error: {}\n", SDL_GetError());
+            std::abort();
         }
     }
 
