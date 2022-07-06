@@ -19,6 +19,7 @@
 #cmakedefine USE_RESAMP_SOXR 1
 #cmakedefine USE_RESAMP_SRC 1
 
+#cmakedefine HAVE_EXCEPTIONS 1
 #cmakedefine HAVE_STD_CLAMP 1
 
 /*

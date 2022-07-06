@@ -390,6 +390,14 @@ endif()
 
 check_cxx_source_compiles(
     "
+    #include <stdexcept>
+    int main() { throw std::runtime_error(\"\"); }
+    "
+    HAVE_EXCEPTIONS
+)
+
+check_cxx_source_compiles(
+    "
     #include <algorithm>
     int main() { (void)std::clamp(1, 2, 3); }
     "

@@ -1,25 +1,26 @@
 // This is copyrighted software. More information is at the end of this file.
 #include "SdlMutex.h"
+#include "aulib_global.h"
 #include <stdexcept>
 
 SdlMutex::SdlMutex()
 {
     if (not mutex_) {
-        throw std::runtime_error(SDL_GetError());
+        Aulib::priv::throw_(std::runtime_error(SDL_GetError()));
     }
 }
 
 void SdlMutex::lock()
 {
     if (SDL_LockMutex(mutex_) != 0) {
-        throw std::runtime_error(SDL_GetError());
+        Aulib::priv::throw_(std::runtime_error(SDL_GetError()));
     }
 }
 
 void SdlMutex::unlock()
 {
     if (SDL_UnlockMutex(mutex_) != 0) {
-        throw std::runtime_error(SDL_GetError());
+        Aulib::priv::throw_(std::runtime_error(SDL_GetError()));
     }
 }
 
