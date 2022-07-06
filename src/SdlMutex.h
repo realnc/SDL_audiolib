@@ -3,7 +3,6 @@
 #include <SDL_error.h>
 #include <SDL_mutex.h>
 #include <SDL_version.h>
-#include <stdexcept>
 
 /*
  * RAII wrapper for SDL_mutex. Satisfies std's "Lockable" (SDL 2) or "BasicLockable" (SDL 1)
@@ -22,10 +21,7 @@ public:
     SdlMutex(const SdlMutex&) = delete;
     auto operator=(const SdlMutex&) -> SdlMutex& = delete;
 
-    void lock() noexcept
-    {
-        SDL_LockMutex(mutex_);
-    }
+    void lock();
 
 #if SDL_VERSION_ATLEAST(2, 0, 0)
     bool try_lock() noexcept
@@ -34,10 +30,7 @@ public:
     }
 #endif
 
-    void unlock() noexcept
-    {
-        SDL_UnlockMutex(mutex_);
-    }
+    void unlock();
 
 private:
     SDL_mutex* mutex_ = SDL_CreateMutex();
