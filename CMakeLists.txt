@@ -154,6 +154,12 @@ option(
     OFF
 )
 
+option(
+    DISABLE_EXCEPTIONS
+    "Disable throwing exceptions (std::abort() on fatal error instead)"
+    OFF
+)
+
 include(GNUInstallDirs)
 include(FindPkgConfig)
 include(GenerateExportHeader)
@@ -388,13 +394,17 @@ else()
     add_bundled_fmtlib()
 endif()
 
-check_cxx_source_compiles(
-    "
-    #include <stdexcept>
-    int main() { throw std::runtime_error(\"\"); }
-    "
-    HAVE_EXCEPTIONS
-)
+if(DISABLE_EXCEPTIONS)
+    set(HAVE_EXCEPTIONS OFF)
+else()
+    check_cxx_source_compiles(
+        "
+        #include <stdexcept>
+        int main() { throw std::runtime_error(\"\"); }
+        "
+        HAVE_EXCEPTIONS
+    )
+endif()
 
 check_cxx_source_compiles(
     "
@@ -452,7 +462,7 @@ add_library(
     .github/workflows/ci.yml
 )
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+if (HAVE_EXCEPTIONS AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     # Allow using `SDL_audiolib` where exceptions are disabled globally.
     # This is the only file in the project that requires exceptions.
     set_source_files_properties(
