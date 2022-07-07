@@ -150,7 +150,7 @@ option(
 
 option(
     WITH_SYSTEM_FMTLIB
-    "Use system-provided fmtlib instead of bundled one."
+    "Use system-provided fmtlib instead of bundled one (only relevant if std::format is not supported)."
     OFF
 )
 
@@ -383,15 +383,33 @@ function(add_bundled_fmtlib)
     add_subdirectory(3rdparty/fmt)
 endfunction()
 
-if (WITH_SYSTEM_FMTLIB)
-    # Only try to find fmt::fmt if it doesn't already exist.
-    # It may exist when SDL_audiolib is used as a subpackage of another CMake project.
-    if(NOT TARGET fmt::fmt)
-        find_package(FMT REQUIRED)
+check_cxx_source_compiles(
+    "
+    #include <format>
+    int main() { return std::format(\"{}\", 42).size(); }
+    "
+    HAVE_STD_FORMAT
+)
+check_cxx_source_compiles(
+    "
+    #include <print>
+    int main() { std::print(\"{}\", 42); return 0; }
+    "
+    HAVE_STD_PRINT
+)
+
+if(NOT HAVE_STD_FORMAT)
+    if (WITH_SYSTEM_FMTLIB)
+        # Only try to find fmt::fmt if it doesn't already exist.
+        # It may exist when SDL_audiolib is used as a subpackage of another CMake project.
+        if(NOT TARGET fmt::fmt)
+            find_package(FMT REQUIRED)
+        endif()
+        set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} fmt")
+    else()
+        add_bundled_fmtlib()
     endif()
-    set(PKGCONF_REQ_PRIV "${PKGCONF_REQ_PRIV} fmt")
-else()
-    add_bundled_fmtlib()
+    list(APPEND EXTRA_LIBRARIES fmt::fmt)
 endif()
 
 if(DISABLE_EXCEPTIONS)
@@ -441,6 +459,9 @@ add_library(
 
     src/missing.h
     src/missing/algorithm.h
+    src/missing/format.h
+    src/missing/print.h
+    src/missing/string_view.h
     src/missing/sdl_audio_format.h
     src/missing/sdl_endian_float.h
     src/missing/sdl_load_file_rw.c
@@ -517,7 +538,6 @@ target_link_libraries(
 
     PRIVATE
         ${EXTRA_LIBRARIES}
-        fmt::fmt
 )
 
 if(MSVC)

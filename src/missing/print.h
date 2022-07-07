@@ -1,32 +1,46 @@
 // This is copyrighted software. More information is at the end of this file.
 #pragma once
+#include "aulib_config.h"
 
-#cmakedefine USE_DEC_ADLMIDI 1
-#cmakedefine USE_DEC_BASSMIDI 1
-#cmakedefine USE_DEC_DRFLAC 1
-#cmakedefine USE_DEC_DRMP3 1
-#cmakedefine USE_DEC_DRWAV 1
-#cmakedefine USE_DEC_FLUIDSYNTH 1
-#cmakedefine USE_DEC_LIBOPUSFILE 1
-#cmakedefine USE_DEC_LIBVORBIS 1
-#cmakedefine USE_DEC_MODPLUG 1
-#cmakedefine USE_DEC_MPG123 1
-#cmakedefine USE_DEC_MUSEPACK 1
-#cmakedefine USE_DEC_OPENMPT 1
-#cmakedefine USE_DEC_SNDFILE 1
-#cmakedefine USE_DEC_WILDMIDI 1
-#cmakedefine USE_DEC_XMP 1
-#cmakedefine USE_RESAMP_SOXR 1
-#cmakedefine USE_RESAMP_SRC 1
+#if HAVE_STD_PRINT
+#include <print>
 
-#cmakedefine HAVE_EXCEPTIONS 1
-#cmakedefine HAVE_STD_CLAMP 1
-#cmakedefine HAVE_STD_FORMAT 1
-#cmakedefine HAVE_STD_PRINT 1
+namespace Aulib {
+namespace priv {
+using std::print;
+using std::vprint;
+} // namespace priv
+} // namespace Aulib
+#elif not HAVE_STD_FORMAT
+#include <fmt/core.h>
 
+namespace Aulib {
+namespace priv {
+using fmt::print;
+using fmt::vprint;
+} // namespace priv
+} // namespace Aulib
+#else
+#include "missing/format.h"
+#include <cstdio>
+
+namespace Aulib {
+namespace priv {
+
+template <typename FormatString, typename... Args>
+void print(FILE* stream, FormatString<Args...>&& fmt_str, Args&&... args)
+{
+    fprintf(
+        stream,
+        std::format(std::forward<FormatString>(fmt_str), std::forward<Args>(args)...).c_str());
+}
+
+} // namespace priv
+} // namespace Aulib
+#endif
 /*
 
-Copyright (C) 2014, 2015, 2016, 2017, 2018, 2019 Nikos Chantziaras.
+Copyright (C) 2021 Nikos Chantziaras.
 
 This file is part of SDL_audiolib.
 

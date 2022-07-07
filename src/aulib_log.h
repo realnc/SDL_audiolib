@@ -1,62 +1,76 @@
 // This is copyrighted software. More information is at the end of this file.
 #pragma once
 #include "aulib_config.h"
-#include <fmt/core.h>
+#include "missing/format.h"
+#include "missing/print.h"
+#include "missing/string_view.h"
+#include <cstdio>
+
+namespace Aulib {
+namespace priv {
+
+inline void vlog(FILE* out, string_view prefix, string_view format, format_args&& args)
+{
+    fwrite(prefix.data(), 1, prefix.size(), out);
+    vprint(out, format, args);
+}
+
+inline void vlogLn(FILE* out, string_view prefix, string_view format, format_args&& args)
+{
+    vlog(out, prefix, format, std::forward<format_args>(args));
+    print(out, "\n");
+}
+
+} // namespace priv
+} // namespace Aulib
 
 namespace aulib {
 namespace log {
 
 template <typename... Args>
-void debug([[maybe_unused]] fmt::format_string<Args...>&& fmt_str, [[maybe_unused]] Args&&... args)
+void debug([[maybe_unused]] Aulib::priv::string_view fmt_str, [[maybe_unused]] Args&&... args)
 {
 #if AULIB_DEBUG
-    fmt::print(stderr, "SDL_audiolib debug: {}",
-               fmt::format(std::forward<fmt::format_string<Args...>>(fmt_str),
-                           std::forward<Args>(args)...));
+    Aulib::priv::vlog(
+        stderr, "SDL_audiolib debug: ", fmt_str, Aulib::priv::make_format_args(args...));
 #endif
 }
 
 template <typename... Args>
-void debugLn([[maybe_unused]] fmt::format_string<Args...>&& fmt_str,
-             [[maybe_unused]] Args&&... args)
+void debugLn([[maybe_unused]] Aulib::priv::string_view fmt_str, [[maybe_unused]] Args&&... args)
 {
 #if AULIB_DEBUG
-    fmt::print(stderr, "SDL_audiolib debug: {}\n",
-               fmt::format(std::forward<fmt::format_string<Args...>>(fmt_str),
-                           std::forward<Args>(args)...));
+    Aulib::priv::vlogLn(
+        stderr, "SDL_audiolib debug: ", fmt_str, Aulib::priv::make_format_args(args...));
 #endif
 }
 
 template <typename... Args>
-void warn(fmt::format_string<Args...>&& fmt_str, Args&&... args)
+void warn(Aulib::priv::string_view fmt_str, Args&&... args)
 {
-    fmt::print(stderr, "SDL_audiolib warning: {}",
-               fmt::format(std::forward<fmt::format_string<Args...>>(fmt_str),
-                           std::forward<Args>(args)...));
+    Aulib::priv::vlog(
+        stderr, "SDL_audiolib warning: ", fmt_str, Aulib::priv::make_format_args(args...));
 }
 
 template <typename... Args>
-void warnLn(fmt::format_string<Args...>&& fmt_str, Args&&... args)
+void warnLn(Aulib::priv::string_view fmt_str, Args&&... args)
 {
-    fmt::print(stderr, "SDL_audiolib warning: {}\n",
-               fmt::format(std::forward<fmt::format_string<Args...>>(fmt_str),
-                           std::forward<Args>(args)...));
+    Aulib::priv::vlogLn(
+        stderr, "SDL_audiolib warning: ", fmt_str, Aulib::priv::make_format_args(args...));
 }
 
 template <typename... Args>
-void info(fmt::format_string<Args...>&& fmt_str, Args&&... args)
+void info(Aulib::priv::string_view fmt_str, Args&&... args)
 {
-    fmt::print("SDL_audiolib info: {}",
-               fmt::format(std::forward<fmt::format_string<Args...>>(fmt_str),
-                           std::forward<Args>(args)...));
+    Aulib::priv::vlog(
+        stdout, "SDL_audiolib info: ", fmt_str, Aulib::priv::make_format_args(args...));
 }
 
 template <typename... Args>
-void infoLn(fmt::format_string<Args...>&& fmt_str, Args&&... args)
+void infoLn(Aulib::priv::string_view fmt_str, Args&&... args)
 {
-    fmt::print("SDL_audiolib info: {}\n",
-               fmt::format(std::forward<fmt::format_string<Args...>>(fmt_str),
-                           std::forward<Args>(args)...));
+    Aulib::priv::vlogLn(
+        stdout, "SDL_audiolib info: ", fmt_str, Aulib::priv::make_format_args(args...));
 }
 
 } // namespace log
