@@ -1,31 +1,7 @@
 // This is copyrighted software. More information is at the end of this file.
 #pragma once
 
-#include "aulib_config.h"
 #include "aulib_export.h"
-
-#if not HAVE_EXCEPTIONS
-#include <cstdio>
-#include <cstdlib>
-#include <exception>
-#endif
-
-namespace Aulib {
-namespace priv {
-
-template <typename Exception>
-[[noreturn]] void throw_(Exception&& e)
-{
-#if HAVE_EXCEPTIONS
-    throw e;
-#else
-    std::fprintf(stderr, "exception: %s\n", e.what());
-    std::abort();
-#endif
-}
-
-} // namespace priv
-} // namespace Aulib
 
 /*
 

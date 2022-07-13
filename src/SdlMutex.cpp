@@ -1,6 +1,6 @@
 // This is copyrighted software. More information is at the end of this file.
 #include "SdlMutex.h"
-#include "aulib_global.h"
+#include "missing.h"
 #include <stdexcept>
 
 SdlMutex::SdlMutex()
