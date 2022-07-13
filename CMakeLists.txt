@@ -574,6 +574,8 @@ configure_file (
     ${PROJECT_BINARY_DIR}/aulib_config.h
 )
 
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/aulib_config.h DESTINATION include/SDL_audiolib)
+
 configure_file(
     ${PROJECT_SOURCE_DIR}/doxygen/Doxyfile.in
     ${PROJECT_BINARY_DIR}/Doxyfile
