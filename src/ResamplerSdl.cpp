@@ -15,13 +15,16 @@ struct ResamplerSdl_priv final
 
 } // namespace Aulib
 
-Aulib::ResamplerSdl::ResamplerSdl()
+template <typename T>
+Aulib::ResamplerSdl<T>::ResamplerSdl()
     : d(std::make_unique<ResamplerSdl_priv>())
 {}
 
-Aulib::ResamplerSdl::~ResamplerSdl() = default;
+template <typename T>
+Aulib::ResamplerSdl<T>::~ResamplerSdl() = default;
 
-void Aulib::ResamplerSdl::doResampling(float dst[], const float src[], int& dstLen, int& srcLen)
+template <typename T>
+void Aulib::ResamplerSdl<T>::doResampling(T dst[], const T src[], int& dstLen, int& srcLen)
 {
     if (not d->fResampler) {
         dstLen = srcLen = 0;
@@ -42,23 +45,29 @@ void Aulib::ResamplerSdl::doResampling(float dst[], const float src[], int& dstL
     dstLen = bytes_resampled / sizeof(*dst);
 }
 
-auto Aulib::ResamplerSdl::adjustForOutputSpec(const int dstRate, const int srcRate,
+template <typename T>
+auto Aulib::ResamplerSdl<T>::adjustForOutputSpec(const int dstRate, const int srcRate,
                                               const int channels) -> int
 {
-    d->fResampler.reset(
-        SDL_NewAudioStream(AUDIO_F32, channels, srcRate, AUDIO_F32, channels, dstRate));
+    d->fResampler.reset(SDL_NewAudioStream(
+        std::is_same<T, float>::value ? AUDIO_F32 : AUDIO_S32, channels, srcRate,
+        std::is_same<T, float>::value ? AUDIO_F32 : AUDIO_S32, channels, dstRate));
     if (not d->fResampler) {
         return -1;
     }
     return 0;
 }
 
-void Aulib::ResamplerSdl::doDiscardPendingSamples()
+template <typename T>
+void Aulib::ResamplerSdl<T>::doDiscardPendingSamples()
 {
     if (d->fResampler) {
         SDL_AudioStreamClear(d->fResampler.get());
     }
 }
+
+template class Aulib::ResamplerSdl<float>;
+template class Aulib::ResamplerSdl<int32_t>;
 
 #endif // SDL_VERSION_ATLEAST
 

@@ -21,6 +21,17 @@ using AudioFormat = Uint16;
 #endif
 
 /*!
+ * \brief Data type for the internall audio buffers.
+ *
+ * FLOAT provides better accuracy while INT32 is useful on devices without an FPU.
+ */
+enum class BufferDataType
+{
+    FLOAT,
+    INT32
+};
+
+/*!
  * \brief Initializes the audio system.
  *
  * \param freq
@@ -52,12 +63,21 @@ using AudioFormat = Uint16;
  *  A UTF-8 string reported by SDL_GetAudioDeviceName() or a driver-specific name as appropriate.
  *  An empty string requests the most reasonable default device.
  *
+ * \param dataType
+ *  Data type of the internal buffers.
+ *  FLOAT provides better accuracy while INT32 is useful on devices without an FPU.
+ *
  * \return
  *  \retval true The audio system was initialized successfully.
  *  \retval false The audio system could not be initialized.
  */
-AULIB_EXPORT auto init(int freq, AudioFormat format, int channels, int frameSize,
-                       const std::string& device = {}) -> bool;
+AULIB_EXPORT auto init(
+    int freq, AudioFormat format, int channels, int frameSize, const std::string& device = {},
+    BufferDataType dataType = BufferDataType::FLOAT) -> bool;
+
+AULIB_EXPORT auto init(
+    int freq, AudioFormat format, int channels, int frameSize,
+    BufferDataType dataType = BufferDataType::FLOAT) -> bool;
 
 /*!
  * \brief Initializes the library for decoding and resampling only.

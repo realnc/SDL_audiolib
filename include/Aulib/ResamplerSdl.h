@@ -19,14 +19,15 @@ struct ResamplerSdl_priv;
  * resampler and you know that the SDL version you're running on was not built with libsamplerate
  * support. If you do want libsamplerate, then you can just use \ref Aulib::ResamplerSrc instead.
  */
-class AULIB_EXPORT ResamplerSdl: public Resampler
+template <typename T>
+class AULIB_EXPORT ResamplerSdl: public Resampler<T>
 {
 public:
     ResamplerSdl();
     ~ResamplerSdl() override;
 
 protected:
-    void doResampling(float dst[], const float src[], int& dstLen, int& srcLen) override;
+    void doResampling(T dst[], const T src[], int& dstLen, int& srcLen) override;
     auto adjustForOutputSpec(int dstRate, int srcRate, int channels) -> int override;
     void doDiscardPendingSamples() override;
 

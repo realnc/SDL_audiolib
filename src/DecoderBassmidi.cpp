@@ -9,6 +9,7 @@
 #include <SDL_rwops.h>
 #include <bass.h>
 #include <bassmidi.h>
+#include <type_traits>
 
 namespace chrono = std::chrono;
 
@@ -101,13 +102,16 @@ Aulib::DecoderBassmidi_priv::DecoderBassmidi_priv()
                         BASS_ErrorGetCode());
 }
 
-Aulib::DecoderBassmidi::DecoderBassmidi()
+template <typename T>
+Aulib::DecoderBassmidi<T>::DecoderBassmidi()
     : d(std::make_unique<DecoderBassmidi_priv>())
 {}
 
-Aulib::DecoderBassmidi::~DecoderBassmidi() = default;
+template <typename T>
+Aulib::DecoderBassmidi<T>::~DecoderBassmidi() = default;
 
-auto Aulib::DecoderBassmidi::setDefaultSoundfont(const std::string& filename) -> bool
+template <typename T>
+auto Aulib::DecoderBassmidi<T>::setDefaultSoundfont(const std::string& filename) -> bool
 {
     if (BASS_SetConfigPtr(BASS_CONFIG_MIDI_DEFFONT, filename.c_str()) != 0) {
         return true;
@@ -117,9 +121,10 @@ auto Aulib::DecoderBassmidi::setDefaultSoundfont(const std::string& filename) ->
     return false;
 }
 
-auto Aulib::DecoderBassmidi::open(SDL_RWops* rwops) -> bool
+template <typename T>
+auto Aulib::DecoderBassmidi<T>::open(SDL_RWops* rwops) -> bool
 {
-    if (isOpen()) {
+    if (this->isOpen()) {
         return true;
     }
 
@@ -130,7 +135,7 @@ auto Aulib::DecoderBassmidi::open(SDL_RWops* rwops) -> bool
     }
     Buffer<Uint8> newMidiData(midiDataLen);
     DWORD bassFlags =
-        BASS_SAMPLE_FLOAT | BASS_STREAM_DECODE | BASS_MIDI_DECAYEND | BASS_MIDI_SINCINTER;
+        (std::is_same<T, float>::value ? BASS_SAMPLE_FLOAT : 0) | BASS_STREAM_DECODE | BASS_MIDI_DECAYEND | BASS_MIDI_SINCINTER;
 
     if (SDL_RWread(rwops, newMidiData.get(), newMidiData.size(), 1) != 1) {
         return false;
@@ -140,18 +145,20 @@ auto Aulib::DecoderBassmidi::open(SDL_RWops* rwops) -> bool
         return false;
     }
     d->midiData.swap(newMidiData);
-    setIsOpen(true);
+    this->setIsOpen(true);
     return true;
 }
 
-auto Aulib::DecoderBassmidi::getChannels() const -> int
+template <typename T>
+auto Aulib::DecoderBassmidi<T>::getChannels() const -> int
 {
     return 2;
 }
 
-auto Aulib::DecoderBassmidi::getRate() const -> int
+template <typename T>
+auto Aulib::DecoderBassmidi<T>::getRate() const -> int
 {
-    if (not isOpen()) {
+    if (not this->isOpen()) {
         return 0;
     }
 
@@ -164,14 +171,16 @@ auto Aulib::DecoderBassmidi::getRate() const -> int
     return 0;
 }
 
-auto Aulib::DecoderBassmidi::doDecoding(float buf[], int len, bool& /*callAgain*/) -> int
+template <typename T>
+auto Aulib::DecoderBassmidi<T>::doDecoding(T buf[], int len, bool& /*callAgain*/) -> int
 {
-    if (d->eof or not isOpen()) {
+    if (d->eof or not this->isOpen()) {
         return 0;
     }
 
     DWORD byteLen = len * static_cast<int>(sizeof(*buf));
-    DWORD ret = BASS_ChannelGetData(d->hstream.get(), buf, byteLen | BASS_DATA_FLOAT);
+    DWORD ret = BASS_ChannelGetData(
+        d->hstream.get(), buf, byteLen | (std::is_same<T, float>::value ? BASS_DATA_FLOAT : 0));
     if (ret == static_cast<DWORD>(-1)) {
         SDL_SetError("DecoderBassmidi: got BASS error %d during decoding.\n", BASS_ErrorGetCode());
         return 0;
@@ -182,14 +191,16 @@ auto Aulib::DecoderBassmidi::doDecoding(float buf[], int len, bool& /*callAgain*
     return ret / static_cast<int>(sizeof(*buf));
 }
 
-auto Aulib::DecoderBassmidi::rewind() -> bool
+template <typename T>
+auto Aulib::DecoderBassmidi<T>::rewind() -> bool
 {
     return seekToTime(chrono::microseconds::zero());
 }
 
-auto Aulib::DecoderBassmidi::duration() const -> chrono::microseconds
+template <typename T>
+auto Aulib::DecoderBassmidi<T>::duration() const -> chrono::microseconds
 {
-    if (not isOpen()) {
+    if (not this->isOpen()) {
         return {};
     }
 
@@ -210,9 +221,10 @@ auto Aulib::DecoderBassmidi::duration() const -> chrono::microseconds
     return chrono::duration_cast<chrono::microseconds>(chrono::duration<double>(sec));
 }
 
-auto Aulib::DecoderBassmidi::seekToTime(chrono::microseconds pos) -> bool
+template <typename T>
+auto Aulib::DecoderBassmidi<T>::seekToTime(chrono::microseconds pos) -> bool
 {
-    if (not isOpen()) {
+    if (not this->isOpen()) {
         return false;
     }
 
@@ -230,6 +242,9 @@ auto Aulib::DecoderBassmidi::seekToTime(chrono::microseconds pos) -> bool
     d->eof = false;
     return true;
 }
+
+template class Aulib::DecoderBassmidi<float>;
+template class Aulib::DecoderBassmidi<int32_t>;
 
 /*
 

@@ -13,23 +13,36 @@
 
 namespace Aulib {
 
+template <typename T>
 class Decoder;
+
+template <typename T>
 class Resampler;
 
+namespace Stream_priv_device {
+extern BufferDataType fDataType;
+extern ::SDL_AudioSpec fAudioSpec;
+#if SDL_VERSION_ATLEAST(2, 0, 0)
+extern SDL_AudioDeviceID fDeviceId;
+#endif
+} // namespace Stream_priv_device
+
+template <typename T>
 struct Stream_priv final
 {
-    const Stream* const q;
+    const Stream<T>* const q;
 
-    explicit Stream_priv(class Stream* pub, std::unique_ptr<Decoder> decoder,
-                         std::unique_ptr<Resampler> resampler, SDL_RWops* rwops, bool closeRw);
+    explicit Stream_priv(
+        class Stream<T>* pub, std::unique_ptr<Decoder<T>> decoder,
+        std::unique_ptr<Resampler<T>> resampler, SDL_RWops* rwops, bool closeRw);
     ~Stream_priv();
 
     bool fIsOpen = false;
     SDL_RWops* fRWops;
     bool fCloseRw;
     // Resamplers hold a reference to decoders, so we store it as a shared_ptr.
-    std::shared_ptr<Decoder> fDecoder;
-    std::unique_ptr<Resampler> fResampler;
+    std::shared_ptr<Decoder<T>> fDecoder;
+    std::unique_ptr<Resampler<T>> fResampler;
     bool fIsPlaying = false;
     bool fIsPaused = false;
     float fVolume = 1.f;
@@ -46,25 +59,21 @@ struct Stream_priv final
     bool fStopAfterFade = false;
     std::chrono::milliseconds fFadeInDuration{};
     std::chrono::milliseconds fFadeOutDuration{};
-    std::vector<std::shared_ptr<Processor>> processors;
+    std::vector<std::shared_ptr<Processor<T>>> processors;
     bool fIsMuted = false;
-    Stream::Callback fFinishCallback;
-    Stream::Callback fLoopCallback;
+    Stream<T>::Callback fFinishCallback;
+    Stream<T>::Callback fLoopCallback;
 
-    static ::SDL_AudioSpec fAudioSpec;
-#if SDL_VERSION_ATLEAST(2, 0, 0)
-    static SDL_AudioDeviceID fDeviceId;
-#endif
-    static std::vector<Stream*> fStreamList;
+    static std::vector<Stream<T>*> fStreamList;
     static SdlMutex fStreamListMutex;
 
     // This points to an appropriate converter for the current audio format.
-    static void (*fSampleConverter)(Uint8[], const Buffer<float>& src);
+    static void (*fSampleConverter)(Uint8[], const Buffer<T>& src);
 
     // Sample buffers we use during decoding and mixing.
-    static Buffer<float> fFinalMixBuf;
-    static Buffer<float> fStrmBuf;
-    static Buffer<float> fProcessorBuf;
+    static Buffer<T> fFinalMixBuf;
+    static Buffer<T> fStrmBuf;
+    static Buffer<T> fProcessorBuf;
 
     auto fProcessFadeAndCheckIfFinished() -> bool;
     void fStop();

@@ -19,65 +19,116 @@
 #include "Buffer.h"
 #include "aulib.h"
 #include "aulib_config.h"
+#include "missing.h"
 #include <SDL_audio.h>
 #include <SDL_rwops.h>
 #include <array>
 
 namespace Aulib {
 
+template <typename T>
 struct Decoder_priv final
 {
-    Buffer<float> stereoBuf{0};
+    Buffer<T> stereoBuf{0};
     bool isOpen = false;
 };
 
 } // namespace Aulib
 
-Aulib::Decoder::Decoder()
-    : d(std::make_unique<Aulib::Decoder_priv>())
+template <typename T>
+Aulib::Decoder<T>::Decoder()
+    : d(std::make_unique<Aulib::Decoder_priv<T>>())
 {}
 
-Aulib::Decoder::~Decoder() = default;
+template <typename T>
+Aulib::Decoder<T>::~Decoder() = default;
 
-auto Aulib::Decoder::decoderFor(const std::string& filename) -> std::unique_ptr<Aulib::Decoder>
+template <typename T>
+auto Aulib::Decoder<T>::decoderFor(const std::string& filename) -> std::unique_ptr<Decoder<T>>
 {
     auto rwopsClose = [](SDL_RWops* rwops) { SDL_RWclose(rwops); };
-    std::unique_ptr<SDL_RWops, decltype(rwopsClose)> rwops(SDL_RWFromFile(filename.c_str(), "rb"),
-                                                           rwopsClose);
-    return Decoder::decoderFor(rwops.get());
+    std::unique_ptr<SDL_RWops, decltype(rwopsClose)> rwops(
+        SDL_RWFromFile(filename.c_str(), "rb"), rwopsClose);
+    return Decoder<T>::decoderFor(rwops.get());
 }
 
-auto Aulib::Decoder::decoderFor(SDL_RWops* rwops) -> std::unique_ptr<Aulib::Decoder>
+namespace {
+
+class DecoderBuilder
 {
-    const auto rwPos = SDL_RWtell(rwops);
+public:
+    explicit DecoderBuilder(SDL_RWops* rwops)
+        : fRwops(rwops)
+        , fRwPos(SDL_RWtell(rwops))
+    { }
 
-    auto rewindRwops = [rwops, rwPos] { SDL_RWseek(rwops, rwPos, RW_SEEK_SET); };
+    template <typename DecoderT>
+    auto build() -> std::unique_ptr<DecoderT>;
 
-    [[maybe_unused]] auto tryDecoder = [rwops, &rewindRwops](auto dec) {
-        rewindRwops();
-        bool ret = dec->open(rwops);
-        rewindRwops();
-        return ret;
-    };
+private:
+    void rewind()
+    {
+        SDL_RWseek(fRwops, fRwPos, RW_SEEK_SET);
+    }
+
+    SDL_RWops* fRwops;
+    decltype(SDL_RWtell(nullptr)) fRwPos;
+};
+
+template <typename DecoderT>
+auto DecoderBuilder::build() -> std::unique_ptr<DecoderT>
+{
+    auto decoder = std::make_unique<DecoderT>();
+    rewind();
+    const bool ok = decoder->open(fRwops);
+    rewind();
+    if (!ok)
+        return nullptr;
+    return decoder;
+}
+
+// `int32_t` not supported
+template <>
+auto DecoderBuilder::build<Aulib::DecoderOpenmpt<int32_t>>()
+    -> std::unique_ptr<Aulib::DecoderOpenmpt<int32_t>>
+{
+    return nullptr;
+}
+
+// `int32_t` not supported
+template <>
+auto DecoderBuilder::build<Aulib::DecoderDrmp3<int32_t>>()
+    -> std::unique_ptr<Aulib::DecoderDrmp3<int32_t>>
+{
+    return nullptr;
+}
+
+} // namespace
+
+template <typename T>
+auto Aulib::Decoder<T>::decoderFor(SDL_RWops* rwops) -> std::unique_ptr<Aulib::Decoder<T>>
+{
+    DecoderBuilder builder{rwops};
+    std::unique_ptr<Decoder<T>> result;
 
 #if USE_DEC_DRFLAC
-    if (tryDecoder(std::make_unique<DecoderDrflac>())) {
-        return std::make_unique<Aulib::DecoderDrflac>();
+    if ((result = builder.build<DecoderDrflac<T>>()) != nullptr) {
+        return result;
     }
 #endif
 #if USE_DEC_LIBVORBIS
-    if (tryDecoder(std::make_unique<DecoderVorbis>())) {
-        return std::make_unique<Aulib::DecoderVorbis>();
+    if ((result = builder.build<DecoderVorbis<T>>()) != nullptr) {
+        return result;
     }
 #endif
 #if USE_DEC_LIBOPUSFILE
-    if (tryDecoder(std::make_unique<DecoderOpus>())) {
-        return std::make_unique<Aulib::DecoderOpus>();
+    if ((result = builder.build<DecoderOpus<T>>()) != nullptr) {
+        return result;
     }
 #endif
 #if USE_DEC_MUSEPACK
-    if (tryDecoder(std::make_unique<DecoderMusepack>())) {
-        return std::make_unique<Aulib::DecoderMusepack>();
+    if ((result = builder.build<DecoderMusepack<T>>()) != nullptr) {
+        return result;
     }
 #endif
 #if USE_DEC_FLUIDSYNTH or USE_DEC_BASSMIDI or USE_DEC_WILDMIDI or USE_DEC_ADLMIDI
@@ -85,40 +136,40 @@ auto Aulib::Decoder::decoderFor(SDL_RWops* rwops) -> std::unique_ptr<Aulib::Deco
         std::array<char, 5> head{};
         if (SDL_RWread(rwops, head.data(), 1, 4) == 4 and head == decltype(head){"MThd"}) {
             using midi_dec_type =
-#    if USE_DEC_FLUIDSYNTH
-                DecoderFluidsynth;
-#    elif USE_DEC_BASSMIDI
-                DecoderBassmidi;
-#    elif USE_DEC_WILDMIDI
-                DecoderWildmidi;
-#    elif USE_DEC_ADLMIDI
-                DecoderAdlmidi;
-#    endif
-            if (tryDecoder(std::make_unique<midi_dec_type>())) {
-                return std::make_unique<midi_dec_type>();
+#if USE_DEC_FLUIDSYNTH
+                DecoderFluidsynth<T>;
+#elif USE_DEC_BASSMIDI
+                DecoderBassmidi<T>;
+#elif USE_DEC_WILDMIDI
+                DecoderWildmidi<T>;
+#elif USE_DEC_ADLMIDI
+                DecoderAdlmidi<T>;
+#endif
+            if ((result = builder.build<midi_dec_type>()) != nullptr) {
+                return result;
             }
         }
     }
 #endif
 #if USE_DEC_SNDFILE
-    if (tryDecoder(std::make_unique<DecoderSndfile>())) {
-        return std::make_unique<Aulib::DecoderSndfile>();
+    if ((result = builder.build<DecoderSndfile<T>>()) != nullptr) {
+        return result;
     }
 #endif
 #if USE_DEC_DRWAV
-    if (tryDecoder(std::make_unique<DecoderDrwav>())) {
-        return std::make_unique<Aulib::DecoderDrwav>();
+    if ((result = builder.build<DecoderDrwav<T>>()) != nullptr) {
+        return result;
     }
 #endif
 #if USE_DEC_OPENMPT
-    if (tryDecoder(std::make_unique<DecoderOpenmpt>())) {
-        return std::make_unique<Aulib::DecoderOpenmpt>();
+    if ((result = builder.build<DecoderOpenmpt<T>>()) != nullptr) {
+        return result;
     }
 #endif
 
 #if USE_DEC_XMP
-    if (tryDecoder(std::make_unique<DecoderXmp>())) {
-        return std::make_unique<Aulib::DecoderXmp>();
+    if ((result = builder.build<DecoderXmp<T>>()) != nullptr) {
+        return result;
     }
 #endif
 #if USE_DEC_MODPLUG
@@ -129,25 +180,27 @@ auto Aulib::Decoder::decoderFor(SDL_RWops* rwops) -> std::unique_ptr<Aulib::Deco
 
 // The MP3 decoders have too many false positives. So try them last.
 #if USE_DEC_MPG123
-    if (tryDecoder(std::make_unique<DecoderMpg123>())) {
-        return std::make_unique<Aulib::DecoderMpg123>();
+    if ((result = builder.build<DecoderMpg123<T>>()) != nullptr) {
+        return result;
     }
 #endif
 #if USE_DEC_DRMP3
-    if (tryDecoder(std::make_unique<DecoderDrmp3>())) {
-        return std::make_unique<Aulib::DecoderDrmp3>();
+    if ((result = builder.build<DecoderDrmp3<T>>()) != nullptr) {
+        return result;
     }
 #endif
     return nullptr;
 }
 
-auto Aulib::Decoder::isOpen() const -> bool
+template <typename T>
+auto Aulib::Decoder<T>::isOpen() const -> bool
 {
     return d->isOpen;
 }
 
 // Conversion happens in-place.
-static constexpr void monoToStereo(float buf[], int len)
+template <typename T>
+static constexpr void monoToStereo(T buf[], int len)
 {
     if (len < 1 or not buf) {
         return;
@@ -158,18 +211,20 @@ static constexpr void monoToStereo(float buf[], int len)
     }
 }
 
-static constexpr void stereoToMono(float dst[], const float src[], int srcLen)
+template <typename T>
+static constexpr void stereoToMono(T dst[], const T src[], int srcLen)
 {
     if (srcLen < 1 or not dst or not src) {
         return;
     }
     for (int i = 0, j = 0; i < srcLen; i += 2, ++j) {
-        dst[j] = src[i] * 0.5f;
-        dst[j] += src[i + 1] * 0.5f;
+        dst[j] = src[i] / 2;
+        dst[j] += src[i + 1] / 2;
     }
 }
 
-auto Aulib::Decoder::decode(float buf[], int len, bool& callAgain) -> int
+template <typename T>
+auto Aulib::Decoder<T>::decode(T buf[], int len, bool& callAgain) -> int
 {
     if (this->getChannels() == 1 and Aulib::channelCount() == 2) {
         int srcLen = this->doDecoding(buf, len / 2, callAgain);
@@ -188,10 +243,14 @@ auto Aulib::Decoder::decode(float buf[], int len, bool& callAgain) -> int
     return this->doDecoding(buf, len, callAgain);
 }
 
-void Aulib::Decoder::setIsOpen(bool f)
+template <typename T>
+void Aulib::Decoder<T>::setIsOpen(bool f)
 {
     d->isOpen = f;
 }
+
+template class Aulib::Decoder<float>;
+template class Aulib::Decoder<int32_t>;
 
 /*
 

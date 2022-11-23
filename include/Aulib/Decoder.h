@@ -5,6 +5,7 @@
 #include <SDL_rwops.h>
 #include <SDL_stdinc.h>
 #include <chrono>
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <type_traits>
@@ -13,11 +14,19 @@ struct SDL_RWops;
 
 namespace Aulib {
 
+template <typename T>
+struct Decoder_priv;
+
 /*!
  * \brief Abstract base class for audio decoders.
  */
+template <typename T>
 class AULIB_EXPORT Decoder
 {
+    static_assert(
+        std::is_same<T, float>::value or std::is_same<T, int32_t>::value,
+        "Only float and int32_t are supported");
+
 public:
     Decoder();
     virtual ~Decoder();
@@ -34,10 +43,10 @@ public:
      * \return A suitable decoder or nullptr if none of the decoders can open the file.
      */
     template <class... Decoders>
-    static auto decoderFor(const std::string& filename) -> std::unique_ptr<Decoder>;
+    static auto decoderFor(const std::string& filename) -> std::unique_ptr<Decoder<T>>;
     //! \overload
     template <class... Decoders>
-    static auto decoderFor(SDL_RWops* rwops) -> std::unique_ptr<Decoder>;
+    static auto decoderFor(SDL_RWops* rwops) -> std::unique_ptr<Decoder<T>>;
 #endif
 
     /*!
@@ -48,12 +57,12 @@ public:
      *
      * \return A suitable decoder or nullptr if none of the decoders can open the file.
      */
-    static auto decoderFor(const std::string& filename) -> std::unique_ptr<Decoder>;
+    static auto decoderFor(const std::string& filename) -> std::unique_ptr<Decoder<T>>;
     //! \overload
-    static auto decoderFor(SDL_RWops* rwops) -> std::unique_ptr<Decoder>;
+    static auto decoderFor(SDL_RWops* rwops) -> std::unique_ptr<Decoder<T>>;
 
     auto isOpen() const -> bool;
-    auto decode(float buf[], int len, bool& callAgain) -> int;
+    auto decode(T buf[], int len, bool& callAgain) -> int;
 
     virtual auto open(SDL_RWops* rwops) -> bool = 0;
     virtual auto getChannels() const -> int = 0;
@@ -64,15 +73,16 @@ public:
 
 protected:
     void setIsOpen(bool f);
-    virtual auto doDecoding(float buf[], int len, bool& callAgain) -> int = 0;
+    virtual auto doDecoding(T buf[], int len, bool& callAgain) -> int = 0;
 
 private:
-    const std::unique_ptr<struct Decoder_priv> d;
+    const std::unique_ptr<Decoder_priv<T>> d;
 };
 
 #if __cplusplus >= 201603
+template <typename T>
 template <class... Decoders>
-inline auto Decoder::decoderFor(const std::string& filename) -> std::unique_ptr<Decoder>
+inline auto Decoder<T>::decoderFor(const std::string& filename) -> std::unique_ptr<Decoder<T>>
 {
     auto rwopsClose = [](SDL_RWops* rwops) { SDL_RWclose(rwops); };
     std::unique_ptr<SDL_RWops, decltype(rwopsClose)> rwops(SDL_RWFromFile(filename.c_str(), "rb"),
@@ -80,8 +90,9 @@ inline auto Decoder::decoderFor(const std::string& filename) -> std::unique_ptr<
     return Decoder::decoderFor<Decoders...>(rwops.get());
 }
 
+template <typename T>
 template <class... Decoders>
-inline auto Decoder::decoderFor(SDL_RWops* rwops) -> std::unique_ptr<Decoder>
+inline auto Decoder<T>::decoderFor(SDL_RWops* rwops) -> std::unique_ptr<Decoder<T>>
 {
     static_assert(sizeof...(Decoders) > 0, "Need at least one decoder type.");
     static_assert((std::is_base_of_v<Aulib::Decoder, Decoders> && ...),
@@ -98,7 +109,7 @@ inline auto Decoder::decoderFor(SDL_RWops* rwops) -> std::unique_ptr<Decoder>
         return ret;
     };
 
-    std::unique_ptr<Decoder> decoder;
+    std::unique_ptr<Decoder<T>> decoder;
     ((tryDecoder(std::make_unique<Decoders>()) && (decoder = std::make_unique<Decoders>())) || ...);
     return decoder;
 }

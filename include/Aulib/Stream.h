@@ -15,9 +15,14 @@ struct SDL_AudioSpec;
 
 namespace Aulib {
 
+template <typename T>
 class Decoder;
+template <typename T>
 class Resampler;
+template <typename T>
 class Processor;
+template <typename T>
+struct Stream_priv;
 
 /*!
  * \brief A \ref Stream handles playback for audio produced by a Decoder.
@@ -32,10 +37,11 @@ class Processor;
  * destruction, meaning you should not create a Stream in one thread and destroy it in another
  * without synchronization.
  */
+template <typename T>
 class AULIB_EXPORT Stream
 {
 public:
-    using Callback = std::function<void(Stream&)>;
+    using Callback = std::function<void(Stream<T>&)>;
 
     /*!
      * \brief Constructs an audio stream from the given file name, decoder and resampler.
@@ -50,11 +56,12 @@ public:
      *  Resampler to use for converting the sample rate of the audio we get from the decoder. If
      *  this is null, then no resampling will be performed.
      */
-    explicit Stream(const std::string& filename, std::unique_ptr<Decoder> decoder,
-                    std::unique_ptr<Resampler> resampler);
+    explicit Stream(
+        const std::string& filename, std::unique_ptr<Decoder<T>> decoder,
+        std::unique_ptr<Resampler<T>> resampler);
 
     //! \overload
-    explicit Stream(const std::string& filename, std::unique_ptr<Decoder> decoder);
+    explicit Stream(const std::string& filename, std::unique_ptr<Decoder<T>> decoder);
 
     /*!
      * \brief Constructs an audio stream from the given SDL_RWops, decoder and resampler.
@@ -72,11 +79,12 @@ public:
      * \param closeRw
      *  Specifies whether 'rwops' should be automatically closed when the stream is destroyed.
      */
-    explicit Stream(SDL_RWops* rwops, std::unique_ptr<Decoder> decoder,
-                    std::unique_ptr<Resampler> resampler, bool closeRw);
+    explicit Stream(
+        SDL_RWops* rwops, std::unique_ptr<Decoder<T>> decoder,
+        std::unique_ptr<Resampler<T>> resampler, bool closeRw);
 
     //! \overload
-    explicit Stream(SDL_RWops* rwops, std::unique_ptr<Decoder> decoder, bool closeRw);
+    explicit Stream(SDL_RWops* rwops, std::unique_ptr<Decoder<T>> decoder, bool closeRw);
 
     virtual ~Stream();
 
@@ -294,7 +302,7 @@ public:
      *
      * \param processor The processor to add.
      */
-    void addProcessor(std::shared_ptr<Processor> processor);
+    void addProcessor(std::shared_ptr<Processor<T>> processor);
 
     /*!
      * \brief Remove a processor from the stream.
@@ -303,7 +311,7 @@ public:
      *
      * \param processor Processor to remove.
      */
-    void removeProcessor(Processor* processor);
+    void removeProcessor(Processor<T>* processor);
 
     /*!
      * \brief Remove all processors from the stream.
@@ -326,10 +334,10 @@ protected:
     void invokeLoopCallback();
 
 private:
-    friend struct Stream_priv;
+    friend struct Stream_priv<T>;
     friend auto Aulib::init(int, AudioFormat, int, int, const std::string&) -> bool;
 
-    const std::unique_ptr<struct Stream_priv> d;
+    const std::unique_ptr<Stream_priv<T>> d;
 };
 
 } // namespace Aulib

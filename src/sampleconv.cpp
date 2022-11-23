@@ -139,6 +139,173 @@ void Aulib::floatToFloatMSB(Uint8 dst[], const Buffer<float>& src) noexcept
 #endif
 }
 
+/* Convert an s32 sample to a smaller integer sample.
+ */
+template <typename T>
+static constexpr auto int32SampleToInt(int32_t src) noexcept -> T
+{
+    src >>= (sizeof(int32_t) / sizeof(T));
+    if (std::is_unsigned<T>::value) {
+        src += std::numeric_limits<typename std::make_signed<T>::type>::min();
+    }
+    return src;
+}
+
+static float int32SampleToFloat(int32_t val) noexcept
+{
+    return val / static_cast<float>(std::numeric_limits<int32_t>::max());
+}
+
+/* Convert int32 samples into smaller integer samples.
+ */
+template <typename T>
+static void int32ToInt(Uint8 dst[], const Buffer<int32_t>& src) noexcept
+{
+    for (auto i : src) {
+        auto sample = floatSampleToInt<T>(i);
+        memcpy(dst, &sample, sizeof(sample));
+        dst += sizeof(sample);
+    }
+}
+
+static void int32ToFloat(Uint8 dst[], const Buffer<int32_t>& src) noexcept
+{
+    for (auto i : src) {
+        auto sample = int32SampleToFloat(i);
+        memcpy(dst, &sample, sizeof(sample));
+        dst += sizeof(sample);
+    }
+}
+
+/* Convert float samples to endian-swapped integer samples.
+ */
+template <typename T>
+static void int32ToSwappedInt(Uint8 dst[], const Buffer<int32_t>& src) noexcept
+{
+    static_assert(sizeof(T) == 2 or sizeof(T) == 4, "");
+
+    for (const auto i : src) {
+        const T sample = sizeof(sample) == 2 ? SDL_Swap16(int32SampleToInt<T>(i))
+                                             : SDL_Swap32(int32SampleToInt<T>(i));
+        memcpy(dst, &sample, sizeof(sample));
+        dst += sizeof(sample);
+    }
+}
+
+static void int32ToSwappedFloat(Uint8 dst[], const Buffer<int32_t>& src) noexcept
+{
+    for (auto i : src) {
+        auto sample = SDL_SwapFloat(int32SampleToFloat(i));
+        memcpy(dst, &sample, sizeof(sample));
+        dst += sizeof(sample);
+    }
+}
+
+template <typename T>
+static void int32ToLsbInt(Uint8 dst[], const Buffer<int32_t>& src) noexcept
+{
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+    int32ToInt<T>(dst, src);
+#else
+    int32ToSwappedInt<T>(dst, src);
+#endif
+}
+
+template <typename T>
+static void int32ToMsbInt(Uint8 dst[], const Buffer<int32_t>& src) noexcept
+{
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    int32ToInt<T>(dst, src);
+#else
+    int32ToSwappedInt<T>(dst, src);
+#endif
+}
+
+static void int32ToLsbFloat(Uint8 dst[], const Buffer<int32_t>& src) noexcept
+{
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+    int32ToFloat(dst, src);
+#else
+    int32ToSwappedFloat(dst, src);
+#endif
+}
+
+static void int32ToMsbFloat(Uint8 dst[], const Buffer<int32_t>& src) noexcept
+{
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    int32ToFloat(dst, src);
+#else
+    int32ToSwappedFloat(dst, src);
+#endif
+}
+
+void Aulib::int32ToS8(Uint8 dst[], const Buffer<int32_t>& src) noexcept
+{
+    int32ToInt<Sint8>(dst, src);
+}
+
+void Aulib::int32ToU8(Uint8 dst[], const Buffer<int32_t>& src) noexcept
+{
+    int32ToInt<Uint8>(dst, src);
+}
+
+void Aulib::int32ToS16LSB(Uint8 dst[], const Buffer<int32_t>& src) noexcept
+{
+    int32ToLsbInt<Sint16>(dst, src);
+}
+
+void Aulib::int32ToU16LSB(Uint8 dst[], const Buffer<int32_t>& src) noexcept
+{
+    int32ToLsbInt<Uint16>(dst, src);
+}
+
+void Aulib::int32ToS16MSB(Uint8 dst[], const Buffer<int32_t>& src) noexcept
+{
+    int32ToMsbInt<Sint16>(dst, src);
+}
+
+void Aulib::int32ToU16MSB(Uint8 dst[], const Buffer<int32_t>& src) noexcept
+{
+    int32ToMsbInt<Uint16>(dst, src);
+}
+
+static void int32ToSwappedInt32(Uint8 dst[], const Buffer<int32_t>& src) noexcept
+{
+    for (const auto i : src) {
+        const auto swapped = SDL_Swap32(i);
+        memcpy(dst, &swapped, sizeof(swapped));
+        dst += sizeof(swapped);
+    }
+}
+
+void Aulib::int32ToS32LSB(Uint8 dst[], const Buffer<int32_t>& src) noexcept
+{
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+    memcpy(dst, src.get(), src.usize() * sizeof(*src.get()));
+#else
+    int32ToSwappedInt32(dst, src);
+#endif
+}
+
+void Aulib::int32ToS32MSB(Uint8 dst[], const Buffer<int32_t>& src) noexcept
+{
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    memcpy(dst, src.get(), src.usize() * sizeof(*src.get()));
+#else
+    int32ToSwappedInt32(dst, src);
+#endif
+}
+
+void Aulib::int32ToFloatLSB(Uint8 dst[], const Buffer<int32_t>& src) noexcept
+{
+    int32ToLsbFloat(dst, src);
+}
+
+void Aulib::int32ToFloatMSB(Uint8 dst[], const Buffer<int32_t>& src) noexcept
+{
+    int32ToMsbFloat(dst, src);
+}
+
 /*
 
 Copyright (C) 2014, 2015, 2016, 2017, 2018, 2019 Nikos Chantziaras.

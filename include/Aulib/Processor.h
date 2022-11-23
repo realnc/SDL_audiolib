@@ -10,14 +10,15 @@ namespace Aulib {
  * A processor receives input samples, processes them and produces output samples. It can be used to
  * alter the audio produced by a decoder. Processors run after resampling (if applicable.)
  */
+template <typename T>
 class AULIB_EXPORT Processor
 {
 public:
     Processor();
     virtual ~Processor();
 
-    Processor(const Processor&) = delete;
-    auto operator=(const Processor&) -> Processor& = delete;
+    Processor(const Processor<T>&) = delete;
+    auto operator=(const Processor<T>&) -> Processor<T>& = delete;
 
     /*!
      * \brief Process input samples and write output samples.
@@ -28,7 +29,7 @@ public:
      * \param[in] source Input buffer.
      * \param[in] len Input and output buffer size in samples.
      */
-    virtual void process(float dest[], const float source[], int len) = 0;
+    virtual void process(T dest[], const T source[], int len) = 0;
 };
 
 } // namespace Aulib

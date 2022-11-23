@@ -5,12 +5,14 @@
 
 namespace Aulib {
 
+template <typename T>
 struct ResamplerSox_priv;
 
 /*!
  * \brief Sox resampler.
  */
-class AULIB_EXPORT ResamplerSox: public Resampler
+template <typename T>
+class AULIB_EXPORT ResamplerSox: public Resampler<T>
 {
 public:
     /*!
@@ -40,12 +42,12 @@ public:
     auto quality() const noexcept -> Quality;
 
 protected:
-    void doResampling(float dst[], const float src[], int& dstLen, int& srcLen) override;
+    void doResampling(T dst[], const T src[], int& dstLen, int& srcLen) override;
     auto adjustForOutputSpec(int dstRate, int srcRate, int channels) -> int override;
     void doDiscardPendingSamples() override;
 
 private:
-    const std::unique_ptr<ResamplerSox_priv> d;
+    const std::unique_ptr<ResamplerSox_priv<T>> d;
 };
 
 } // namespace Aulib

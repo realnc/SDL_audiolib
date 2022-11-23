@@ -8,31 +8,36 @@
 
 namespace Aulib {
 
+template <typename T>
 struct ResamplerSrc_priv final
 {
-    explicit ResamplerSrc_priv(ResamplerSrc::Quality quality)
+    explicit ResamplerSrc_priv(ResamplerSrc<T>::Quality quality)
         : fQuality(quality)
     {}
 
     std::unique_ptr<SRC_STATE, decltype(&src_delete)> fResampler{nullptr, &src_delete};
     SRC_DATA fData{};
-    ResamplerSrc::Quality fQuality;
+    ResamplerSrc<T>::Quality fQuality;
 };
 
 } // namespace Aulib
 
-Aulib::ResamplerSrc::ResamplerSrc(Quality quality)
-    : d(std::make_unique<ResamplerSrc_priv>(quality))
+template <typename T>
+Aulib::ResamplerSrc<T>::ResamplerSrc(Quality quality)
+    : d(std::make_unique<ResamplerSrc_priv<T>>(quality))
 {}
 
-Aulib::ResamplerSrc::~ResamplerSrc() = default;
+template <typename T>
+Aulib::ResamplerSrc<T>::~ResamplerSrc() = default;
 
-auto Aulib::ResamplerSrc::quality() const noexcept -> Aulib::ResamplerSrc::Quality
+template <typename T>
+auto Aulib::ResamplerSrc<T>::quality() const noexcept -> Aulib::ResamplerSrc<T>::Quality
 {
     return d->fQuality;
 }
 
-void Aulib::ResamplerSrc::doResampling(float dst[], const float src[], int& dstLen, int& srcLen)
+template <typename T>
+void Aulib::ResamplerSrc<T>::doResampling(T dst[], const T src[], int& dstLen, int& srcLen)
 {
     if (not d->fResampler) {
         dstLen = srcLen = 0;
@@ -41,7 +46,7 @@ void Aulib::ResamplerSrc::doResampling(float dst[], const float src[], int& dstL
 
     d->fData.data_in = src;
     d->fData.data_out = dst;
-    int channels = currentChannels();
+    int channels = this->currentChannels();
     d->fData.input_frames = srcLen / channels;
     d->fData.output_frames = dstLen / channels;
     d->fData.end_of_input = 0;
@@ -52,7 +57,8 @@ void Aulib::ResamplerSrc::doResampling(float dst[], const float src[], int& dstL
     srcLen = d->fData.input_frames_used * channels;
 }
 
-auto Aulib::ResamplerSrc::adjustForOutputSpec(int dstRate, int srcRate, int channels) -> int
+template <typename T>
+auto Aulib::ResamplerSrc<T>::adjustForOutputSpec(int dstRate, int srcRate, int channels) -> int
 {
     int err;
     d->fData.src_ratio = static_cast<double>(dstRate) / srcRate;
@@ -84,12 +90,15 @@ auto Aulib::ResamplerSrc::adjustForOutputSpec(int dstRate, int srcRate, int chan
     return 0;
 }
 
-void Aulib::ResamplerSrc::doDiscardPendingSamples()
+template <typename T>
+void Aulib::ResamplerSrc<T>::doDiscardPendingSamples()
 {
     if (d->fResampler) {
         src_reset(d->fResampler.get());
     }
 }
+
+template class Aulib::ResamplerSrc<float>;
 
 /*
 

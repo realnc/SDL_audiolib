@@ -13,20 +13,36 @@
 #include <mutex>
 #include <type_traits>
 
-void (*Aulib::Stream_priv::fSampleConverter)(Uint8[], const Buffer<float>& src) = nullptr;
-SDL_AudioSpec Aulib::Stream_priv::fAudioSpec;
-#if SDL_VERSION_ATLEAST(2, 0, 0)
-SDL_AudioDeviceID Aulib::Stream_priv::fDeviceId;
-#endif
-std::vector<Aulib::Stream*> Aulib::Stream_priv::fStreamList;
-SdlMutex Aulib::Stream_priv::fStreamListMutex;
-Buffer<float> Aulib::Stream_priv::fFinalMixBuf{0};
-Buffer<float> Aulib::Stream_priv::fStrmBuf{0};
-Buffer<float> Aulib::Stream_priv::fProcessorBuf{0};
+template <typename T>
+void (*Aulib::Stream_priv<T>::fSampleConverter)(Uint8[], const Buffer<T>& src) = nullptr;
 
-Aulib::Stream_priv::Stream_priv(Stream* pub, std::unique_ptr<Decoder> decoder,
-                                std::unique_ptr<Resampler> resampler, SDL_RWops* rwops,
-                                bool closeRw)
+Aulib::BufferDataType Aulib::Stream_priv_device::fDataType;
+
+SDL_AudioSpec Aulib::Stream_priv_device::fAudioSpec;
+
+#if SDL_VERSION_ATLEAST(2, 0, 0)
+SDL_AudioDeviceID Aulib::Stream_priv_device::fDeviceId;
+#endif
+
+template <typename T>
+std::vector<Aulib::Stream<T>*> Aulib::Stream_priv<T>::fStreamList;
+
+template <typename T>
+SdlMutex Aulib::Stream_priv<T>::fStreamListMutex;
+
+template <typename T>
+Buffer<T> Aulib::Stream_priv<T>::fFinalMixBuf{0};
+
+template <typename T>
+Buffer<T> Aulib::Stream_priv<T>::fStrmBuf{0};
+
+template <typename T>
+Buffer<T> Aulib::Stream_priv<T>::fProcessorBuf{0};
+
+template <typename T>
+Aulib::Stream_priv<T>::Stream_priv(
+    Stream<T>* pub, std::unique_ptr<Decoder<T>> decoder, std::unique_ptr<Resampler<T>> resampler,
+    SDL_RWops* rwops, bool closeRw)
     : q(pub)
     , fRWops(rwops)
     , fCloseRw(closeRw)
@@ -38,14 +54,16 @@ Aulib::Stream_priv::Stream_priv(Stream* pub, std::unique_ptr<Decoder> decoder,
     }
 }
 
-Aulib::Stream_priv::~Stream_priv()
+template <typename T>
+Aulib::Stream_priv<T>::~Stream_priv()
 {
     if (fCloseRw and fRWops) {
         SDL_RWclose(fRWops);
     }
 }
 
-auto Aulib::Stream_priv::fProcessFadeAndCheckIfFinished() -> bool
+template <typename T>
+auto Aulib::Stream_priv<T>::fProcessFadeAndCheckIfFinished() -> bool
 {
     static_assert(std::is_same<decltype(fFadeInDuration), std::chrono::milliseconds>::value, "");
     static_assert(std::is_same<decltype(fFadeOutDuration), std::chrono::milliseconds>::value, "");
@@ -80,7 +98,8 @@ auto Aulib::Stream_priv::fProcessFadeAndCheckIfFinished() -> bool
     return false;
 }
 
-void Aulib::Stream_priv::fStop()
+template <typename T>
+void Aulib::Stream_priv<T>::fStop()
 {
     {
         std::lock_guard<SdlMutex> lock(fStreamListMutex);
@@ -91,9 +110,11 @@ void Aulib::Stream_priv::fStop()
     fIsPlaying = false;
 }
 
-void Aulib::Stream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int outLen)
+template <typename T>
+void Aulib::Stream_priv<T>::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int outLen)
 {
-    AM_debugAssert(Stream_priv::fSampleConverter);
+    AM_debugAssert(Stream_priv<T>::fSampleConverter);
+    const auto& fAudioSpec = Aulib::Stream_priv_device::fAudioSpec;
 
     const int out_len_samples = outLen / (SDL_AUDIO_BITSIZE(fAudioSpec.format) / 8);
     const int out_len_frames = out_len_samples / fAudioSpec.channels;
@@ -109,7 +130,7 @@ void Aulib::Stream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int out
 
     // Iterate over a copy of the original stream list, since we might want to
     // modify the original as we go, removing streams that have stopped.
-    const std::vector<Stream*> streamList = [] {
+    const std::vector<Stream<T>*> streamList = [] {
         std::lock_guard<SdlMutex> lock(fStreamListMutex);
         return fStreamList;
     }();
@@ -185,6 +206,7 @@ void Aulib::Stream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int out
 
         has_finished |= stream->d->fProcessFadeAndCheckIfFinished();
 
+        // TODO: mix volume in int64 space for int32 buffers.
         float volumeLeft = stream->d->fVolume * stream->d->fInternalVolume;
         float volumeRight = stream->d->fVolume * stream->d->fInternalVolume;
 
@@ -221,8 +243,11 @@ void Aulib::Stream_priv::fSdlCallbackImpl(void* /*unused*/, Uint8 out[], int out
             stream->invokeLoopCallback();
         }
     }
-    Stream_priv::fSampleConverter(out, fFinalMixBuf);
+    Stream_priv<T>::fSampleConverter(out, fFinalMixBuf);
 }
+
+template struct Aulib::Stream_priv<float>;
+template struct Aulib::Stream_priv<int32_t>;
 
 /*
 

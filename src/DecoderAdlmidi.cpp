@@ -7,6 +7,7 @@
 #include "missing.h"
 #include <SDL_rwops.h>
 #include <adlmidi.h>
+#include <type_traits>
 
 namespace chrono = std::chrono;
 using BankData = std::unique_ptr<void, decltype(&SDL_free)>;
@@ -111,17 +112,20 @@ struct DecoderAdlmidi_priv final
 
 } // namespace Aulib
 
-Aulib::DecoderAdlmidi::DecoderAdlmidi()
+template <typename T>
+Aulib::DecoderAdlmidi<T>::DecoderAdlmidi()
     : d(std::make_unique<DecoderAdlmidi_priv>())
 {}
 
-Aulib::DecoderAdlmidi::~DecoderAdlmidi() = default;
+template <typename T>
+Aulib::DecoderAdlmidi<T>::~DecoderAdlmidi() = default;
 
-auto Aulib::DecoderAdlmidi::setEmulator(Emulator emulator) -> bool
+template <typename T>
+auto Aulib::DecoderAdlmidi<T>::setEmulator(Emulator emulator) -> bool
 {
     d->emulator = emulator;
     d->change_emulator = true;
-    if (not isOpen()) {
+    if (not this->isOpen()) {
         return true;
     }
     if (not d->setEmulator()) {
@@ -131,10 +135,11 @@ auto Aulib::DecoderAdlmidi::setEmulator(Emulator emulator) -> bool
     return true;
 }
 
-auto Aulib::DecoderAdlmidi::setChipAmount(int chip_amount) -> bool
+template <typename T>
+auto Aulib::DecoderAdlmidi<T>::setChipAmount(int chip_amount) -> bool
 {
     d->chip_amount = chip_amount;
-    if (not isOpen()) {
+    if (not this->isOpen()) {
         return true;
     }
     if (not d->setChipAmount()) {
@@ -144,7 +149,8 @@ auto Aulib::DecoderAdlmidi::setChipAmount(int chip_amount) -> bool
     return true;
 }
 
-auto Aulib::DecoderAdlmidi::loadBank(SDL_RWops* rwops) -> bool
+template <typename T>
+auto Aulib::DecoderAdlmidi<T>::loadBank(SDL_RWops* rwops) -> bool
 {
     if (not rwops) {
         SDL_SetError("rwops is null.");
@@ -156,7 +162,7 @@ auto Aulib::DecoderAdlmidi::loadBank(SDL_RWops* rwops) -> bool
         return false;
     }
     d->embedded_bank = -1;
-    if (not isOpen()) {
+    if (not this->isOpen()) {
         d->bank_data = std::move(tmp_data);
         return true;
     }
@@ -167,7 +173,8 @@ auto Aulib::DecoderAdlmidi::loadBank(SDL_RWops* rwops) -> bool
     return true;
 }
 
-auto Aulib::DecoderAdlmidi::loadBank(const std::string& filename) -> bool
+template <typename T>
+auto Aulib::DecoderAdlmidi<T>::loadBank(const std::string& filename) -> bool
 {
     auto* rwops = SDL_RWFromFile(filename.c_str(), "rb");
     if (not rwops) {
@@ -177,7 +184,8 @@ auto Aulib::DecoderAdlmidi::loadBank(const std::string& filename) -> bool
     return loadBank(rwops);
 }
 
-auto Aulib::DecoderAdlmidi::loadEmbeddedBank(int bank_number) -> bool
+template <typename T>
+auto Aulib::DecoderAdlmidi<T>::loadEmbeddedBank(int bank_number) -> bool
 {
     if (bank_number < 0 or bank_number >= adl_getBanksCount()) {
         SDL_SetError("Invalid bank number.");
@@ -185,7 +193,7 @@ auto Aulib::DecoderAdlmidi::loadEmbeddedBank(int bank_number) -> bool
     }
     d->bank_data.reset();
     d->embedded_bank = bank_number;
-    if (not isOpen()) {
+    if (not this->isOpen()) {
         return true;
     }
     if (not d->setEmbeddedBank()) {
@@ -194,14 +202,16 @@ auto Aulib::DecoderAdlmidi::loadEmbeddedBank(int bank_number) -> bool
     return true;
 }
 
-auto Aulib::DecoderAdlmidi::getEmbeddedBanks() -> const std::vector<std::string>&
+template <typename T>
+auto Aulib::DecoderAdlmidi<T>::getEmbeddedBanks() -> const std::vector<std::string>&
 {
     return embeddedBanks();
 }
 
-auto Aulib::DecoderAdlmidi::open(SDL_RWops* rwops) -> bool
+template <typename T>
+auto Aulib::DecoderAdlmidi<T>::open(SDL_RWops* rwops) -> bool
 {
-    if (isOpen()) {
+    if (this->isOpen()) {
         return true;
     }
     Sint64 midiDataLen = SDL_RWsize(rwops);
@@ -239,23 +249,26 @@ auto Aulib::DecoderAdlmidi::open(SDL_RWops* rwops) -> bool
     }
     d->duration = chrono::duration_cast<chrono::microseconds>(
         chrono::duration<double>(adl_totalTimeLength(d->adl_player.get())));
-    setIsOpen(true);
+    this->setIsOpen(true);
     return true;
 }
 
-auto Aulib::DecoderAdlmidi::getChannels() const -> int
+template <typename T>
+auto Aulib::DecoderAdlmidi<T>::getChannels() const -> int
 {
     return 2;
 }
 
-auto Aulib::DecoderAdlmidi::getRate() const -> int
+template <typename T>
+auto Aulib::DecoderAdlmidi<T>::getRate() const -> int
 {
     return SAMPLE_RATE;
 }
 
-auto Aulib::DecoderAdlmidi::rewind() -> bool
+template <typename T>
+auto Aulib::DecoderAdlmidi<T>::rewind() -> bool
 {
-    if (not isOpen()) {
+    if (not this->isOpen()) {
         return false;
     }
     adl_positionRewind(d->adl_player.get());
@@ -263,14 +276,16 @@ auto Aulib::DecoderAdlmidi::rewind() -> bool
     return true;
 }
 
-auto Aulib::DecoderAdlmidi::duration() const -> chrono::microseconds
+template <typename T>
+auto Aulib::DecoderAdlmidi<T>::duration() const -> chrono::microseconds
 {
     return d->duration;
 }
 
-auto Aulib::DecoderAdlmidi::seekToTime(chrono::microseconds pos) -> bool
+template <typename T>
+auto Aulib::DecoderAdlmidi<T>::seekToTime(chrono::microseconds pos) -> bool
 {
-    if (not isOpen()) {
+    if (not this->isOpen()) {
         return false;
     }
     adl_positionSeek(d->adl_player.get(), chrono::duration<double>(pos).count());
@@ -278,13 +293,15 @@ auto Aulib::DecoderAdlmidi::seekToTime(chrono::microseconds pos) -> bool
     return true;
 }
 
-auto Aulib::DecoderAdlmidi::doDecoding(float buf[], int len, bool& /*callAgain*/) -> int
+template <typename T>
+auto Aulib::DecoderAdlmidi<T>::doDecoding(T buf[], int len, bool& /*callAgain*/) -> int
 {
-    if (d->eof or not isOpen()) {
+    if (d->eof or not this->isOpen()) {
         return 0;
     }
-    constexpr ADLMIDI_AudioFormat adl_format{ADLMIDI_SampleType_F32, sizeof(float),
-                                             sizeof(float) * 2};
+    constexpr ADLMIDI_AudioFormat adl_format{
+        std::is_same<T, float>::value ? ADLMIDI_SampleType_F32 : ADLMIDI_SampleType_S32, sizeof(T),
+        sizeof(T) * 2};
     int sample_count = adl_playFormat(d->adl_player.get(), len, (ADL_UInt8*)buf,
                                       (ADL_UInt8*)(buf + 1), &adl_format);
     if (sample_count < len) {
@@ -293,6 +310,9 @@ auto Aulib::DecoderAdlmidi::doDecoding(float buf[], int len, bool& /*callAgain*/
     }
     return sample_count;
 }
+
+template class Aulib::DecoderAdlmidi<float>;
+template class Aulib::DecoderAdlmidi<int32_t>;
 
 /*
 

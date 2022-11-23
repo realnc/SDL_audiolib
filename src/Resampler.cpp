@@ -17,7 +17,8 @@
  *
  * The tracking indices are adjusted as needed.
  */
-static void relocateBuffer(float* buf, int& pos, int& end)
+template <typename T>
+static void relocateBuffer(T* buf, int& pos, int& end)
 {
     if (end < 1) {
         return;
@@ -37,19 +38,20 @@ static void relocateBuffer(float* buf, int& pos, int& end)
 
 namespace Aulib {
 
+template <typename T>
 struct Resampler_priv final
 {
-    Resampler* q;
+    Resampler<T>* q;
 
-    explicit Resampler_priv(Resampler* pub);
+    explicit Resampler_priv(Resampler<T>* pub);
 
-    std::shared_ptr<Decoder> fDecoder = nullptr;
+    std::shared_ptr<Decoder<T>> fDecoder = nullptr;
     int fDstRate = 0;
     int fSrcRate = 0;
     int fChannels = 0;
     int fChunkSize = 0;
-    Buffer<float> fOutBuffer{0};
-    Buffer<float> fInBuffer{0};
+    Buffer<T> fOutBuffer{0};
+    Buffer<T> fInBuffer{0};
     int fOutBufferPos = 0;
     int fOutBufferEnd = 0;
     int fInBufferPos = 0;
@@ -60,7 +62,7 @@ struct Resampler_priv final
      *
      * Returns the amount of samples that were actually moved.
      */
-    auto fMoveFromOutBuffer(float dst[], int dstLen) -> int;
+    auto fMoveFromOutBuffer(T dst[], int dstLen) -> int;
 
     /* Adjust all internal buffer sizes for the current source and target
      * sampling rates.
@@ -75,11 +77,13 @@ struct Resampler_priv final
 
 } // namespace Aulib
 
-Aulib::Resampler_priv::Resampler_priv(Resampler* pub)
+template <typename T>
+Aulib::Resampler_priv<T>::Resampler_priv(Resampler<T>* pub)
     : q(pub)
 {}
 
-auto Aulib::Resampler_priv::fMoveFromOutBuffer(float dst[], int dstLen) -> int
+template <typename T>
+auto Aulib::Resampler_priv<T>::fMoveFromOutBuffer(T dst[], int dstLen) -> int
 {
     if (fOutBufferEnd == 0) {
         return 0;
@@ -98,7 +102,8 @@ auto Aulib::Resampler_priv::fMoveFromOutBuffer(float dst[], int dstLen) -> int
     return len;
 }
 
-void Aulib::Resampler_priv::fAdjustBufferSizes()
+template <typename T>
+void Aulib::Resampler_priv<T>::fAdjustBufferSizes()
 {
     int oldInBufLen = fInBufferEnd - fInBufferPos;
     int outBufSiz = fChannels * fChunkSize;
@@ -129,11 +134,12 @@ void Aulib::Resampler_priv::fAdjustBufferSizes()
     }
 }
 
-void Aulib::Resampler_priv::fResampleFromInBuffer()
+template <typename T>
+void Aulib::Resampler_priv<T>::fResampleFromInBuffer()
 {
     int inLen = fInBufferEnd - fInBufferPos;
-    float* from = fInBuffer.get() + fInBufferPos;
-    float* to = fOutBuffer.get() + fOutBufferEnd;
+    T* from = fInBuffer.get() + fInBufferPos;
+    T* to = fOutBuffer.get() + fOutBufferEnd;
     if (fSrcRate == fDstRate) {
         // No resampling is needed. Just copy the samples as-is.
         int outLen = std::min(fOutBuffer.size() - fOutBufferEnd, inLen);
@@ -152,18 +158,25 @@ void Aulib::Resampler_priv::fResampleFromInBuffer()
     }
 }
 
-Aulib::Resampler::Resampler()
-    : d(std::make_unique<Resampler_priv>(this))
+template class Aulib::Resampler_priv<float>;
+template class Aulib::Resampler_priv<int32_t>;
+
+template <typename T>
+Aulib::Resampler<T>::Resampler()
+    : d(std::make_unique<Resampler_priv<T>>(this))
 {}
 
-Aulib::Resampler::~Resampler() = default;
+template <typename T>
+Aulib::Resampler<T>::~Resampler() = default;
 
-void Aulib::Resampler::setDecoder(std::shared_ptr<Decoder> decoder)
+template <typename T>
+void Aulib::Resampler<T>::setDecoder(std::shared_ptr<Decoder<T>> decoder)
 {
     d->fDecoder = std::move(decoder);
 }
 
-auto Aulib::Resampler::setSpec(int dstRate, int channels, int chunkSize) -> int
+template <typename T>
+auto Aulib::Resampler<T>::setSpec(int dstRate, int channels, int chunkSize) -> int
 {
     d->fDstRate = dstRate;
     d->fChannels = channels;
@@ -176,22 +189,26 @@ auto Aulib::Resampler::setSpec(int dstRate, int channels, int chunkSize) -> int
     return 0;
 }
 
-auto Aulib::Resampler::currentRate() const -> int
+template <typename T>
+auto Aulib::Resampler<T>::currentRate() const -> int
 {
     return d->fDstRate;
 }
 
-auto Aulib::Resampler::currentChannels() const -> int
+template <typename T>
+auto Aulib::Resampler<T>::currentChannels() const -> int
 {
     return d->fChannels;
 }
 
-auto Aulib::Resampler::currentChunkSize() const -> int
+template <typename T>
+auto Aulib::Resampler<T>::currentChunkSize() const -> int
 {
     return d->fChunkSize;
 }
 
-auto Aulib::Resampler::resample(float dst[], int dstLen) -> int
+template <typename T>
+auto Aulib::Resampler<T>::resample(T dst[], int dstLen) -> int
 {
     int totalSamples = 0;
     bool decEOF = false;
@@ -250,11 +267,15 @@ auto Aulib::Resampler::resample(float dst[], int dstLen) -> int
     return totalSamples;
 }
 
-void Aulib::Resampler::discardPendingSamples()
+template <typename T>
+void Aulib::Resampler<T>::discardPendingSamples()
 {
     d->fOutBufferPos = d->fOutBufferEnd = d->fInBufferPos = d->fInBufferEnd = 0;
     doDiscardPendingSamples();
 }
+
+template class Aulib::Resampler<float>;
+template class Aulib::Resampler<int32_t>;
 
 /*
 

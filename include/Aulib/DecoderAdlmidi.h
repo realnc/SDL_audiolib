@@ -13,7 +13,8 @@ namespace Aulib {
  * This decoder always generates samples at 49716Hz, the native rate of the OPL synths provided by
  * libADLMIDI.
  */
-class AULIB_EXPORT DecoderAdlmidi: public Decoder
+template <typename T>
+class AULIB_EXPORT DecoderAdlmidi: public Decoder<T>
 {
 public:
     enum class Emulator
@@ -106,7 +107,7 @@ public:
     auto seekToTime(std::chrono::microseconds pos) -> bool override;
 
 protected:
-    auto doDecoding(float buf[], int len, bool& callAgain) -> int override;
+    auto doDecoding(T buf[], int len, bool& callAgain) -> int override;
 
 private:
     std::unique_ptr<struct DecoderAdlmidi_priv> d;

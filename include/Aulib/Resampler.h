@@ -7,7 +7,9 @@
 
 namespace Aulib {
 
+template <typename T>
 class Decoder;
+template <typename T>
 struct Resampler_priv;
 
 /*!
@@ -15,6 +17,7 @@ struct Resampler_priv;
  *
  * This class receives audio from an Decoder and resamples it to the requested sample rate.
  */
+template <typename T>
 class AULIB_EXPORT Resampler
 {
 public:
@@ -33,7 +36,7 @@ public:
      * \param decoder
      *  The decoder to use as source. Must not be null.
      */
-    void setDecoder(std::shared_ptr<Decoder> decoder);
+    void setDecoder(std::shared_ptr<Decoder<T>> decoder);
 
     /*! \brief Sets the target sample rate, channels and chuck size.
      *
@@ -61,7 +64,7 @@ public:
      * \return The amount of samples that were stored in the buffer. This can be smaller than
      *         'dstLen' if the decoder has no more samples left.
      */
-    auto resample(float dst[], int dstLen) -> int;
+    auto resample(T dst[], int dstLen) -> int;
 
     /*! \brief Discards any samples that have not yet been retrieved with resample().
      *
@@ -116,7 +119,7 @@ protected:
      * there's anything left at the end that cannot be resampled, simply ignore
      * it.
      */
-    virtual void doResampling(float dst[], const float src[], int& dstLen, int& srcLen) = 0;
+    virtual void doResampling(T dst[], const T src[], int& dstLen, int& srcLen) = 0;
 
     /*! \brief Discard any internally held samples.
      *
@@ -131,8 +134,8 @@ protected:
     virtual void doDiscardPendingSamples() = 0;
 
 private:
-    friend Resampler_priv;
-    const std::unique_ptr<Resampler_priv> d;
+    friend struct Resampler_priv<T>;
+    const std::unique_ptr<Resampler_priv<T>> d;
 };
 
 } // namespace Aulib

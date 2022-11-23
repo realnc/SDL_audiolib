@@ -8,7 +8,8 @@ namespace Aulib {
 /*!
  * \brief dr_mp3 decoder.
  */
-class AULIB_EXPORT DecoderDrmp3: public Decoder
+template <typename T>
+class AULIB_EXPORT DecoderDrmp3: public Decoder<T>
 {
 public:
     DecoderDrmp3();
@@ -22,7 +23,7 @@ public:
     auto seekToTime(std::chrono::microseconds pos) -> bool override;
 
 protected:
-    auto doDecoding(float buf[], int len, bool& callAgain) -> int override;
+    auto doDecoding(T buf[], int len, bool& callAgain) -> int override;
 
 private:
     std::unique_ptr<struct DecoderDrmp3_priv> d;

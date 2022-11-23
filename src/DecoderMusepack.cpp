@@ -61,15 +61,18 @@ struct DecoderMusepack_priv final
 
 } // namespace Aulib
 
-Aulib::DecoderMusepack::DecoderMusepack()
+template <typename T>
+Aulib::DecoderMusepack<T>::DecoderMusepack()
     : d(std::make_unique<DecoderMusepack_priv>())
 {}
 
-Aulib::DecoderMusepack::~DecoderMusepack() = default;
+template <typename T>
+Aulib::DecoderMusepack<T>::~DecoderMusepack() = default;
 
-auto Aulib::DecoderMusepack::open(SDL_RWops* rwops) -> bool
+template <typename T>
+auto Aulib::DecoderMusepack<T>::open(SDL_RWops* rwops) -> bool
 {
-    if (isOpen()) {
+    if (this->isOpen()) {
         return true;
     }
     d->reader.data = rwops;
@@ -79,23 +82,26 @@ auto Aulib::DecoderMusepack::open(SDL_RWops* rwops) -> bool
         return false;
     }
     mpc_demux_get_info(d->demuxer.get(), &d->strmInfo);
-    setIsOpen(true);
+    this->setIsOpen(true);
     return true;
 }
 
-auto Aulib::DecoderMusepack::getChannels() const -> int
+template <typename T>
+auto Aulib::DecoderMusepack<T>::getChannels() const -> int
 {
     return d->strmInfo.channels;
 }
 
-auto Aulib::DecoderMusepack::getRate() const -> int
+template <typename T>
+auto Aulib::DecoderMusepack<T>::getRate() const -> int
 {
     return d->strmInfo.sample_freq;
 }
 
-auto Aulib::DecoderMusepack::doDecoding(float buf[], int len, bool& /*callAgain*/) -> int
+template <typename T>
+auto Aulib::DecoderMusepack<T>::doDecoding(T buf[], int len, bool& /*callAgain*/) -> int
 {
-    if (d->eof or not isOpen()) {
+    if (d->eof or not this->isOpen()) {
         return 0;
     }
 
@@ -140,34 +146,40 @@ auto Aulib::DecoderMusepack::doDecoding(float buf[], int len, bool& /*callAgain*
     return totalSamples;
 }
 
-auto Aulib::DecoderMusepack::rewind() -> bool
+template <typename T>
+auto Aulib::DecoderMusepack<T>::rewind() -> bool
 {
     return seekToTime(chrono::microseconds::zero());
 }
 
-auto Aulib::DecoderMusepack::duration() const -> chrono::microseconds
+template <typename T>
+auto Aulib::DecoderMusepack<T>::duration() const -> chrono::microseconds
 {
     using namespace std::chrono;
     using std::chrono::duration;
 
-    if (not isOpen()) {
+    if (not this->isOpen()) {
         return microseconds::zero();
     }
     return duration_cast<microseconds>(duration<double>(mpc_streaminfo_get_length(&d->strmInfo)));
 }
 
-auto Aulib::DecoderMusepack::seekToTime(chrono::microseconds pos) -> bool
+template <typename T>
+auto Aulib::DecoderMusepack<T>::seekToTime(chrono::microseconds pos) -> bool
 {
     using namespace std::chrono;
     using std::chrono::duration;
-    if (not isOpen()
-        or mpc_demux_seek_second(d->demuxer.get(), duration<double>(pos).count())
-               != MPC_STATUS_OK) {
+    if (not this->isOpen()
+        or mpc_demux_seek_second(d->demuxer.get(), duration<double>(pos).count()) != MPC_STATUS_OK)
+    {
         return false;
     }
     d->eof = false;
     return true;
 }
+
+template class Aulib::DecoderMusepack<float>;
+template class Aulib::DecoderMusepack<int32_t>;
 
 /*
 

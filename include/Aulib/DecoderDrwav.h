@@ -9,7 +9,8 @@ namespace Aulib {
 /*!
  * \brief dr_wav decoder.
  */
-class AULIB_EXPORT DecoderDrwav: public Decoder
+template <typename T>
+class AULIB_EXPORT DecoderDrwav: public Decoder<T>
 {
 public:
     DecoderDrwav();
@@ -23,7 +24,7 @@ public:
     auto seekToTime(std::chrono::microseconds pos) -> bool override;
 
 protected:
-    auto doDecoding(float buf[], int len, bool& callAgain) -> int override;
+    auto doDecoding(T buf[], int len, bool& callAgain) -> int override;
 
 private:
     std::unique_ptr<struct DecoderDrwav_priv> d;

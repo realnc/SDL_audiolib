@@ -4,6 +4,17 @@
 
 namespace Aulib {
 
+//! \brief Format of the input file.
+enum class DecoderFlacFileFormat
+{
+    //! Try and detect the format. Only works if the input is seekable.
+    Detect,
+    //! Assume input is raw FLAC.
+    Flac,
+    //! Assume input is FLAC data inside an Ogg container.
+    Ogg,
+};
+
 /*!
  * \brief libFLAC decoder.
  *
@@ -13,21 +24,11 @@ namespace Aulib {
  *
  * \note For Ogg support to work, libFLAC must have been built with Ogg support.
  */
-class AULIB_EXPORT DecoderFlac: public Decoder
+template <typename T>
+class AULIB_EXPORT DecoderFlac: public Decoder<T>
 {
 public:
-    //! \brief Format of the input file.
-    enum class FileFormat
-    {
-        //! Try and detect the format. Only works if the input is seekable.
-        Detect,
-        //! Assume input is raw FLAC.
-        Flac,
-        //! Assume input is FLAC data inside an Ogg container.
-        Ogg,
-    };
-
-    DecoderFlac(FileFormat file_type = FileFormat::Detect);
+    DecoderFlac(DecoderFlacFileFormat file_type = DecoderFlacFileFormat::Detect);
     ~DecoderFlac() override;
 
     auto open(SDL_RWops* rwops) -> bool override;
@@ -38,7 +39,7 @@ public:
     auto seekToTime(std::chrono::microseconds pos) -> bool override;
 
 protected:
-    auto doDecoding(float buf[], int len, bool& callAgain) -> int override;
+    auto doDecoding(T buf[], int len, bool& callAgain) -> int override;
 
 private:
     const std::unique_ptr<struct DecoderFlac_priv> d;

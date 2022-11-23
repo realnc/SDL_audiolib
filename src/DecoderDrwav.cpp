@@ -68,21 +68,36 @@ struct DecoderDrwav_priv final
 
 } // namespace Aulib
 
-Aulib::DecoderDrwav::DecoderDrwav()
+namespace {
+
+drwav_uint64 drwavReadPcmFrames(drwav* pWav, drwav_uint64 framesToRead, float* pBufferOut) {
+    return drwav_read_pcm_frames_f32(pWav, framesToRead, pBufferOut);
+}
+
+drwav_uint64 drwavReadPcmFrames(drwav* pWav, drwav_uint64 framesToRead, int32_t* pBufferOut) {
+    return drwav_read_pcm_frames_s32(pWav, framesToRead, pBufferOut);
+}
+
+} // namespace
+
+template <typename T>
+Aulib::DecoderDrwav<T>::DecoderDrwav()
     : d(std::make_unique<DecoderDrwav_priv>())
 {}
 
-Aulib::DecoderDrwav::~DecoderDrwav()
+template <typename T>
+Aulib::DecoderDrwav<T>::~DecoderDrwav()
 {
-    if (not isOpen()) {
+    if (not this->isOpen()) {
         return;
     }
     drwav_uninit(&d->handle_);
 }
 
-auto Aulib::DecoderDrwav::open(SDL_RWops* const rwops) -> bool
+template <typename T>
+auto Aulib::DecoderDrwav<T>::open(SDL_RWops* const rwops) -> bool
 {
-    if (isOpen()) {
+    if (this->isOpen()) {
         return true;
     }
 
@@ -90,52 +105,57 @@ auto Aulib::DecoderDrwav::open(SDL_RWops* const rwops) -> bool
         SDL_SetError("drwav_init failed.");
         return false;
     }
-    setIsOpen(true);
+    this->setIsOpen(true);
     return true;
 }
 
-auto Aulib::DecoderDrwav::doDecoding(float* const buf, const int len, bool& /*callAgain*/) -> int
+template <typename T>
+auto Aulib::DecoderDrwav<T>::doDecoding(T* const buf, const int len, bool& /*callAgain*/) -> int
 {
-    if (d->fEOF or not isOpen()) {
+    if (d->fEOF or not this->isOpen()) {
         return 0;
     }
 
-    const auto ret =
-        drwav_read_pcm_frames_f32(&d->handle_, len / getChannels(), buf) * getChannels();
+    const auto ret = drwavReadPcmFrames(&d->handle_, len / getChannels(), buf) * getChannels();
     if (ret < static_cast<drwav_uint64>(len)) {
         d->fEOF = true;
     }
     return ret;
 }
 
-auto Aulib::DecoderDrwav::getChannels() const -> int
+template <typename T>
+auto Aulib::DecoderDrwav<T>::getChannels() const -> int
 {
     return d->handle_.channels;
 }
 
-auto Aulib::DecoderDrwav::getRate() const -> int
+template <typename T>
+auto Aulib::DecoderDrwav<T>::getRate() const -> int
 {
     return d->handle_.sampleRate;
 }
 
-auto Aulib::DecoderDrwav::rewind() -> bool
+template <typename T>
+auto Aulib::DecoderDrwav<T>::rewind() -> bool
 {
     return seekToTime({});
 }
 
-auto Aulib::DecoderDrwav::duration() const -> chrono::microseconds
+template <typename T>
+auto Aulib::DecoderDrwav<T>::duration() const -> chrono::microseconds
 {
-    if (not isOpen()) {
+    if (not this->isOpen()) {
         return {};
     }
     return chrono::duration_cast<chrono::microseconds>(
         chrono::duration<double>(static_cast<double>(d->handle_.totalPCMFrameCount) / getRate()));
 }
 
-auto Aulib::DecoderDrwav::seekToTime(const chrono::microseconds pos) -> bool
+template <typename T>
+auto Aulib::DecoderDrwav<T>::seekToTime(const chrono::microseconds pos) -> bool
 {
     const auto target_frame = chrono::duration<double>(pos).count() * getRate();
-    if (not isOpen() or not drwav_seek_to_pcm_frame(&d->handle_, target_frame)) {
+    if (not this->isOpen() or not drwav_seek_to_pcm_frame(&d->handle_, target_frame)) {
         return false;
     }
     d->fEOF = false;

@@ -10,7 +10,8 @@ struct ResamplerSpeex_priv;
 /*!
  * \brief Speex resampler.
  */
-class AULIB_EXPORT ResamplerSpeex: public Resampler
+template <typename T>
+class AULIB_EXPORT ResamplerSpeex: public Resampler<T>
 {
 public:
     /*!
@@ -26,7 +27,7 @@ public:
     void setQuality(int quality);
 
 protected:
-    void doResampling(float dst[], const float src[], int& dstLen, int& srcLen) override;
+    void doResampling(T dst[], const T src[], int& dstLen, int& srcLen) override;
     auto adjustForOutputSpec(int dstRate, int srcRate, int channels) -> int override;
     void doDiscardPendingSamples() override;
 
