@@ -18,11 +18,19 @@
 Aulib::Stream::Stream(const std::string& filename, std::unique_ptr<Decoder> decoder,
                       std::unique_ptr<Resampler> resampler)
     : Stream(SDL_RWFromFile(filename.c_str(), "rb"), std::move(decoder), std::move(resampler), true)
-{}
+{
+    if (not d->fRWops) {
+        aulib::log::warnLn("Stream failed to create rwops: {}", SDL_GetError());
+    }
+}
 
 Aulib::Stream::Stream(const std::string& filename, std::unique_ptr<Decoder> decoder)
     : Stream(SDL_RWFromFile(filename.c_str(), "rb"), std::move(decoder), true)
-{}
+{
+    if (not d->fRWops) {
+        aulib::log::warnLn("Stream failed to create rwops: {}", SDL_GetError());
+    }
+}
 
 Aulib::Stream::Stream(SDL_RWops* rwops, std::unique_ptr<Decoder> decoder,
                       std::unique_ptr<Resampler> resampler, bool closeRw)
@@ -47,6 +55,10 @@ auto Aulib::Stream::open() -> bool
 
     if (d->fIsOpen) {
         return true;
+    }
+    if (not d->fRWops) {
+        SDL_SetError("Cannot open stream: null rwops.");
+        return false;
     }
     if (not d->fDecoder->open(d->fRWops)) {
         return false;
