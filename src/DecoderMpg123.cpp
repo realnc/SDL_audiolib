@@ -80,15 +80,18 @@ Aulib::DecoderMpg123_priv::DecoderMpg123_priv()
     }
 }
 
-Aulib::DecoderMpg123::DecoderMpg123()
+template <typename T>
+Aulib::DecoderMpg123<T>::DecoderMpg123()
     : d(std::make_unique<DecoderMpg123_priv>())
 {}
 
-Aulib::DecoderMpg123::~DecoderMpg123() = default;
+template <typename T>
+Aulib::DecoderMpg123<T>::~DecoderMpg123() = default;
 
-auto Aulib::DecoderMpg123::open(SDL_RWops* rwops) -> bool
+template <typename T>
+auto Aulib::DecoderMpg123<T>::open(SDL_RWops* rwops) -> bool
 {
-    if (isOpen()) {
+    if (this->isOpen()) {
         return true;
     }
     if (not initialized) {
@@ -120,23 +123,26 @@ auto Aulib::DecoderMpg123::open(SDL_RWops* rwops) -> bool
         d->fDuration =
             duration_cast<microseconds>(duration<double>(static_cast<double>(len) / rate));
     }
-    setIsOpen(true);
+    this->setIsOpen(true);
     return true;
 }
 
-auto Aulib::DecoderMpg123::getChannels() const -> int
+template <typename T>
+auto Aulib::DecoderMpg123<T>::getChannels() const -> int
 {
     return d->fChannels;
 }
 
-auto Aulib::DecoderMpg123::getRate() const -> int
+template <typename T>
+auto Aulib::DecoderMpg123<T>::getRate() const -> int
 {
     return d->fRate;
 }
 
-auto Aulib::DecoderMpg123::doDecoding(float buf[], int len, bool& callAgain) -> int
+template <typename T>
+auto Aulib::DecoderMpg123<T>::doDecoding(T buf[], int len, bool& callAgain) -> int
 {
-    if (d->fEOF or not isOpen()) {
+    if (d->fEOF or not this->isOpen()) {
         return 0;
     }
 
@@ -163,25 +169,28 @@ auto Aulib::DecoderMpg123::doDecoding(float buf[], int len, bool& callAgain) -> 
     return totalBytes / static_cast<int>(sizeof(*buf));
 }
 
-auto Aulib::DecoderMpg123::rewind() -> bool
+template <typename T>
+auto Aulib::DecoderMpg123<T>::rewind() -> bool
 {
-    if (not isOpen() or mpg123_seek(d->fMpgHandle.get(), 0, SEEK_SET) < 0) {
+    if (not this->isOpen() or mpg123_seek(d->fMpgHandle.get(), 0, SEEK_SET) < 0) {
         return false;
     }
     d->fEOF = false;
     return true;
 }
 
-auto Aulib::DecoderMpg123::duration() const -> chrono::microseconds
+template <typename T>
+auto Aulib::DecoderMpg123<T>::duration() const -> chrono::microseconds
 {
     return d->fDuration;
 }
 
-auto Aulib::DecoderMpg123::seekToTime(chrono::microseconds pos) -> bool
+template <typename T>
+auto Aulib::DecoderMpg123<T>::seekToTime(chrono::microseconds pos) -> bool
 {
     using std::chrono::duration;
 
-    if (not isOpen()) {
+    if (not this->isOpen()) {
         return false;
     }
 
@@ -192,6 +201,9 @@ auto Aulib::DecoderMpg123::seekToTime(chrono::microseconds pos) -> bool
     d->fEOF = false;
     return true;
 }
+
+template class Aulib::DecoderMpg123<float>;
+template class Aulib::DecoderMpg123<int32_t>;
 
 /*
 

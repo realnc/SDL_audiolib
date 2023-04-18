@@ -61,15 +61,32 @@ struct DecoderSndfile_priv final
 
 } // namespace Aulib
 
-Aulib::DecoderSndfile::DecoderSndfile()
+namespace {
+
+sf_count_t sfRead(SNDFILE* sndfile, float* ptr, sf_count_t items)
+{
+    return sf_read_float(sndfile, ptr, items);
+}
+
+sf_count_t sfRead(SNDFILE* sndfile, int32_t* ptr, sf_count_t items)
+{
+    return sf_read_int(sndfile, ptr, items);
+}
+
+} // namespace
+
+template <typename T>
+Aulib::DecoderSndfile<T>::DecoderSndfile()
     : d(std::make_unique<DecoderSndfile_priv>())
 {}
 
-Aulib::DecoderSndfile::~DecoderSndfile() = default;
+template <typename T>
+Aulib::DecoderSndfile<T>::~DecoderSndfile() = default;
 
-auto Aulib::DecoderSndfile::open(SDL_RWops* rwops) -> bool
+template <typename T>
+auto Aulib::DecoderSndfile<T>::open(SDL_RWops* rwops) -> bool
 {
-    if (isOpen()) {
+    if (this->isOpen()) {
         return true;
     }
     d->fInfo.format = 0;
@@ -85,52 +102,62 @@ auto Aulib::DecoderSndfile::open(SDL_RWops* rwops) -> bool
     }
     d->fDuration = chrono::duration_cast<chrono::microseconds>(
         chrono::duration<double>(static_cast<double>(d->fInfo.frames) / d->fInfo.samplerate));
-    setIsOpen(true);
+    this->setIsOpen(true);
     return true;
 }
 
-auto Aulib::DecoderSndfile::getChannels() const -> int
+template <typename T>
+auto Aulib::DecoderSndfile<T>::getChannels() const -> int
 {
     return d->fInfo.channels;
 }
 
-auto Aulib::DecoderSndfile::getRate() const -> int
+template <typename T>
+auto Aulib::DecoderSndfile<T>::getRate() const -> int
 {
     return d->fInfo.samplerate;
 }
 
-auto Aulib::DecoderSndfile::doDecoding(float buf[], int len, bool& /*callAgain*/) -> int
+template <typename T>
+auto Aulib::DecoderSndfile<T>::doDecoding(T buf[], int len, bool& /*callAgain*/) -> int
 {
-    if (d->fEOF or not isOpen()) {
+    if (d->fEOF or not this->isOpen()) {
         return 0;
     }
-    sf_count_t ret = sf_read_float(d->fSndfile.get(), buf, len);
+    sf_count_t ret = sfRead(d->fSndfile.get(), buf, len);
     if (ret == 0) {
         d->fEOF = true;
     }
     return ret;
 }
 
-auto Aulib::DecoderSndfile::rewind() -> bool
+template <typename T>
+auto Aulib::DecoderSndfile<T>::rewind() -> bool
 {
     return seekToTime(chrono::microseconds::zero());
 }
 
-auto Aulib::DecoderSndfile::duration() const -> std::chrono::microseconds
+template <typename T>
+auto Aulib::DecoderSndfile<T>::duration() const -> std::chrono::microseconds
 {
     return d->fDuration;
 }
 
-auto Aulib::DecoderSndfile::seekToTime(std::chrono::microseconds pos) -> bool
+template <typename T>
+auto Aulib::DecoderSndfile<T>::seekToTime(std::chrono::microseconds pos) -> bool
 {
     using chrono::duration;
-    if (not isOpen()
-        or sf_seek(d->fSndfile.get(), duration<double>(pos).count() * getRate(), SEEK_SET) == -1) {
+    if (not this->isOpen()
+        or sf_seek(d->fSndfile.get(), duration<double>(pos).count() * getRate(), SEEK_SET) == -1)
+    {
         return false;
     }
     d->fEOF = false;
     return true;
 }
+
+template class Aulib::DecoderSndfile<float>;
+template class Aulib::DecoderSndfile<int32_t>;
 
 /*
 

@@ -13,7 +13,7 @@ public:
     SdlAudioLocker()
     {
 #if SDL_VERSION_ATLEAST(2, 0, 0)
-        SDL_LockAudioDevice(Aulib::Stream_priv::fDeviceId);
+        SDL_LockAudioDevice(Aulib::Stream_priv_device::fDeviceId);
 #else
         SDL_LockAudio();
 #endif
@@ -32,7 +32,7 @@ public:
     {
         if (fIsLocked) {
 #if SDL_VERSION_ATLEAST(2, 0, 0)
-            SDL_UnlockAudioDevice(Aulib::Stream_priv::fDeviceId);
+            SDL_UnlockAudioDevice(Aulib::Stream_priv_device::fDeviceId);
 #else
             SDL_UnlockAudio();
 #endif

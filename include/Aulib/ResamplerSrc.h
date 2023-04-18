@@ -5,11 +5,17 @@
 
 namespace Aulib {
 
+template <typename T>
+struct ResamplerSrc_priv;
+
 /*!
  * \brief SRC (libsamplerate) resampler.
  */
-class AULIB_EXPORT ResamplerSrc: public Resampler
+template <typename T>
+class AULIB_EXPORT ResamplerSrc: public Resampler<T>
 {
+    static_assert(std::is_same<T, float>::value, "ResamplerSrc only supports float data");
+
 public:
     /*!
      * \brief SRC resampler quality.
@@ -66,12 +72,12 @@ public:
     auto quality() const noexcept -> Quality;
 
 protected:
-    void doResampling(float dst[], const float src[], int& dstLen, int& srcLen) override;
+    void doResampling(T dst[], const T src[], int& dstLen, int& srcLen) override;
     auto adjustForOutputSpec(int dstRate, int srcRate, int channels) -> int override;
     void doDiscardPendingSamples() override;
 
 private:
-    const std::unique_ptr<struct ResamplerSrc_priv> d;
+    const std::unique_ptr<ResamplerSrc_priv<T>> d;
 };
 
 } // namespace Aulib

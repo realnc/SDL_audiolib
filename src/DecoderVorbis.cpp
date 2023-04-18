@@ -3,6 +3,7 @@
 
 #include "aulib_log.h"
 #include <SDL_rwops.h>
+#include <type_traits>
 #include <vorbis/vorbisfile.h>
 
 namespace chrono = std::chrono;
@@ -42,15 +43,18 @@ struct DecoderVorbis_priv final
 
 } // namespace Aulib
 
-Aulib::DecoderVorbis::DecoderVorbis()
+template <typename T>
+Aulib::DecoderVorbis<T>::DecoderVorbis()
     : d(std::make_unique<DecoderVorbis_priv>())
 {}
 
-Aulib::DecoderVorbis::~DecoderVorbis() = default;
+template <typename T>
+Aulib::DecoderVorbis<T>::~DecoderVorbis() = default;
 
-auto Aulib::DecoderVorbis::open(SDL_RWops* rwops) -> bool
+template <typename T>
+auto Aulib::DecoderVorbis<T>::open(SDL_RWops* rwops) -> bool
 {
-    if (isOpen()) {
+    if (this->isOpen()) {
         return true;
     }
     ov_callbacks cbs{};
@@ -70,23 +74,26 @@ auto Aulib::DecoderVorbis::open(SDL_RWops* rwops) -> bool
         d->fDuration = chrono::duration_cast<chrono::microseconds>(chrono::duration<double>(len));
     }
     d->fVFHandle.swap(newHandle);
-    setIsOpen(true);
+    this->setIsOpen(true);
     return true;
 }
 
-auto Aulib::DecoderVorbis::getChannels() const -> int
+template <typename T>
+auto Aulib::DecoderVorbis<T>::getChannels() const -> int
 {
     return d->fCurrentInfo ? d->fCurrentInfo->channels : 0;
 }
 
-auto Aulib::DecoderVorbis::getRate() const -> int
+template <typename T>
+auto Aulib::DecoderVorbis<T>::getRate() const -> int
 {
     return d->fCurrentInfo ? d->fCurrentInfo->rate : 0;
 }
 
-auto Aulib::DecoderVorbis::doDecoding(float buf[], int len, bool& callAgain) -> int
+template <typename T>
+auto Aulib::DecoderVorbis<T>::doDecoding(T buf[], int len, bool& callAgain) -> int
 {
-    if (d->fEOF or not isOpen()) {
+    if (d->fEOF or not this->isOpen()) {
         return 0;
     }
 
@@ -127,7 +134,12 @@ auto Aulib::DecoderVorbis::doDecoding(float buf[], int len, bool& callAgain) -> 
         // Copy samples to output buffer in interleaved format.
         for (long samp = 0; samp < ret; ++samp) {
             for (int chan = 0; chan < channels; ++chan) {
-                *buf++ = out[chan][samp];
+                if (std::is_same<T, float>::value) {
+                    *buf++ = out[chan][samp];
+                } else {
+                    // Convert from float to int32_t.
+                    *buf++ = out[chan][samp] * 32768.f;
+                }
             }
         }
         decSamples += ret * channels;
@@ -135,9 +147,10 @@ auto Aulib::DecoderVorbis::doDecoding(float buf[], int len, bool& callAgain) -> 
     return decSamples;
 }
 
-auto Aulib::DecoderVorbis::rewind() -> bool
+template <typename T>
+auto Aulib::DecoderVorbis<T>::rewind() -> bool
 {
-    if (not isOpen()) {
+    if (not this->isOpen()) {
         return false;
     }
 
@@ -145,20 +158,26 @@ auto Aulib::DecoderVorbis::rewind() -> bool
     return ov_raw_seek(d->fVFHandle.get(), 0) == 0;
 }
 
-auto Aulib::DecoderVorbis::duration() const -> chrono::microseconds
+template <typename T>
+auto Aulib::DecoderVorbis<T>::duration() const -> chrono::microseconds
 {
     return d->fDuration;
 }
 
-auto Aulib::DecoderVorbis::seekToTime(chrono::microseconds pos) -> bool
+template <typename T>
+auto Aulib::DecoderVorbis<T>::seekToTime(chrono::microseconds pos) -> bool
 {
-    if (not isOpen()
-        or ov_time_seek(d->fVFHandle.get(), chrono::duration<double>(pos).count()) != 0) {
+    if (not this->isOpen()
+        or ov_time_seek(d->fVFHandle.get(), chrono::duration<double>(pos).count()) != 0)
+    {
         return false;
     }
     d->fEOF = false;
     return true;
 }
+
+template class Aulib::DecoderVorbis<float>;
+template class Aulib::DecoderVorbis<int32_t>;
 
 /*
 

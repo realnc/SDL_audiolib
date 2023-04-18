@@ -8,7 +8,8 @@ namespace Aulib {
 /*!
  * \brief FluidSynth decoder.
  */
-class AULIB_EXPORT DecoderFluidsynth: public Decoder
+template <typename T>
+class AULIB_EXPORT DecoderFluidsynth: public Decoder<T>
 {
 public:
     DecoderFluidsynth();
@@ -52,7 +53,7 @@ public:
     auto seekToTime(std::chrono::microseconds pos) -> bool override;
 
 protected:
-    auto doDecoding(float buf[], int len, bool& callAgain) -> int override;
+    auto doDecoding(T buf[], int len, bool& callAgain) -> int override;
 
 private:
     const std::unique_ptr<struct DecoderFluidsynth_priv> d;

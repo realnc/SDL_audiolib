@@ -8,7 +8,8 @@ namespace Aulib {
 /*!
  * \brief BASSMIDI decoder.
  */
-class AULIB_EXPORT DecoderBassmidi: public Decoder
+template <typename T>
+class AULIB_EXPORT DecoderBassmidi: public Decoder<T>
 {
 public:
     DecoderBassmidi();
@@ -35,7 +36,7 @@ public:
     auto seekToTime(std::chrono::microseconds pos) -> bool override;
 
 protected:
-    auto doDecoding(float buf[], int len, bool& callAgain) -> int override;
+    auto doDecoding(T buf[], int len, bool& callAgain) -> int override;
 
 private:
     const std::unique_ptr<struct DecoderBassmidi_priv> d;

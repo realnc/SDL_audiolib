@@ -8,7 +8,8 @@ namespace Aulib {
 /*!
  * \brief libopusfile decoder.
  */
-class AULIB_EXPORT DecoderOpus: public Decoder
+template <typename T>
+class AULIB_EXPORT DecoderOpus: public Decoder<T>
 {
 public:
     DecoderOpus();
@@ -22,7 +23,7 @@ public:
     auto seekToTime(std::chrono::microseconds pos) -> bool override;
 
 protected:
-    auto doDecoding(float buf[], int len, bool& callAgain) -> int override;
+    auto doDecoding(T buf[], int len, bool& callAgain) -> int override;
 
 private:
     const std::unique_ptr<struct DecoderOpus_priv> d;

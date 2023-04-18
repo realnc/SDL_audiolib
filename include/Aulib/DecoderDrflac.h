@@ -8,7 +8,8 @@ namespace Aulib {
 /*!
  * \brief dr_flac decoder.
  */
-class AULIB_EXPORT DecoderDrflac: public Decoder
+template <typename T>
+class AULIB_EXPORT DecoderDrflac: public Decoder<T>
 {
 public:
     DecoderDrflac();
@@ -22,7 +23,7 @@ public:
     auto seekToTime(std::chrono::microseconds pos) -> bool override;
 
 protected:
-    auto doDecoding(float buf[], int len, bool& callAgain) -> int override;
+    auto doDecoding(T buf[], int len, bool& callAgain) -> int override;
 
 private:
     std::unique_ptr<struct DecoderDrflac_priv> d;

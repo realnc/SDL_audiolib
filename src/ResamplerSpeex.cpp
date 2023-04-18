@@ -23,18 +23,33 @@ struct ResamplerSpeex_priv final
 
 } // namespace Aulib
 
-Aulib::ResamplerSpeex::ResamplerSpeex(int quality)
+namespace {
+
+int speexResamplerProcessInterleaved(
+    SpeexResamplerState* st, const float* in, spx_uint32_t* in_len, float* out,
+    spx_uint32_t* out_len)
+{
+    return speex_resampler_process_interleaved_float(st, in, in_len, out, out_len);
+}
+
+} // namespace
+
+template <typename T>
+Aulib::ResamplerSpeex<T>::ResamplerSpeex(int quality)
     : d(std::make_unique<ResamplerSpeex_priv>(std::min(std::max(0, quality), 10)))
 {}
 
-Aulib::ResamplerSpeex::~ResamplerSpeex() = default;
+template <typename T>
+Aulib::ResamplerSpeex<T>::~ResamplerSpeex() = default;
 
-auto Aulib::ResamplerSpeex::quality() const noexcept -> int
+template <typename T>
+auto Aulib::ResamplerSpeex<T>::quality() const noexcept -> int
 {
     return d->fQuality;
 }
 
-void Aulib::ResamplerSpeex::setQuality(int quality)
+template <typename T>
+void Aulib::ResamplerSpeex<T>::setQuality(int quality)
 {
     auto newQ = std::min(std::max(0, quality), 10);
     d->fQuality = newQ;
@@ -44,26 +59,28 @@ void Aulib::ResamplerSpeex::setQuality(int quality)
     speex_resampler_set_quality(d->fResampler.get(), newQ);
 }
 
-void Aulib::ResamplerSpeex::doResampling(float dst[], const float src[], int& dstLen, int& srcLen)
+template <typename T>
+void Aulib::ResamplerSpeex<T>::doResampling(T dst[], const T src[], int& dstLen, int& srcLen)
 {
     if (not d->fResampler) {
         dstLen = srcLen = 0;
         return;
     }
 
-    int channels = currentChannels();
+    int channels = this->currentChannels();
     auto spxInLen = static_cast<spx_uint32_t>(srcLen / channels);
     auto spxOutLen = static_cast<spx_uint32_t>(dstLen / channels);
     if (spxInLen == 0 or spxOutLen == 0) {
         dstLen = srcLen = 0;
         return;
     }
-    speex_resampler_process_interleaved_float(d->fResampler.get(), src, &spxInLen, dst, &spxOutLen);
+    speexResamplerProcessInterleaved(d->fResampler.get(), src, &spxInLen, dst, &spxOutLen);
     dstLen = static_cast<int>(spxOutLen) * channels;
     srcLen = static_cast<int>(spxInLen) * channels;
 }
 
-auto Aulib::ResamplerSpeex::adjustForOutputSpec(int dstRate, int srcRate, int channels) -> int
+template <typename T>
+auto Aulib::ResamplerSpeex<T>::adjustForOutputSpec(int dstRate, int srcRate, int channels) -> int
 {
     int err;
     d->fResampler.reset(speex_resampler_init(
@@ -77,14 +94,17 @@ auto Aulib::ResamplerSpeex::adjustForOutputSpec(int dstRate, int srcRate, int ch
     return 0;
 }
 
-void Aulib::ResamplerSpeex::doDiscardPendingSamples()
+template <typename T>
+void Aulib::ResamplerSpeex<T>::doDiscardPendingSamples()
 {
     // The speex resampler does not offer a way to clear its internal state.
     // speex_resampler_reset_mem() does not work. We are forced to allocate a new resampler handle.
     if (d->fResampler) {
-        adjustForOutputSpec(currentRate(), d->fSrcRate, currentChannels());
+        adjustForOutputSpec(this->currentRate(), d->fSrcRate, this->currentChannels());
     }
 }
+
+template class Aulib::ResamplerSpeex<float>;
 
 /*
 

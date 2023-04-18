@@ -1,8 +1,16 @@
 // This is copyrighted software. More information is at the end of this file.
 #include "Aulib/Processor.h"
 
-Aulib::Processor::Processor() = default;
-Aulib::Processor::~Processor() = default;
+#include <cstdint>
+
+template <typename T>
+Aulib::Processor<T>::Processor() = default;
+
+template <typename T>
+Aulib::Processor<T>::~Processor() = default;
+
+template class Aulib::Processor<float>;
+template class Aulib::Processor<int32_t>;
 
 /*
 

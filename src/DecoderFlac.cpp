@@ -14,7 +14,7 @@ struct DecoderFlac_priv final
 {
     using FlacHandle = std::unique_ptr<FLAC__StreamDecoder, decltype(&FLAC__stream_decoder_delete)>;
 
-    explicit DecoderFlac_priv(const DecoderFlac::FileFormat file_type)
+    explicit DecoderFlac_priv(const DecoderFlacFileFormat file_type)
         : fFileFormat(file_type)
     { }
 
@@ -28,7 +28,7 @@ struct DecoderFlac_priv final
     int fSampleRate = 0;
     int fChannels = 0;
     bool fEOF = false;
-    DecoderFlac::FileFormat fFileFormat;
+    DecoderFlacFileFormat fFileFormat;
     const char* fLastError = nullptr;
     bool fHasLostSync = false;
 };
@@ -153,11 +153,13 @@ void flacErrorCb(
 
 } // extern "C"
 
-Aulib::DecoderFlac::DecoderFlac(const FileFormat file_type)
+template <typename T>
+Aulib::DecoderFlac<T>::DecoderFlac(const DecoderFlacFileFormat file_type)
     : d(std::make_unique<DecoderFlac_priv>(file_type))
 { }
 
-Aulib::DecoderFlac::~DecoderFlac() = default;
+template <typename T>
+Aulib::DecoderFlac<T>::~DecoderFlac() = default;
 
 static auto rwopsHeaderMatches(SDL_RWops* const rwops, const std::string_view magic) -> bool
 {
@@ -169,13 +171,13 @@ static auto rwopsHeaderMatches(SDL_RWops* const rwops, const std::string_view ma
     return read_res == 1 and std::string_view(rwops_magic.data(), rwops_magic.size()) == magic;
 }
 
-static auto getFlacInitFunction(SDL_RWops* const rwops, const Aulib::DecoderFlac::FileFormat format)
+static auto getFlacInitFunction(SDL_RWops* const rwops, const Aulib::DecoderFlacFileFormat format)
     -> decltype(&FLAC__stream_decoder_init_stream)
 {
-    using FileFormat = Aulib::DecoderFlac::FileFormat;
+    using DecoderFlacFileFormat = Aulib::DecoderFlacFileFormat;
 
     switch (format) {
-    case FileFormat::Detect:
+    case DecoderFlacFileFormat::Detect:
         if (rwopsHeaderMatches(rwops, "OggS")) {
             aulib::log::debugLn("DecoderFlac: detected Ogg container.");
             return FLAC__stream_decoder_init_ogg_stream;
@@ -185,19 +187,20 @@ static auto getFlacInitFunction(SDL_RWops* const rwops, const Aulib::DecoderFlac
             return FLAC__stream_decoder_init_stream;
         }
         break;
-    case FileFormat::Flac:
+    case DecoderFlacFileFormat::Flac:
         aulib::log::debugLn("DecoderFlac: assuming raw FLAC.");
         return FLAC__stream_decoder_init_stream;
-    case FileFormat::Ogg:
+    case DecoderFlacFileFormat::Ogg:
         aulib::log::debugLn("DecoderFlac: assuming Ogg container.");
         return FLAC__stream_decoder_init_ogg_stream;
     }
     return nullptr;
 }
 
-auto Aulib::DecoderFlac::open(SDL_RWops* const rwops) -> bool
+template <typename T>
+auto Aulib::DecoderFlac<T>::open(SDL_RWops* const rwops) -> bool
 {
-    if (isOpen()) {
+    if (this->isOpen()) {
         return true;
     }
 
@@ -247,23 +250,26 @@ auto Aulib::DecoderFlac::open(SDL_RWops* const rwops) -> bool
         return false;
     }
 
-    setIsOpen(true);
+    this->setIsOpen(true);
     return true;
 }
 
-auto Aulib::DecoderFlac::getChannels() const -> int
+template <typename T>
+auto Aulib::DecoderFlac<T>::getChannels() const -> int
 {
     return d->fChannels;
 }
 
-auto Aulib::DecoderFlac::getRate() const -> int
+template <typename T>
+auto Aulib::DecoderFlac<T>::getRate() const -> int
 {
     return d->fSampleRate;
 }
 
-auto Aulib::DecoderFlac::doDecoding(float buf[], const int len, bool& /*callAgain*/) -> int
+template <typename T>
+auto Aulib::DecoderFlac<T>::doDecoding(T buf[], const int len, bool& /*callAgain*/) -> int
 {
-    if ((d->fEOF and d->fRemainingFrames == 0) or not isOpen()) {
+    if ((d->fEOF and d->fRemainingFrames == 0) or not this->isOpen()) {
         return 0;
     }
     if (d->fHasLostSync) {
@@ -310,19 +316,22 @@ auto Aulib::DecoderFlac::doDecoding(float buf[], const int len, bool& /*callAgai
     return total_samples;
 }
 
-auto Aulib::DecoderFlac::rewind() -> bool
+template <typename T>
+auto Aulib::DecoderFlac<T>::rewind() -> bool
 {
     return seekToTime({});
 }
 
-auto Aulib::DecoderFlac::duration() const -> chrono::microseconds
+template <typename T>
+auto Aulib::DecoderFlac<T>::duration() const -> chrono::microseconds
 {
     return d->fDuration;
 }
 
-auto Aulib::DecoderFlac::seekToTime(const chrono::microseconds pos) -> bool
+template <typename T>
+auto Aulib::DecoderFlac<T>::seekToTime(const chrono::microseconds pos) -> bool
 {
-    if (not isOpen()) {
+    if (not this->isOpen()) {
         SDL_SetError("DecoderFlac: Decoder has not been opened.");
         return false;
     }
@@ -357,6 +366,9 @@ auto Aulib::DecoderFlac::seekToTime(const chrono::microseconds pos) -> bool
     d->fEOF = false;
     return true;
 }
+
+template class Aulib::DecoderFlac<float>;
+template class Aulib::DecoderFlac<int32_t>;
 
 /*
 

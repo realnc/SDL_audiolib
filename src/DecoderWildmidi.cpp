@@ -5,6 +5,7 @@
 #include "missing.h"
 #include <SDL_rwops.h>
 #include <algorithm>
+#include <type_traits>
 #include <wildmidi_lib.h>
 
 namespace chrono = std::chrono;
@@ -27,13 +28,16 @@ int DecoderWildmidi_priv::rate = 0;
 
 } // namespace Aulib
 
-Aulib::DecoderWildmidi::DecoderWildmidi()
+template <typename T>
+Aulib::DecoderWildmidi<T>::DecoderWildmidi()
     : d(std::make_unique<Aulib::DecoderWildmidi_priv>())
 {}
 
-Aulib::DecoderWildmidi::~DecoderWildmidi() = default;
+template <typename T>
+Aulib::DecoderWildmidi<T>::~DecoderWildmidi() = default;
 
-auto Aulib::DecoderWildmidi::init(const std::string& configFile, int rate, bool hqResampling,
+template <typename T>
+auto Aulib::DecoderWildmidi<T>::init(const std::string& configFile, int rate, bool hqResampling,
                                   bool reverb) -> bool
 {
     if (DecoderWildmidi_priv::initialized) {
@@ -60,9 +64,10 @@ void Aulib::DecoderWildmidi::quit()
     WildMidi_Shutdown();
 }
 
-auto Aulib::DecoderWildmidi::open(SDL_RWops* rwops) -> bool
+template <typename T>
+auto Aulib::DecoderWildmidi<T>::open(SDL_RWops* rwops) -> bool
 {
-    if (isOpen()) {
+    if (this->isOpen()) {
         return true;
     }
     if (not DecoderWildmidi_priv::initialized) {
@@ -84,23 +89,26 @@ auto Aulib::DecoderWildmidi::open(SDL_RWops* rwops) -> bool
         return false;
     }
     d->midiData.swap(newMidiData);
-    setIsOpen(true);
+    this->setIsOpen(true);
     return true;
 }
 
-auto Aulib::DecoderWildmidi::getChannels() const -> int
+template <typename T>
+auto Aulib::DecoderWildmidi<T>::getChannels() const -> int
 {
     return 2;
 }
 
-auto Aulib::DecoderWildmidi::getRate() const -> int
+template <typename T>
+auto Aulib::DecoderWildmidi<T>::getRate() const -> int
 {
     return DecoderWildmidi_priv::rate;
 }
 
-auto Aulib::DecoderWildmidi::doDecoding(float buf[], int len, bool& /*callAgain*/) -> int
+template <typename T>
+auto Aulib::DecoderWildmidi<T>::doDecoding(T buf[], int len, bool& /*callAgain*/) -> int
 {
-    if (d->eof or not isOpen()) {
+    if (d->eof or not this->isOpen()) {
         return 0;
     }
 
@@ -118,9 +126,16 @@ auto Aulib::DecoderWildmidi::doDecoding(float buf[], int len, bool& /*callAgain*
     if (res < 0) {
         return 0;
     }
-    // Convert from 16-bit to float.
-    for (int i = 0; i < res / 2; ++i) {
-        buf[i] = d->sampBuf[i] / 32768.f;
+    if (std::is_same<T, float>::value) {
+        // Convert from 16-bit to float.
+        for (int i = 0; i < len; ++i) {
+            buf[i] = d->sampBuf[i] / 32768.f;
+        }
+    } else {
+        // Convert from 16-bit to int32_t.
+        for (int i = 0; i < len; ++i) {
+            buf[i] = d->sampBuf[i] * 2;
+        }
     }
     if (res < len) {
         d->eof = true;
@@ -128,24 +143,27 @@ auto Aulib::DecoderWildmidi::doDecoding(float buf[], int len, bool& /*callAgain*
     return res / 2;
 }
 
-auto Aulib::DecoderWildmidi::rewind() -> bool
+template <typename T>
+auto Aulib::DecoderWildmidi<T>::rewind() -> bool
 {
     return seekToTime(chrono::microseconds::zero());
 }
 
-auto Aulib::DecoderWildmidi::duration() const -> chrono::microseconds
+template <typename T>
+auto Aulib::DecoderWildmidi<T>::duration() const -> chrono::microseconds
 {
     _WM_Info* info;
-    if (not isOpen() or not(info = WildMidi_GetInfo(d->midiHandle.get()))) {
+    if (not this->isOpen() or not(info = WildMidi_GetInfo(d->midiHandle.get()))) {
         return {};
     }
     auto sec = static_cast<double>(info->approx_total_samples) / getRate();
     return chrono::duration_cast<chrono::microseconds>(chrono::duration<double>(sec));
 }
 
-auto Aulib::DecoderWildmidi::seekToTime(chrono::microseconds pos) -> bool
+template <typename T>
+auto Aulib::DecoderWildmidi<T>::seekToTime(chrono::microseconds pos) -> bool
 {
-    if (not isOpen()) {
+    if (not this->isOpen()) {
         return false;
     }
 
@@ -156,6 +174,9 @@ auto Aulib::DecoderWildmidi::seekToTime(chrono::microseconds pos) -> bool
     d->eof = false;
     return true;
 }
+
+template class Aulib::DecoderWildmidi<float>;
+template class Aulib::DecoderWildmidi<int32_t>;
 
 /*
 

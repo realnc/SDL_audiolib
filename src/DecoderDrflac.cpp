@@ -68,15 +68,32 @@ struct DecoderDrflac_priv final
 
 } // namespace Aulib
 
-Aulib::DecoderDrflac::DecoderDrflac()
+namespace {
+
+drflac_uint64 drflacReadPcmFrames(drflac* pWav, drflac_uint64 framesToRead, float* pBufferOut)
+{
+    return drflac_read_pcm_frames_f32(pWav, framesToRead, pBufferOut);
+}
+
+drflac_uint64 drflacReadPcmFrames(drflac* pWav, drflac_uint64 framesToRead, int32_t* pBufferOut)
+{
+    return drflac_read_pcm_frames_s32(pWav, framesToRead, pBufferOut);
+}
+
+} // namespace
+
+template <typename T>
+Aulib::DecoderDrflac<T>::DecoderDrflac()
     : d(std::make_unique<DecoderDrflac_priv>())
 {}
 
-Aulib::DecoderDrflac::~DecoderDrflac() = default;
+template <typename T>
+Aulib::DecoderDrflac<T>::~DecoderDrflac() = default;
 
-auto Aulib::DecoderDrflac::open(SDL_RWops* const rwops) -> bool
+template <typename T>
+auto Aulib::DecoderDrflac<T>::open(SDL_RWops* const rwops) -> bool
 {
-    if (isOpen()) {
+    if (this->isOpen()) {
         return true;
     }
 
@@ -85,63 +102,72 @@ auto Aulib::DecoderDrflac::open(SDL_RWops* const rwops) -> bool
         SDL_SetError("drflac_open returned null.");
         return false;
     }
-    setIsOpen(true);
+    this->setIsOpen(true);
     return true;
 }
 
-auto Aulib::DecoderDrflac::doDecoding(float* const buf, const int len, bool& /*callAgain*/) -> int
+template <typename T>
+auto Aulib::DecoderDrflac<T>::doDecoding(T* const buf, const int len, bool& /*callAgain*/) -> int
 {
-    if (d->fEOF or not isOpen()) {
+    if (d->fEOF or not this->isOpen()) {
         return 0;
     }
 
     const auto ret =
-        drflac_read_pcm_frames_f32(d->handle_.get(), len / getChannels(), buf) * getChannels();
+        drflacReadPcmFrames(d->handle_.get(), len / getChannels(), buf) * getChannels();
     if (ret < static_cast<drflac_uint64>(len)) {
         d->fEOF = true;
     }
     return ret;
 }
 
-auto Aulib::DecoderDrflac::getChannels() const -> int
+template <typename T>
+auto Aulib::DecoderDrflac<T>::getChannels() const -> int
 {
-    if (not isOpen()) {
+    if (not this->isOpen()) {
         return 0;
     }
     return d->handle_.get()->channels;
 }
 
-auto Aulib::DecoderDrflac::getRate() const -> int
+template <typename T>
+auto Aulib::DecoderDrflac<T>::getRate() const -> int
 {
-    if (not isOpen()) {
+    if (not this->isOpen()) {
         return 0;
     }
     return d->handle_.get()->sampleRate;
 }
 
-auto Aulib::DecoderDrflac::rewind() -> bool
+template <typename T>
+auto Aulib::DecoderDrflac<T>::rewind() -> bool
 {
     return seekToTime({});
 }
 
-auto Aulib::DecoderDrflac::duration() const -> chrono::microseconds
+template <typename T>
+auto Aulib::DecoderDrflac<T>::duration() const -> chrono::microseconds
 {
-    if (not isOpen()) {
+    if (not this->isOpen()) {
         return {};
     }
     return chrono::duration_cast<chrono::microseconds>(chrono::duration<double>(
         static_cast<double>(d->handle_.get()->totalPCMFrameCount) / getRate()));
 }
 
-auto Aulib::DecoderDrflac::seekToTime(const chrono::microseconds pos) -> bool
+template <typename T>
+auto Aulib::DecoderDrflac<T>::seekToTime(const chrono::microseconds pos) -> bool
 {
     const auto target_frame = chrono::duration<double>(pos).count() * getRate();
-    if (not isOpen() or not drflac_seek_to_pcm_frame(d->handle_.get(), target_frame)) {
+    if (not this->isOpen() or not drflac_seek_to_pcm_frame(d->handle_.get(), target_frame)) {
         return false;
     }
     d->fEOF = false;
     return true;
 }
+
+template class Aulib::DecoderDrflac<float>;
+template class Aulib::DecoderDrflac<int32_t>;
 
 /*
 

@@ -23,15 +23,18 @@ struct DecoderOpenmpt_priv final
 
 } // namespace Aulib
 
-Aulib::DecoderOpenmpt::DecoderOpenmpt()
+template <typename T>
+Aulib::DecoderOpenmpt<T>::DecoderOpenmpt()
     : d(std::make_unique<DecoderOpenmpt_priv>())
 {}
 
-Aulib::DecoderOpenmpt::~DecoderOpenmpt() = default;
+template <typename T>
+Aulib::DecoderOpenmpt<T>::~DecoderOpenmpt() = default;
 
-auto Aulib::DecoderOpenmpt::open(SDL_RWops* rwops) -> bool
+template <typename T>
+auto Aulib::DecoderOpenmpt<T>::open(SDL_RWops* rwops) -> bool
 {
-    if (isOpen()) {
+    if (this->isOpen()) {
         return true;
     }
     // FIXME: error reporting
@@ -56,33 +59,38 @@ auto Aulib::DecoderOpenmpt::open(SDL_RWops* rwops) -> bool
     d->fDuration = chrono::duration_cast<chrono::microseconds>(
         chrono::duration<double>(module->get_duration_seconds()));
     d->fModule.swap(module);
-    setIsOpen(true);
+    this->setIsOpen(true);
     return true;
 }
 
-auto Aulib::DecoderOpenmpt::getChannels() const -> int
+template <typename T>
+auto Aulib::DecoderOpenmpt<T>::getChannels() const -> int
 {
     return Aulib::channelCount();
 }
 
-auto Aulib::DecoderOpenmpt::getRate() const -> int
+template <typename T>
+auto Aulib::DecoderOpenmpt<T>::getRate() const -> int
 {
     return Aulib::sampleRate();
 }
 
-auto Aulib::DecoderOpenmpt::rewind() -> bool
+template <typename T>
+auto Aulib::DecoderOpenmpt<T>::rewind() -> bool
 {
     return seekToTime(chrono::microseconds::zero());
 }
 
-auto Aulib::DecoderOpenmpt::duration() const -> chrono::microseconds
+template <typename T>
+auto Aulib::DecoderOpenmpt<T>::duration() const -> chrono::microseconds
 {
     return d->fDuration;
 }
 
-auto Aulib::DecoderOpenmpt::seekToTime(chrono::microseconds pos) -> bool
+template <typename T>
+auto Aulib::DecoderOpenmpt<T>::seekToTime(chrono::microseconds pos) -> bool
 {
-    if (not isOpen()) {
+    if (not this->isOpen()) {
         return false;
     }
 
@@ -91,9 +99,10 @@ auto Aulib::DecoderOpenmpt::seekToTime(chrono::microseconds pos) -> bool
     return true;
 }
 
-auto Aulib::DecoderOpenmpt::doDecoding(float buf[], int len, bool& /*callAgain*/) -> int
+template <typename T>
+auto Aulib::DecoderOpenmpt<T>::doDecoding(T buf[], int len, bool& /*callAgain*/) -> int
 {
-    if (d->atEOF or not isOpen()) {
+    if (d->atEOF or not this->isOpen()) {
         return 0;
     }
     int ret;
@@ -110,6 +119,10 @@ auto Aulib::DecoderOpenmpt::doDecoding(float buf[], int len, bool& /*callAgain*/
     }
     return ret;
 }
+
+template class Aulib::DecoderOpenmpt<float>;
+
+// template class Aulib::DecoderOpenmpt<int32_t>;
 
 /*
 

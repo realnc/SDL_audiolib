@@ -48,15 +48,18 @@ Aulib::DecoderModplug_priv::DecoderModplug_priv()
     }
 }
 
-Aulib::DecoderModplug::DecoderModplug()
+template <typename T>
+Aulib::DecoderModplug<T>::DecoderModplug()
     : d(std::make_unique<DecoderModplug_priv>())
 {}
 
-Aulib::DecoderModplug::~DecoderModplug() = default;
+template <typename T>
+Aulib::DecoderModplug<T>::~DecoderModplug() = default;
 
-auto Aulib::DecoderModplug::open(SDL_RWops* rwops) -> bool
+template <typename T>
+auto Aulib::DecoderModplug<T>::open(SDL_RWops* rwops) -> bool
 {
-    if (isOpen()) {
+    if (this->isOpen()) {
         return true;
     }
     // FIXME: error reporting
@@ -74,23 +77,26 @@ auto Aulib::DecoderModplug::open(SDL_RWops* rwops) -> bool
     }
     ModPlug_SetMasterVolume(d->mpHandle.get(), 192);
     d->fDuration = chrono::milliseconds(ModPlug_GetLength(d->mpHandle.get()));
-    setIsOpen(true);
+    this->setIsOpen(true);
     return true;
 }
 
-auto Aulib::DecoderModplug::getChannels() const -> int
+template <typename T>
+auto Aulib::DecoderModplug<T>::getChannels() const -> int
 {
     return modplugSettings.mChannels;
 }
 
-auto Aulib::DecoderModplug::getRate() const -> int
+template <typename T>
+auto Aulib::DecoderModplug<T>::getRate() const -> int
 {
     return modplugSettings.mFrequency;
 }
 
-auto Aulib::DecoderModplug::doDecoding(float buf[], int len, bool& /*callAgain*/) -> int
+template <typename T>
+auto Aulib::DecoderModplug<T>::doDecoding(T buf[], int len, bool& /*callAgain*/) -> int
 {
-    if (d->atEOF or not isOpen()) {
+    if (d->atEOF or not this->isOpen()) {
         return 0;
     }
     Buffer<Sint32> tmpBuf(len);
@@ -105,25 +111,31 @@ auto Aulib::DecoderModplug::doDecoding(float buf[], int len, bool& /*callAgain*/
     return ret / static_cast<int>(sizeof(*buf));
 }
 
-auto Aulib::DecoderModplug::rewind() -> bool
+template <typename T>
+auto Aulib::DecoderModplug<T>::rewind() -> bool
 {
     return seekToTime(chrono::microseconds::zero());
 }
 
-auto Aulib::DecoderModplug::duration() const -> chrono::microseconds
+template <typename T>
+auto Aulib::DecoderModplug<T>::duration() const -> chrono::microseconds
 {
     return d->fDuration;
 }
 
-auto Aulib::DecoderModplug::seekToTime(chrono::microseconds pos) -> bool
+template <typename T>
+auto Aulib::DecoderModplug<T>::seekToTime(chrono::microseconds pos) -> bool
 {
-    if (not isOpen()) {
+    if (not this->isOpen()) {
         return false;
     }
     ModPlug_Seek(d->mpHandle.get(), chrono::duration_cast<chrono::milliseconds>(pos).count());
     d->atEOF = false;
     return true;
 }
+
+template class Aulib::DecoderModplug<float>;
+template class Aulib::DecoderModplug<int32_t>;
 
 /*
 

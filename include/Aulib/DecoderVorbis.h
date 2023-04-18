@@ -8,7 +8,8 @@ namespace Aulib {
 /*!
  * \brief libvorbisfile decoder.
  */
-class AULIB_EXPORT DecoderVorbis: public Decoder
+template <typename T>
+class AULIB_EXPORT DecoderVorbis: public Decoder<T>
 {
 public:
     DecoderVorbis();
@@ -22,7 +23,7 @@ public:
     auto seekToTime(std::chrono::microseconds pos) -> bool override;
 
 protected:
-    auto doDecoding(float buf[], int len, bool& callAgain) -> int override;
+    auto doDecoding(T buf[], int len, bool& callAgain) -> int override;
 
 private:
     const std::unique_ptr<struct DecoderVorbis_priv> d;

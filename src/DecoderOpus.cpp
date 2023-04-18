@@ -42,15 +42,18 @@ struct DecoderOpus_priv final
 
 } // namespace Aulib
 
-Aulib::DecoderOpus::DecoderOpus()
+template <typename T>
+Aulib::DecoderOpus<T>::DecoderOpus()
     : d(std::make_unique<DecoderOpus_priv>())
 {}
 
-Aulib::DecoderOpus::~DecoderOpus() = default;
+template <typename T>
+Aulib::DecoderOpus<T>::~DecoderOpus() = default;
 
-auto Aulib::DecoderOpus::open(SDL_RWops* rwops) -> bool
+template <typename T>
+auto Aulib::DecoderOpus<T>::open(SDL_RWops* rwops) -> bool
 {
-    if (isOpen()) {
+    if (this->isOpen()) {
         return true;
     }
     int error;
@@ -70,30 +73,33 @@ auto Aulib::DecoderOpus::open(SDL_RWops* rwops) -> bool
         d->fDuration =
             chrono::duration_cast<chrono::microseconds>(chrono::duration<double>(len / 48000.));
     }
-    setIsOpen(true);
+    this->setIsOpen(true);
     return true;
 }
 
-auto Aulib::DecoderOpus::getChannels() const -> int
+template <typename T>
+auto Aulib::DecoderOpus<T>::getChannels() const -> int
 {
     return 2;
 }
 
-auto Aulib::DecoderOpus::getRate() const -> int
+template <typename T>
+auto Aulib::DecoderOpus<T>::getRate() const -> int
 {
     return 48000;
 }
 
-auto Aulib::DecoderOpus::doDecoding(float buf[], int len, bool& /*callAgain*/) -> int
+template <typename T>
+auto Aulib::DecoderOpus<T>::doDecoding(T buf[], int len, bool& /*callAgain*/) -> int
 {
-    if (d->fEOF or not isOpen()) {
+    if (d->fEOF or not this->isOpen()) {
         return 0;
     }
 
     int decSamples = 0;
 
     while (decSamples < len) {
-        int ret = op_read_float_stereo(d->fOpusHandle.get(), buf + decSamples, len - decSamples);
+        int ret = op_read_float_stereo(d->fOpusHandle.get(), reinterpret_cast<float *>(buf) + decSamples, len - decSamples);
         if (ret == 0) {
             d->fEOF = true;
             break;
@@ -117,32 +123,45 @@ auto Aulib::DecoderOpus::doDecoding(float buf[], int len, bool& /*callAgain*/) -
         }
         decSamples += ret * 2;
     }
+    if (std::is_same<int32_t, T>::value) {
+        // Convert float to int32_t.
+        for (size_t i = 0; i < decSamples; ++i) {
+            buf[i] = reinterpret_cast<float *>(buf)[i] * 32768.f;
+        }
+    }
     return decSamples;
 }
 
-auto Aulib::DecoderOpus::rewind() -> bool
+template <typename T>
+auto Aulib::DecoderOpus<T>::rewind() -> bool
 {
-    if (not isOpen() or op_raw_seek(d->fOpusHandle.get(), 0) != 0) {
+    if (not this->isOpen() or op_raw_seek(d->fOpusHandle.get(), 0) != 0) {
         return false;
     }
     d->fEOF = false;
     return true;
 }
 
-auto Aulib::DecoderOpus::duration() const -> chrono::microseconds
+template <typename T>
+auto Aulib::DecoderOpus<T>::duration() const -> chrono::microseconds
 {
     return d->fDuration;
 }
 
-auto Aulib::DecoderOpus::seekToTime(chrono::microseconds pos) -> bool
+template <typename T>
+auto Aulib::DecoderOpus<T>::seekToTime(chrono::microseconds pos) -> bool
 {
-    if (not isOpen()
-        or op_pcm_seek(d->fOpusHandle.get(), chrono::duration<double>(pos).count() * 48000) != 0) {
+    if (not this->isOpen()
+        or op_pcm_seek(d->fOpusHandle.get(), chrono::duration<double>(pos).count() * 48000) != 0)
+    {
         return false;
     }
     d->fEOF = false;
     return true;
 }
+
+template class Aulib::DecoderOpus<float>;
+template class Aulib::DecoderOpus<int32_t>;
 
 /*
 

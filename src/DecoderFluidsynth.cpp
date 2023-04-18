@@ -142,13 +142,16 @@ Aulib::DecoderFluidsynth_priv::DecoderFluidsynth_priv()
     fluid_synth_add_sfloader(fSynth.get(), sfloader);
 }
 
-Aulib::DecoderFluidsynth::DecoderFluidsynth()
+template <typename T>
+Aulib::DecoderFluidsynth<T>::DecoderFluidsynth()
     : d(std::make_unique<DecoderFluidsynth_priv>())
 {}
 
-Aulib::DecoderFluidsynth::~DecoderFluidsynth() = default;
+template <typename T>
+Aulib::DecoderFluidsynth<T>::~DecoderFluidsynth() = default;
 
-auto Aulib::DecoderFluidsynth::loadSoundfont(SDL_RWops* rwops) -> bool
+template <typename T>
+auto Aulib::DecoderFluidsynth<T>::loadSoundfont(SDL_RWops* rwops) -> bool
 {
     if (not d->fSynth) {
         return false;
@@ -179,7 +182,8 @@ auto Aulib::DecoderFluidsynth::loadSoundfont(SDL_RWops* rwops) -> bool
     return true;
 }
 
-auto Aulib::DecoderFluidsynth::loadSoundfont(const std::string& filename) -> bool
+template <typename T>
+auto Aulib::DecoderFluidsynth<T>::loadSoundfont(const std::string& filename) -> bool
 {
     if (not d->fSynth) {
         return false;
@@ -191,7 +195,8 @@ auto Aulib::DecoderFluidsynth::loadSoundfont(const std::string& filename) -> boo
     return true;
 }
 
-auto Aulib::DecoderFluidsynth::gain() const -> float
+template <typename T>
+auto Aulib::DecoderFluidsynth<T>::gain() const -> float
 {
     if (not d->fSynth) {
         return 0.f;
@@ -199,7 +204,8 @@ auto Aulib::DecoderFluidsynth::gain() const -> float
     return fluid_synth_get_gain(d->fSynth.get());
 }
 
-void Aulib::DecoderFluidsynth::setGain(float gain)
+template <typename T>
+void Aulib::DecoderFluidsynth<T>::setGain(float gain)
 {
     if (not d->fSynth) {
         return;
@@ -207,9 +213,10 @@ void Aulib::DecoderFluidsynth::setGain(float gain)
     fluid_synth_set_gain(d->fSynth.get(), gain);
 }
 
-auto Aulib::DecoderFluidsynth::open(SDL_RWops* rwops) -> bool
+template <typename T>
+auto Aulib::DecoderFluidsynth<T>::open(SDL_RWops* rwops) -> bool
 {
-    if (isOpen()) {
+    if (this->isOpen()) {
         return true;
     }
     if (not d->fSynth) {
@@ -246,11 +253,12 @@ auto Aulib::DecoderFluidsynth::open(SDL_RWops* rwops) -> bool
         return false;
     }
     d->fMidiData.swap(newMidiData);
-    setIsOpen(true);
+    this->setIsOpen(true);
     return true;
 }
 
-auto Aulib::DecoderFluidsynth::getChannels() const -> int
+template <typename T>
+auto Aulib::DecoderFluidsynth<T>::getChannels() const -> int
 {
     if (not settings) {
         return 0;
@@ -262,7 +270,8 @@ auto Aulib::DecoderFluidsynth::getChannels() const -> int
     return channels * 2;
 }
 
-auto Aulib::DecoderFluidsynth::getRate() const -> int
+template <typename T>
+auto Aulib::DecoderFluidsynth<T>::getRate() const -> int
 {
     if (not settings) {
         return 0;
@@ -273,9 +282,10 @@ auto Aulib::DecoderFluidsynth::getRate() const -> int
     return rate;
 }
 
-auto Aulib::DecoderFluidsynth::doDecoding(float buf[], int len, bool& /*callAgain*/) -> int
+template <typename T>
+auto Aulib::DecoderFluidsynth<T>::doDecoding(T buf[], int len, bool& /*callAgain*/) -> int
 {
-    if (d->fEOF or not isOpen()) {
+    if (d->fEOF or not this->isOpen()) {
         return 0;
     }
 
@@ -290,9 +300,10 @@ auto Aulib::DecoderFluidsynth::doDecoding(float buf[], int len, bool& /*callAgai
     return 0;
 }
 
-auto Aulib::DecoderFluidsynth::rewind() -> bool
+template <typename T>
+auto Aulib::DecoderFluidsynth<T>::rewind() -> bool
 {
-    if (not isOpen()) {
+    if (not this->isOpen()) {
         return false;
     }
 
@@ -308,17 +319,22 @@ auto Aulib::DecoderFluidsynth::rewind() -> bool
     return true;
 }
 
-auto Aulib::DecoderFluidsynth::duration() const -> chrono::microseconds
+template <typename T>
+auto Aulib::DecoderFluidsynth<T>::duration() const -> chrono::microseconds
 {
     SDL_SetError("Duration cannot be determined with this decoder.");
     return {};
 }
 
-auto Aulib::DecoderFluidsynth::seekToTime(chrono::microseconds /*pos*/) -> bool
+template <typename T>
+auto Aulib::DecoderFluidsynth<T>::seekToTime(chrono::microseconds /*pos*/) -> bool
 {
     SDL_SetError("Seeking is not supported with this decoder.");
     return false;
 }
+
+template class Aulib::DecoderFluidsynth<float>;
+template class Aulib::DecoderFluidsynth<int32_t>;
 
 /*
 

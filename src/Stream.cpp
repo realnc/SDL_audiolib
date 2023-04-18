@@ -15,8 +15,10 @@
 #include <SDL_timer.h>
 #include <mutex>
 
-Aulib::Stream::Stream(const std::string& filename, std::unique_ptr<Decoder> decoder,
-                      std::unique_ptr<Resampler> resampler)
+template <typename T>
+Aulib::Stream<T>::Stream(
+    const std::string& filename, std::unique_ptr<Decoder<T>> decoder,
+    std::unique_ptr<Resampler<T>> resampler)
     : Stream(SDL_RWFromFile(filename.c_str(), "rb"), std::move(decoder), std::move(resampler), true)
 {
     if (not d->fRWops) {
@@ -24,7 +26,8 @@ Aulib::Stream::Stream(const std::string& filename, std::unique_ptr<Decoder> deco
     }
 }
 
-Aulib::Stream::Stream(const std::string& filename, std::unique_ptr<Decoder> decoder)
+template <typename T>
+Aulib::Stream<T>::Stream(const std::string& filename, std::unique_ptr<Decoder<T>> decoder)
     : Stream(SDL_RWFromFile(filename.c_str(), "rb"), std::move(decoder), true)
 {
     if (not d->fRWops) {
@@ -32,24 +35,29 @@ Aulib::Stream::Stream(const std::string& filename, std::unique_ptr<Decoder> deco
     }
 }
 
-Aulib::Stream::Stream(SDL_RWops* rwops, std::unique_ptr<Decoder> decoder,
-                      std::unique_ptr<Resampler> resampler, bool closeRw)
-    : d(std::make_unique<Stream_priv>(this, std::move(decoder), std::move(resampler), rwops,
-                                      closeRw))
+template <typename T>
+Aulib::Stream<T>::Stream(
+    SDL_RWops* rwops, std::unique_ptr<Decoder<T>> decoder, std::unique_ptr<Resampler<T>> resampler,
+    bool closeRw)
+    : d(std::make_unique<Stream_priv<T>>(
+        this, std::move(decoder), std::move(resampler), rwops, closeRw))
 {}
 
-Aulib::Stream::Stream(SDL_RWops* rwops, std::unique_ptr<Decoder> decoder, bool closeRw)
-    : d(std::make_unique<Stream_priv>(this, std::move(decoder), nullptr, rwops, closeRw))
+template <typename T>
+Aulib::Stream<T>::Stream(SDL_RWops* rwops, std::unique_ptr<Decoder<T>> decoder, bool closeRw)
+    : d(std::make_unique<Stream_priv<T>>(this, std::move(decoder), nullptr, rwops, closeRw))
 {}
 
-Aulib::Stream::~Stream()
+template <typename T>
+Aulib::Stream<T>::~Stream()
 {
     SdlAudioLocker lock;
 
     d->fStop();
 }
 
-auto Aulib::Stream::open() -> bool
+template <typename T>
+auto Aulib::Stream<T>::open() -> bool
 {
     SdlAudioLocker lock;
 
@@ -70,7 +78,8 @@ auto Aulib::Stream::open() -> bool
     return true;
 }
 
-auto Aulib::Stream::play(int iterations, std::chrono::microseconds fadeTime) -> bool
+template <typename T>
+auto Aulib::Stream<T>::play(int iterations, std::chrono::microseconds fadeTime) -> bool
 {
     if (not open()) {
         return false;
@@ -103,7 +112,8 @@ auto Aulib::Stream::play(int iterations, std::chrono::microseconds fadeTime) -> 
     return true;
 }
 
-void Aulib::Stream::stop(std::chrono::microseconds fadeTime)
+template <typename T>
+void Aulib::Stream<T>::stop(std::chrono::microseconds fadeTime)
 {
     SdlAudioLocker lock;
 
@@ -118,7 +128,8 @@ void Aulib::Stream::stop(std::chrono::microseconds fadeTime)
     }
 }
 
-void Aulib::Stream::pause(std::chrono::microseconds fadeTime)
+template <typename T>
+void Aulib::Stream<T>::pause(std::chrono::microseconds fadeTime)
 {
     if (not open()) {
         return;
@@ -140,7 +151,8 @@ void Aulib::Stream::pause(std::chrono::microseconds fadeTime)
     }
 }
 
-void Aulib::Stream::resume(std::chrono::microseconds fadeTime)
+template <typename T>
+void Aulib::Stream<T>::resume(std::chrono::microseconds fadeTime)
 {
     SdlAudioLocker locker;
 
@@ -159,7 +171,8 @@ void Aulib::Stream::resume(std::chrono::microseconds fadeTime)
     d->fIsPaused = false;
 }
 
-auto Aulib::Stream::rewind() -> bool
+template <typename T>
+auto Aulib::Stream<T>::rewind() -> bool
 {
     if (not open()) {
         return false;
@@ -169,7 +182,8 @@ auto Aulib::Stream::rewind() -> bool
     return d->fDecoder->rewind();
 }
 
-void Aulib::Stream::setVolume(float volume)
+template <typename T>
+void Aulib::Stream<T>::setVolume(float volume)
 {
     SdlAudioLocker locker;
 
@@ -179,151 +193,176 @@ void Aulib::Stream::setVolume(float volume)
     d->fVolume = volume;
 }
 
-auto Aulib::Stream::volume() const -> float
+template <typename T>
+auto Aulib::Stream<T>::volume() const -> float
 {
     SdlAudioLocker locker;
 
     return d->fVolume;
 }
 
-void Aulib::Stream::setStereoPosition(const float position)
+template <typename T>
+void Aulib::Stream<T>::setStereoPosition(const float position)
 {
     SdlAudioLocker locker;
 
     d->fStereoPos = Aulib::priv::clamp(position, -1.f, 1.f);
 }
 
-auto Aulib::Stream::getStereoPosition() const -> float
+template <typename T>
+auto Aulib::Stream<T>::getStereoPosition() const -> float
 {
     SdlAudioLocker locker;
 
     return d->fStereoPos;
 }
 
-void Aulib::Stream::mute()
+template <typename T>
+void Aulib::Stream<T>::mute()
 {
     SdlAudioLocker locker;
 
     d->fIsMuted = true;
 }
 
-void Aulib::Stream::unmute()
+template <typename T>
+void Aulib::Stream<T>::unmute()
 {
     SdlAudioLocker locker;
 
     d->fIsMuted = false;
 }
 
-auto Aulib::Stream::isMuted() const -> bool
+template <typename T>
+auto Aulib::Stream<T>::isMuted() const -> bool
 {
     SdlAudioLocker locker;
 
     return d->fIsMuted;
 }
 
-auto Aulib::Stream::isPlaying() const -> bool
+template <typename T>
+auto Aulib::Stream<T>::isPlaying() const -> bool
 {
     SdlAudioLocker locker;
 
     return d->fIsPlaying;
 }
 
-auto Aulib::Stream::isPaused() const -> bool
+template <typename T>
+auto Aulib::Stream<T>::isPaused() const -> bool
 {
     SdlAudioLocker locker;
 
     return d->fIsPaused;
 }
 
-auto Aulib::Stream::duration() const -> std::chrono::microseconds
+template <typename T>
+auto Aulib::Stream<T>::duration() const -> std::chrono::microseconds
 {
     SdlAudioLocker locker;
 
     return d->fDecoder->duration();
 }
 
-auto Aulib::Stream::seekToTime(std::chrono::microseconds pos) -> bool
+template <typename T>
+auto Aulib::Stream<T>::seekToTime(std::chrono::microseconds pos) -> bool
 {
     SdlAudioLocker locker;
 
     return d->fDecoder->seekToTime(pos);
 }
 
-void Aulib::Stream::setFinishCallback(Callback func)
+template <typename T>
+void Aulib::Stream<T>::setFinishCallback(Callback func)
 {
     SdlAudioLocker locker;
 
     d->fFinishCallback = std::move(func);
 }
 
-void Aulib::Stream::unsetFinishCallback()
+template <typename T>
+void Aulib::Stream<T>::unsetFinishCallback()
 {
     SdlAudioLocker locker;
 
     d->fFinishCallback = nullptr;
 }
 
-void Aulib::Stream::setLoopCallback(Callback func)
+template <typename T>
+void Aulib::Stream<T>::setLoopCallback(Callback func)
 {
     SdlAudioLocker locker;
 
     d->fLoopCallback = std::move(func);
 }
 
-void Aulib::Stream::unsetLoopCallback()
+template <typename T>
+void Aulib::Stream<T>::unsetLoopCallback()
 {
     SdlAudioLocker locker;
 
     d->fLoopCallback = nullptr;
 }
 
-void Aulib::Stream::addProcessor(std::shared_ptr<Processor> processor)
+template <typename T>
+void Aulib::Stream<T>::addProcessor(std::shared_ptr<Processor<T>> processor)
 {
     SdlAudioLocker locker;
 
     if (not processor
         or std::find_if(
                d->processors.begin(), d->processors.end(),
-               [&processor](std::shared_ptr<Processor>& p) { return p.get() == processor.get(); })
-               != d->processors.end()) {
+               [&processor](std::shared_ptr<Processor<T>>& p) {
+                   return p.get() == processor.get();
+               })
+               != d->processors.end())
+    {
         return;
     }
     d->processors.push_back(std::move(processor));
 }
 
-void Aulib::Stream::removeProcessor(Processor* processor)
+template <typename T>
+void Aulib::Stream<T>::removeProcessor(Processor<T>* processor)
 {
     SdlAudioLocker locker;
 
-    auto it =
-        std::find_if(d->processors.begin(), d->processors.end(),
-                     [&processor](std::shared_ptr<Processor>& p) { return p.get() == processor; });
+    auto it = std::find_if(
+        d->processors.begin(), d->processors.end(),
+        [&processor](std::shared_ptr<Processor<T>>& p) { return p.get() == processor; });
     if (it == d->processors.end()) {
         return;
     }
     d->processors.erase(it);
 }
 
-void Aulib::Stream::clearProcessors()
+template <typename T>
+void Aulib::Stream<T>::clearProcessors()
 {
     SdlAudioLocker locker;
 
     d->processors.clear();
 }
 
-void Aulib::Stream::invokeFinishCallback()
+template <typename T>
+void Aulib::Stream<T>::invokeFinishCallback()
 {
     if (d->fFinishCallback) {
         d->fFinishCallback(*this);
     }
 }
 
-void Aulib::Stream::invokeLoopCallback()
+template <typename T>
+void Aulib::Stream<T>::invokeLoopCallback()
 {
     if (d->fLoopCallback) {
         d->fLoopCallback(*this);
     }
 }
+
+template class Aulib::Stream<float>;
+template class Aulib::Stream<int32_t>;
 
 /*
 

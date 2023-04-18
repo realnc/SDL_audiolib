@@ -69,21 +69,33 @@ struct DecoderDrmp3_priv final
 
 } // namespace Aulib
 
-Aulib::DecoderDrmp3::DecoderDrmp3()
+namespace {
+
+drmp3_uint64 drmp3ReadPcmFrames(drmp3* pWav, drmp3_uint64 framesToRead, float* pBufferOut)
+{
+    return drmp3_read_pcm_frames_f32(pWav, framesToRead, pBufferOut);
+}
+
+} // namespace
+
+template <typename T>
+Aulib::DecoderDrmp3<T>::DecoderDrmp3()
     : d(std::make_unique<DecoderDrmp3_priv>())
 {}
 
-Aulib::DecoderDrmp3::~DecoderDrmp3()
+template <typename T>
+Aulib::DecoderDrmp3<T>::~DecoderDrmp3()
 {
-    if (not isOpen()) {
+    if (not this->isOpen()) {
         return;
     }
     drmp3_uninit(&d->handle_);
 }
 
-auto Aulib::DecoderDrmp3::open(SDL_RWops* const rwops) -> bool
+template <typename T>
+auto Aulib::DecoderDrmp3<T>::open(SDL_RWops* const rwops) -> bool
 {
-    if (isOpen()) {
+    if (this->isOpen()) {
         return true;
     }
 
@@ -97,47 +109,52 @@ auto Aulib::DecoderDrmp3::open(SDL_RWops* const rwops) -> bool
         d->duration_ = chrono::duration_cast<chrono::microseconds>(chrono::duration<double>(
             static_cast<double>(drmp3_get_pcm_frame_count(&d->handle_)) / getRate()));
     }
-    setIsOpen(true);
+    this->setIsOpen(true);
     return true;
 }
 
-auto Aulib::DecoderDrmp3::doDecoding(float* const buf, const int len, bool& /*callAgain*/) -> int
+template <typename T>
+auto Aulib::DecoderDrmp3<T>::doDecoding(T* const buf, const int len, bool& /*callAgain*/) -> int
 {
-    if (d->fEOF or not isOpen()) {
+    if (d->fEOF or not this->isOpen()) {
         return 0;
     }
 
-    const auto ret =
-        drmp3_read_pcm_frames_f32(&d->handle_, len / getChannels(), buf) * getChannels();
+    const auto ret = drmp3ReadPcmFrames(&d->handle_, len / getChannels(), buf) * getChannels();
     if (ret < static_cast<drmp3_uint64>(len)) {
         d->fEOF = true;
     }
     return ret;
 }
 
-auto Aulib::DecoderDrmp3::getChannels() const -> int
+template <typename T>
+auto Aulib::DecoderDrmp3<T>::getChannels() const -> int
 {
     return d->handle_.channels;
 }
 
-auto Aulib::DecoderDrmp3::getRate() const -> int
+template <typename T>
+auto Aulib::DecoderDrmp3<T>::getRate() const -> int
 {
     return d->handle_.sampleRate;
 }
 
-auto Aulib::DecoderDrmp3::rewind() -> bool
+template <typename T>
+auto Aulib::DecoderDrmp3<T>::rewind() -> bool
 {
     return seekToTime({});
 }
 
-auto Aulib::DecoderDrmp3::duration() const -> chrono::microseconds
+template <typename T>
+auto Aulib::DecoderDrmp3<T>::duration() const -> chrono::microseconds
 {
     return d->duration_;
 }
 
-auto Aulib::DecoderDrmp3::seekToTime(const chrono::microseconds pos) -> bool
+template <typename T>
+auto Aulib::DecoderDrmp3<T>::seekToTime(const chrono::microseconds pos) -> bool
 {
-    if (not isOpen()) {
+    if (not this->isOpen()) {
         return false;
     }
 
@@ -148,6 +165,8 @@ auto Aulib::DecoderDrmp3::seekToTime(const chrono::microseconds pos) -> bool
     d->fEOF = false;
     return true;
 }
+
+template class Aulib::DecoderDrmp3<float>;
 
 /*
 

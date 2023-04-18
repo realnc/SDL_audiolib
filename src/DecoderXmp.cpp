@@ -23,15 +23,18 @@ struct DecoderXmp_priv final
 
 } // namespace Aulib
 
-Aulib::DecoderXmp::DecoderXmp()
+template <typename T>
+Aulib::DecoderXmp<T>::DecoderXmp()
     : d(std::make_unique<DecoderXmp_priv>())
 {}
 
-Aulib::DecoderXmp::~DecoderXmp() = default;
+template <typename T>
+Aulib::DecoderXmp<T>::~DecoderXmp() = default;
 
-auto Aulib::DecoderXmp::open(SDL_RWops* rwops) -> bool
+template <typename T>
+auto Aulib::DecoderXmp<T>::open(SDL_RWops* rwops) -> bool
 {
-    if (isOpen()) {
+    if (this->isOpen()) {
         return true;
     }
 
@@ -57,23 +60,26 @@ auto Aulib::DecoderXmp::open(SDL_RWops* rwops) -> bool
     if (xmp_start_player(d->fContext.get(), d->fRate, 0) != 0) {
         return false;
     }
-    setIsOpen(true);
+    this->setIsOpen(true);
     return true;
 }
 
-auto Aulib::DecoderXmp::getChannels() const -> int
+template <typename T>
+auto Aulib::DecoderXmp<T>::getChannels() const -> int
 {
     return 2;
 }
 
-auto Aulib::DecoderXmp::getRate() const -> int
+template <typename T>
+auto Aulib::DecoderXmp<T>::getRate() const -> int
 {
     return d->fRate;
 }
 
-auto Aulib::DecoderXmp::rewind() -> bool
+template <typename T>
+auto Aulib::DecoderXmp<T>::rewind() -> bool
 {
-    if (not isOpen()) {
+    if (not this->isOpen()) {
         return false;
     }
 
@@ -82,31 +88,41 @@ auto Aulib::DecoderXmp::rewind() -> bool
     return true;
 }
 
-auto Aulib::DecoderXmp::duration() const -> chrono::microseconds
+template <typename T>
+auto Aulib::DecoderXmp<T>::duration() const -> chrono::microseconds
 {
     return {}; // TODO
 }
 
-auto Aulib::DecoderXmp::seekToTime(chrono::microseconds pos) -> bool
+template <typename T>
+auto Aulib::DecoderXmp<T>::seekToTime(chrono::microseconds pos) -> bool
 {
     auto pos_ms = chrono::duration_cast<chrono::milliseconds>(pos).count();
-    if (not isOpen() or xmp_seek_time(d->fContext.get(), pos_ms) < 0) {
+    if (not this->isOpen() or xmp_seek_time(d->fContext.get(), pos_ms) < 0) {
         return false;
     }
     d->fEof = false;
     return true;
 }
 
-auto Aulib::DecoderXmp::doDecoding(float buf[], int len, bool& /*callAgain*/) -> int
+template <typename T>
+auto Aulib::DecoderXmp<T>::doDecoding(T buf[], int len, bool& /*callAgain*/) -> int
 {
-    if (d->fEof or not isOpen()) {
+    if (d->fEof or not this->isOpen()) {
         return 0;
     }
     Buffer<Sint16> tmpBuf(len);
     auto ret = xmp_play_buffer(d->fContext.get(), tmpBuf.get(), len * 2, 1);
-    // Convert from 16-bit to float.
-    for (int i = 0; i < len; ++i) {
-        buf[i] = tmpBuf[i] / 32768.f;
+    if (std::is_same<T, float>::value) {
+        // Convert from 16-bit to float.
+        for (int i = 0; i < len; ++i) {
+            buf[i] = tmpBuf[i] / 32768.f;
+        }
+    } else {
+        // Convert from 16-bit to int32_t.
+        for (int i = 0; i < len; ++i) {
+            buf[i] = tmpBuf[i] * 2;
+        }
     }
     if (ret == -XMP_END) {
         d->fEof = true;
@@ -116,6 +132,9 @@ auto Aulib::DecoderXmp::doDecoding(float buf[], int len, bool& /*callAgain*/) ->
     }
     return len;
 }
+
+template class Aulib::DecoderXmp<float>;
+template class Aulib::DecoderXmp<int32_t>;
 
 /*
 

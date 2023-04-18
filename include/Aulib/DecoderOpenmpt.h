@@ -8,7 +8,8 @@ namespace Aulib {
 /*!
  * \brief OpenMPT decoder.
  */
-class AULIB_EXPORT DecoderOpenmpt: public Decoder
+template <typename T>
+class AULIB_EXPORT DecoderOpenmpt: public Decoder<T>
 {
 public:
     DecoderOpenmpt();
@@ -22,7 +23,7 @@ public:
     auto seekToTime(std::chrono::microseconds pos) -> bool override;
 
 protected:
-    auto doDecoding(float buf[], int len, bool& callAgain) -> int override;
+    auto doDecoding(T buf[], int len, bool& callAgain) -> int override;
 
 private:
     const std::unique_ptr<struct DecoderOpenmpt_priv> d;

@@ -7,37 +7,42 @@
 
 namespace Aulib {
 
+template <typename T>
 struct ResamplerSox_priv final
 {
-    explicit ResamplerSox_priv(ResamplerSox::Quality q)
+    explicit ResamplerSox_priv(ResamplerSox<T>::Quality q)
         : fQuality(q)
     {}
 
     std::unique_ptr<soxr, decltype(&soxr_delete)> fResampler{nullptr, &soxr_delete};
-    ResamplerSox::Quality fQuality;
+    ResamplerSox<T>::Quality fQuality;
 };
 
 } // namespace Aulib
 
-Aulib::ResamplerSox::ResamplerSox(Quality quality)
-    : d(std::make_unique<ResamplerSox_priv>(quality))
+template <typename T>
+Aulib::ResamplerSox<T>::ResamplerSox(Quality quality)
+    : d(std::make_unique<ResamplerSox_priv<T>>(quality))
 {}
 
-Aulib::ResamplerSox::~ResamplerSox() = default;
+template <typename T>
+Aulib::ResamplerSox<T>::~ResamplerSox() = default;
 
-auto Aulib::ResamplerSox::quality() const noexcept -> Aulib::ResamplerSox::Quality
+template <typename T>
+auto Aulib::ResamplerSox<T>::quality() const noexcept -> Aulib::ResamplerSox<T>::Quality
 {
     return d->fQuality;
 }
 
-void Aulib::ResamplerSox::doResampling(float dst[], const float src[], int& dstLen, int& srcLen)
+template <typename T>
+void Aulib::ResamplerSox<T>::doResampling(T dst[], const T src[], int& dstLen, int& srcLen)
 {
     if (not d->fResampler) {
         dstLen = srcLen = 0;
         return;
     }
     size_t dstDone, srcDone;
-    int channels = currentChannels();
+    int channels = this->currentChannels();
     soxr_error_t error;
     error = soxr_process(d->fResampler.get(), src, static_cast<size_t>(srcLen / channels), &srcDone,
                          dst, static_cast<size_t>(dstLen / channels), &dstDone);
@@ -51,10 +56,11 @@ void Aulib::ResamplerSox::doResampling(float dst[], const float src[], int& dstL
     srcLen = static_cast<int>(srcDone) * channels;
 }
 
-auto Aulib::ResamplerSox::adjustForOutputSpec(int dstRate, int srcRate, int channels) -> int
+template <typename T>
+auto Aulib::ResamplerSox<T>::adjustForOutputSpec(int dstRate, int srcRate, int channels) -> int
 {
     soxr_io_spec_t io_spec{};
-    io_spec.itype = io_spec.otype = SOXR_FLOAT32_I;
+    io_spec.itype = io_spec.otype = std::is_same<T, float>::value ? SOXR_FLOAT32_I : SOXR_INT32_I;
     io_spec.scale = 1.0;
 
     const int sox_quality = [&] {
@@ -87,12 +93,16 @@ auto Aulib::ResamplerSox::adjustForOutputSpec(int dstRate, int srcRate, int chan
     return 0;
 }
 
-void Aulib::ResamplerSox::doDiscardPendingSamples()
+template <typename T>
+void Aulib::ResamplerSox<T>::doDiscardPendingSamples()
 {
     if (d->fResampler) {
         soxr_clear(d->fResampler.get());
     }
 }
+
+template class Aulib::ResamplerSox<float>;
+template class Aulib::ResamplerSox<int32_t>;
 
 /*
 
